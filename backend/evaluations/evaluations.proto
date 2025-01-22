@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package runtimePackage;
+
+message AddEvaluationRequest {
+    string qualweb_version = 1;
+    string input_url = 2;
+    string domain_name = 3;
+    string domain = 4;
+    string uri = 5;
+    string complete_url = 6;
+    bool mobile = 7;
+    bool landscape = 8;
+    int32 display_width = 9;
+    int32 display_height = 10;
+    string dom = 11;
+    string title = 12;
+    int32 element_count = 13;
+    int32 passed = 14;
+    int32 warning = 15;
+    int32 failed = 16;
+    int32 inapplicable = 17;
+}
+
+message AddEvaluationResponse {
+    int32 status_code = 1;
+}
+
+service Evaluations {
+    rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
+}
