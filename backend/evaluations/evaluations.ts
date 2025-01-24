@@ -29,6 +29,8 @@ app.post('/api/evaluate', (req: Request, res: Response) => {
     evaluate(urlToEvaluate).then((report: QualwebReport) => {
         if (report) {
             const evaluations_request = new AddEvaluationRequest();
+            
+            console.debug(report.system.url?.domainName);
 
             evaluations_request.setQualwebVersion(report.system.version);
             evaluations_request.setInputUrl(report.system.url?.inputUrl ?? "");
@@ -49,10 +51,9 @@ app.post('/api/evaluate', (req: Request, res: Response) => {
             evaluations_request.setInapplicable(report.metadata.inapplicable);
 
             client.addEvaluation(evaluations_request, (err : Error , response : AddEvaluationResponse) => {
-                console.debug(response.getStatusCode())
+                res.send(response.getStatusCode());
             });
             
-            res.send(report);
         }
         else
             res.status(400).send('Could not find the URL send to evaluate.');
