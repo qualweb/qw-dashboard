@@ -1,7 +1,11 @@
 .DS_Store
 
 backend/evaluations/node_modules/
+backend/evaluations/example.json
 
 backend/evaluations-database/.venv/
 backend/evaluations-database/path/
+backend/evaluations-database/.env
+
 backend/protobufs/myenv/
+
