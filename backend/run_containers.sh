@@ -6,8 +6,6 @@ docker network inspect microservices &>/dev/null || {
     docker network create microservices
 }
 
-./database.sh
-
 cd evaluations
 ./run.sh
 cd ..
