@@ -1,4 +1,5 @@
 .DS_Store
+.vscode/
 
 backend/evaluations/node_modules/
 backend/evaluations/example.json
