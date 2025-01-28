@@ -2,6 +2,57 @@ syntax = "proto3";
 
 package runtimePackage;
 
+message Element {
+    string html_code = 1;
+    string pointer = 2;
+}
+
+message Result {
+    string verdict = 1;
+    string description = 2;
+    repeated Element elements = 3;
+}
+
+message SuccessCriteria {
+    string name = 1;
+    string level = 2;
+    string principle = 3;
+    string url = 4;
+}
+
+message AssertionMetadata {
+    string code = 1;
+    string name = 2;
+    string description = 3;
+    string url = 4;
+    string mapping = 5;
+    repeated string target_elements = 6;
+    repeated string target_attributes = 7;
+    repeated SuccessCriteria success_criteria = 8;
+    int32 success_criteria_quantity = 9;
+    repeated Result results = 10;
+}
+
+message Assertion {
+    int32 passed = 1;
+    int32 warning = 2;
+    int32 failed = 3;
+    int32 inapplicable = 4;
+    string outcome = 5;
+    string description = 6;
+    AssertionMetadata metadata = 7;
+}
+
+message Module {
+    string type = 1;
+    int32 passed = 2;
+    int32 warning = 3;
+    int32 failed = 4;
+    int32 inapplicable = 5;
+    repeated Assertion assertions = 6;
+    int32 assertions_quantity = 7;
+}
+
 message AddEvaluationRequest {
     string qualweb_version = 1;
     string input_url = 2;
@@ -20,6 +71,8 @@ message AddEvaluationRequest {
     int32 warning = 15;
     int32 failed = 16;
     int32 inapplicable = 17;
+    repeated Module modules = 18;
+    int32 modules_quantity = 19;
 }
 
 message AddEvaluationResponse {

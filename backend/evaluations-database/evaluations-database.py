@@ -36,7 +36,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                     %s, %s, %s, %s, %s, 
                     %s, %s, %s, %s, %s, 
                     %s, %s, %s, %s, %s, %s, %s
-                )
+                ) RETURNING id
             ''', (
                 str(request.qualweb_version), str(request.input_url), 
                 str(request.domain_name), str(request.domain), str(request.uri), 
@@ -45,6 +45,80 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 str(request.dom), str(request.title), str(request.element_count), 
                 str(int(request.passed)), str(int(request.warning)), str(int(request.failed)), str(int(request.inapplicable))
             ))
+
+            evaluation_id = cursor.fetchone()[0]
+
+            for i in range(request.modules_quantity):
+                cursor.execute('''
+                    INSERT INTO Module (
+                        evaluation_id, module_type, passed, warning, failed, inapplicable               
+                    ) VALUES (
+                        %s, %s, %s, %s, %s, %s
+                    ) RETURNING id
+                ''', (
+                    evaluation_id, str(request.modules[i].type), request.modules[i].passed, request.modules[i].warning, 
+                    request.modules[i].failed, request.modules[i].inapplicable
+                ))
+
+                module_id = cursor.fetchone()[0]
+
+                for k in range(request.modules[i].assertions_quantity):
+                    cursor.execute('''
+                        INSERT INTO Assertion (
+                            module_id, passed, warning, failed, inapplicable, outcome, description              
+                        ) VALUES (
+                            %s, %s, %s, %s, %s, %s, %s
+                        ) RETURNING id
+                    ''', (
+                        module_id, request.modules[i].assertions[k].passed, request.modules[i].assertions[k].warning, 
+                        request.modules[i].assertions[k].failed, request.modules[i].assertions[k].inapplicable,
+                        str(request.modules[i].assertions[k].outcome), str(request.modules[i].assertions[k].description)
+                    ))
+
+                    assertion_id = cursor.fetchone()[0]
+
+                    cursor.execute('''
+                        INSERT INTO Assertion_Metadata (
+                            assertion_id, code, assertion_name, description, url, mapping, target_elements, target_attributes    
+                        ) VALUES (
+                            %s, %s, %s, %s, %s, %s, %s, %s
+                        ) RETURNING id
+                    ''', (
+                        assertion_id, request.modules[i].assertions[k].metadata.code, request.modules[i].assertions[k].metadata.name,
+                        request.modules[i].assertions[k].metadata.description, request.modules[i].assertions[k].metadata.url, 
+                        request.modules[i].assertions[k].metadata.mapping, 
+                        [str(x) for x in request.modules[i].assertions[k].metadata.target_elements],
+                        [str(x) for x in request.modules[i].assertions[k].metadata.target_attributes]
+                    ))
+
+                    assertion_metadata_id = cursor.fetchone()[0]
+
+                    for h in range(request.modules[i].assertions[k].metadata.success_criteria_quantity):
+                        cursor.execute('''
+                            INSERT INTO Success_Criteria (
+                                success_criteria_name, success_criteria_level, principle, success_criteria_url
+                            ) VALUES (
+                                %s, %s, %s, %s
+                            ) RETURNING id
+                        ''', (
+                            request.modules[i].assertions[k].metadata.success_criteria[h].name,
+                            request.modules[i].assertions[k].metadata.success_criteria[h].level,
+                            request.modules[i].assertions[k].metadata.success_criteria[h].principle,
+                            request.modules[i].assertions[k].metadata.success_criteria[h].url
+                        ))
+
+                        success_criteria_id = cursor.fetchone()[0]
+
+                        cursor.execute('''
+                            INSERT INTO Assertion_Metadata_Success_Criteria (
+                                assertion_metadata_id,
+                                success_criteria_id
+                            ) VALUES (
+                                %s, %s
+                            )
+                        ''', (
+                            assertion_metadata_id, success_criteria_id
+                        ))
 
             database.commit()
             print("Insert successful", file=sys.stderr, flush=True)

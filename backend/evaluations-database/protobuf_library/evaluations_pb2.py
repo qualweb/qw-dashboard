@@ -24,17 +24,29 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11\x65valuations.proto\x12\x0eruntimePackage\"\xd6\x02\n\x14\x41\x64\x64\x45valuationRequest\x12\x17\n\x0fqualweb_version\x18\x01 \x01(\t\x12\x11\n\tinput_url\x18\x02 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x03 \x01(\t\x12\x0e\n\x06\x64omain\x18\x04 \x01(\t\x12\x0b\n\x03uri\x18\x05 \x01(\t\x12\x14\n\x0c\x63omplete_url\x18\x06 \x01(\t\x12\x0e\n\x06mobile\x18\x07 \x01(\x08\x12\x11\n\tlandscape\x18\x08 \x01(\x08\x12\x15\n\rdisplay_width\x18\t \x01(\x05\x12\x16\n\x0e\x64isplay_height\x18\n \x01(\x05\x12\x0b\n\x03\x64om\x18\x0b \x01(\t\x12\r\n\x05title\x18\x0c \x01(\t\x12\x15\n\relement_count\x18\r \x01(\x05\x12\x0e\n\x06passed\x18\x0e \x01(\x05\x12\x0f\n\x07warning\x18\x0f \x01(\x05\x12\x0e\n\x06\x66\x61iled\x18\x10 \x01(\x05\x12\x14\n\x0cinapplicable\x18\x11 \x01(\x05\",\n\x15\x41\x64\x64\x45valuationResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x32k\n\x0b\x45valuations\x12\\\n\rAddEvaluation\x12$.runtimePackage.AddEvaluationRequest\x1a%.runtimePackage.AddEvaluationResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11\x65valuations.proto\x12\x0eruntimePackage\"-\n\x07\x45lement\x12\x11\n\thtml_code\x18\x01 \x01(\t\x12\x0f\n\x07pointer\x18\x02 \x01(\t\"Y\n\x06Result\x12\x0f\n\x07verdict\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12)\n\x08\x65lements\x18\x03 \x03(\x0b\x32\x17.runtimePackage.Element\"N\n\x0fSuccessCriteria\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05level\x18\x02 \x01(\t\x12\x11\n\tprinciple\x18\x03 \x01(\t\x12\x0b\n\x03url\x18\x04 \x01(\t\"\x9d\x02\n\x11\x41ssertionMetadata\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x0b\n\x03url\x18\x04 \x01(\t\x12\x0f\n\x07mapping\x18\x05 \x01(\t\x12\x17\n\x0ftarget_elements\x18\x06 \x03(\t\x12\x19\n\x11target_attributes\x18\x07 \x03(\t\x12\x39\n\x10success_criteria\x18\x08 \x03(\x0b\x32\x1f.runtimePackage.SuccessCriteria\x12!\n\x19success_criteria_quantity\x18\t \x01(\x05\x12\'\n\x07results\x18\n \x03(\x0b\x32\x16.runtimePackage.Result\"\xad\x01\n\tAssertion\x12\x0e\n\x06passed\x18\x01 \x01(\x05\x12\x0f\n\x07warning\x18\x02 \x01(\x05\x12\x0e\n\x06\x66\x61iled\x18\x03 \x01(\x05\x12\x14\n\x0cinapplicable\x18\x04 \x01(\x05\x12\x0f\n\x07outcome\x18\x05 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x06 \x01(\t\x12\x33\n\x08metadata\x18\x07 \x01(\x0b\x32!.runtimePackage.AssertionMetadata\"\xa9\x01\n\x06Module\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0e\n\x06passed\x18\x02 \x01(\x05\x12\x0f\n\x07warning\x18\x03 \x01(\x05\x12\x0e\n\x06\x66\x61iled\x18\x04 \x01(\x05\x12\x14\n\x0cinapplicable\x18\x05 \x01(\x05\x12-\n\nassertions\x18\x06 \x03(\x0b\x32\x19.runtimePackage.Assertion\x12\x1b\n\x13\x61ssertions_quantity\x18\x07 \x01(\x05\"\x99\x03\n\x14\x41\x64\x64\x45valuationRequest\x12\x17\n\x0fqualweb_version\x18\x01 \x01(\t\x12\x11\n\tinput_url\x18\x02 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x03 \x01(\t\x12\x0e\n\x06\x64omain\x18\x04 \x01(\t\x12\x0b\n\x03uri\x18\x05 \x01(\t\x12\x14\n\x0c\x63omplete_url\x18\x06 \x01(\t\x12\x0e\n\x06mobile\x18\x07 \x01(\x08\x12\x11\n\tlandscape\x18\x08 \x01(\x08\x12\x15\n\rdisplay_width\x18\t \x01(\x05\x12\x16\n\x0e\x64isplay_height\x18\n \x01(\x05\x12\x0b\n\x03\x64om\x18\x0b \x01(\t\x12\r\n\x05title\x18\x0c \x01(\t\x12\x15\n\relement_count\x18\r \x01(\x05\x12\x0e\n\x06passed\x18\x0e \x01(\x05\x12\x0f\n\x07warning\x18\x0f \x01(\x05\x12\x0e\n\x06\x66\x61iled\x18\x10 \x01(\x05\x12\x14\n\x0cinapplicable\x18\x11 \x01(\x05\x12\'\n\x07modules\x18\x12 \x03(\x0b\x32\x16.runtimePackage.Module\x12\x18\n\x10modules_quantity\x18\x13 \x01(\x05\",\n\x15\x41\x64\x64\x45valuationResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x32k\n\x0b\x45valuations\x12\\\n\rAddEvaluation\x12$.runtimePackage.AddEvaluationRequest\x1a%.runtimePackage.AddEvaluationResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'evaluations_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ADDEVALUATIONREQUEST']._serialized_start=38
-  _globals['_ADDEVALUATIONREQUEST']._serialized_end=380
-  _globals['_ADDEVALUATIONRESPONSE']._serialized_start=382
-  _globals['_ADDEVALUATIONRESPONSE']._serialized_end=426
-  _globals['_EVALUATIONS']._serialized_start=428
-  _globals['_EVALUATIONS']._serialized_end=535
+  _globals['_ELEMENT']._serialized_start=37
+  _globals['_ELEMENT']._serialized_end=82
+  _globals['_RESULT']._serialized_start=84
+  _globals['_RESULT']._serialized_end=173
+  _globals['_SUCCESSCRITERIA']._serialized_start=175
+  _globals['_SUCCESSCRITERIA']._serialized_end=253
+  _globals['_ASSERTIONMETADATA']._serialized_start=256
+  _globals['_ASSERTIONMETADATA']._serialized_end=541
+  _globals['_ASSERTION']._serialized_start=544
+  _globals['_ASSERTION']._serialized_end=717
+  _globals['_MODULE']._serialized_start=720
+  _globals['_MODULE']._serialized_end=889
+  _globals['_ADDEVALUATIONREQUEST']._serialized_start=892
+  _globals['_ADDEVALUATIONREQUEST']._serialized_end=1301
+  _globals['_ADDEVALUATIONRESPONSE']._serialized_start=1303
+  _globals['_ADDEVALUATIONRESPONSE']._serialized_end=1347
+  _globals['_EVALUATIONS']._serialized_start=1349
+  _globals['_EVALUATIONS']._serialized_end=1456
 # @@protoc_insertion_point(module_scope)
