@@ -1,8 +1,8 @@
 .DS_Store
 .vscode/
+example.json
 
 backend/evaluations/node_modules/
-backend/evaluations/example.json
 
 backend/evaluations-database/.venv/
 backend/evaluations-database/path/
