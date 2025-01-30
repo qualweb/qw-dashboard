@@ -5,7 +5,7 @@ CREATE DATABASE Evaluations;
 CREATE TYPE module_type AS ENUM('wcag-techniques', 'act-rules', 'best-practices');
 CREATE TYPE success_criteria_level AS ENUM('A', 'AA', 'AAA');
 CREATE TYPE success_criteria_principle AS ENUM('Perceivable', 'Operable', 'Understandable', 'Robust');
-CREATE TYPE result_verdict AS ENUM('passed', 'warning', 'failed', 'inapplicate');
+CREATE TYPE result_verdict AS ENUM('passed', 'warning', 'failed', 'inapplicable');
 
 CREATE TABLE Evaluation (
     id                  SERIAL PRIMARY KEY,
@@ -41,22 +41,8 @@ CREATE TABLE Module (
     FOREIGN KEY (evaluation_id) REFERENCES Evaluation(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Assertion (
-    id                      SERIAL PRIMARY KEY,
-    module_id               INTEGER NOT NULL,
-    passed                  INTEGER NOT NULL,
-    warning                 INTEGER NOT NULL,
-    failed                  INTEGER NOT NULL,
-    inapplicable            INTEGER NOT NULL,
-    outcome                 VARCHAR NOT NULL,
-    description             VARCHAR NOT NULL,
-
-    FOREIGN KEY (module_id) REFERENCES Module(id) ON DELETE CASCADE
-);
-
 CREATE TABLE Assertion_Metadata (
     id                          SERIAL PRIMARY KEY,
-    assertion_id                INTEGER UNIQUE,
     code                        VARCHAR UNIQUE NOT NULL,
     assertion_metadata_date     DATE DEFAULT CURRENT_DATE,
     assertion_name              VARCHAR NOT NULL,
@@ -64,43 +50,60 @@ CREATE TABLE Assertion_Metadata (
     url                         VARCHAR NOT NULL,
     mapping                     VARCHAR NOT NULL,
     target_elements             VARCHAR[],
-    target_attributes           VARCHAR[],
+    target_attributes           VARCHAR[]
+);
 
-    FOREIGN KEY (assertion_id) REFERENCES Assertion(id) ON DELETE CASCADE
+CREATE TABLE Assertion (
+    id                      SERIAL PRIMARY KEY,
+    module_id               INTEGER NOT NULL,
+    assertion_metadata_id   INTEGER NOT NULL,
+    passed                  INTEGER NOT NULL,
+    warning                 INTEGER NOT NULL,
+    failed                  INTEGER NOT NULL,
+    inapplicable            INTEGER NOT NULL,
+    outcome                 VARCHAR NOT NULL,
+    description             VARCHAR NOT NULL,
+
+    FOREIGN KEY (module_id) REFERENCES Module(id) ON DELETE CASCADE,
+    FOREIGN KEY (assertion_metadata_id) REFERENCES Assertion_Metadata(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Success_Criteria (
-    id                      SERIAL PRIMARY KEY,
+    id                      SERIAL,
     success_criteria_name   VARCHAR NOT NULL,
     success_criteria_level  success_criteria_level NOT NULL,
     principle               success_criteria_principle NOT NULL,
     success_criteria_url    VARCHAR NOT NULL,
-    success_criteria_date   DATE DEFAULT CURRENT_DATE
+    success_criteria_date   DATE DEFAULT CURRENT_DATE,
+
+    PRIMARY KEY (success_criteria_name, success_criteria_level)
 );
 
 CREATE TABLE Assertion_Metadata_Success_Criteria (
-    assertion_metadata_id          INTEGER NOT NULL,
-    success_criteria_id            INTEGER NOT NULL,
+    assertion_metadata_id       INTEGER NOT NULL,
+    success_criteria_name       VARCHAR NOT NULL,
+    success_criteria_level      success_criteria_level NOT NULL,
 
-    PRIMARY KEY (assertion_metadata_id, success_criteria_id),
+    PRIMARY KEY (assertion_metadata_id, success_criteria_name, success_criteria_level),
     FOREIGN KEY (assertion_metadata_id) REFERENCES Assertion_Metadata(id) ON DELETE CASCADE,
-    FOREIGN KEY (success_criteria_id) REFERENCES Success_Criteria(id) ON DELETE CASCADE
+    FOREIGN KEY (success_criteria_name, success_criteria_level) REFERENCES Success_Criteria(success_criteria_name, success_criteria_level) ON DELETE CASCADE
 );
 
-CREATE TABLE Result (
+-- Issues Database
+
+CREATE TABLE Issue (
     id                  SERIAL PRIMARY KEY,
     assertion_id        INTEGER NOT NULL,
     verdict             result_verdict NOT NULL,
     description         VARCHAR NOT NULL,
-
-    FOREIGN KEY (assertion_id) REFERENCES Assertion(id) ON DELETE CASCADE
+    result_code         VARCHAR NOT NULL
 );
 
 CREATE TABLE Element (
     id                  SERIAL PRIMARY KEY,
-    result_id           INTEGER NOT NULL,
+    issue_id           INTEGER NOT NULL,
     html_code           VARCHAR NOT NULL,
     pointer             VARCHAR NOT NULL,
 
-    FOREIGN KEY (result_id) REFERENCES Result(id) ON DELETE CASCADE
+    FOREIGN KEY (issue_id) REFERENCES Issue(id) ON DELETE CASCADE
 );

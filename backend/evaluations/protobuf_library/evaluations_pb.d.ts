@@ -39,6 +39,12 @@ export class Result extends jspb.Message {
   setElementsList(value: Array<Element>): void;
   addElements(value?: Element, index?: number): Element;
 
+  getElementsQuantity(): number;
+  setElementsQuantity(value: number): void;
+
+  getResultCode(): string;
+  setResultCode(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Result.AsObject;
   static toObject(includeInstance: boolean, msg: Result): Result.AsObject;
@@ -54,6 +60,8 @@ export namespace Result {
     verdict: string,
     description: string,
     elementsList: Array<Element.AsObject>,
+    elementsQuantity: number,
+    resultCode: string,
   }
 }
 
@@ -128,6 +136,9 @@ export class AssertionMetadata extends jspb.Message {
   setResultsList(value: Array<Result>): void;
   addResults(value?: Result, index?: number): Result;
 
+  getResultsQuantity(): number;
+  setResultsQuantity(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AssertionMetadata.AsObject;
   static toObject(includeInstance: boolean, msg: AssertionMetadata): AssertionMetadata.AsObject;
@@ -150,6 +161,7 @@ export namespace AssertionMetadata {
     successCriteriaList: Array<SuccessCriteria.AsObject>,
     successCriteriaQuantity: number,
     resultsList: Array<Result.AsObject>,
+    resultsQuantity: number,
   }
 }
 

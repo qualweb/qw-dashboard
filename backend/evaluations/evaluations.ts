@@ -36,7 +36,14 @@ const port = 8081;
 app.use(express.json());
 
 console.debug(evaluations_database_ip);
-const client = new EvaluationsClient(evaluations_database_ip + ':6000', grpc.credentials.createInsecure());
+const client = new EvaluationsClient(
+    evaluations_database_ip + ':6000', 
+    grpc.credentials.createInsecure(),
+    {
+        "grpc.max_receive_message_length": 100 * 1024 * 1024, // 100 MB
+        "grpc.max_send_message_length": 100 * 1024 * 1024     // 100 MB
+    }
+);
 console.debug(client);
 
 // This endpoint executes the evaluations
@@ -187,7 +194,9 @@ function getMetadata(assertion : QualwebAssertion) : AssertionMetadata {
     assertion_metadata.setSuccessCriteriaList(getSuccessCriteriaList(assertion));
     assertion_metadata.setSuccessCriteriaQuantity(assertion.metadata['success-criteria'].length);
 
-    assertion_metadata.setResultsList(getResults(assertion));
+    const results = getResults(assertion)
+    assertion_metadata.setResultsList(results[0]);
+    assertion_metadata.setResultsQuantity(results[1]);
 
     return assertion_metadata;
 }
@@ -209,16 +218,19 @@ function getSuccessCriteriaList(assertion : QualwebAssertion) : SuccessCriteria[
     return success_criteria_list;
 }
 
-function getResults(assertion : QualwebAssertion) : Result[] {
+function getResults(assertion : QualwebAssertion) : [Result[], number] {
     var results : Result[] = [];
+    var results_counter : number = 0;
 
     assertion.results.forEach((result : TestResult) => {
         var new_result = new Result();
 
+        var elements : Element[] = [];
+        var elements_counter : number = 0;
+
         new_result.setVerdict(result.verdict);
         new_result.setDescription(result.description);
-        
-        var elements : Element[] = [];
+    
         result.elements.forEach((element : EvaluationElement) => {
             var new_element = new Element();
             
@@ -229,10 +241,20 @@ function getResults(assertion : QualwebAssertion) : Result[] {
                 new_element.setPointer(element.pointer);
 
             elements.push(new_element);
+            elements_counter++;
         });
 
+        new_result.setResultCode(result.resultCode);
+
         new_result.setElementsList(elements);
+        new_result.setElementsQuantity(elements_counter);
+        
+        results.push(new_result);
+        results_counter++;
     });
 
-    return  results;
+    console.debug("OLAAAAAAAAAAAAAAAAA");
+    console.debug(results.length);
+
+    return  [results, results_counter];
 }

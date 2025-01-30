@@ -11,6 +11,8 @@ message Result {
     string verdict = 1;
     string description = 2;
     repeated Element elements = 3;
+    int32 elements_quantity = 4;
+    string result_code = 5;
 }
 
 message SuccessCriteria {
@@ -31,6 +33,7 @@ message AssertionMetadata {
     repeated SuccessCriteria success_criteria = 8;
     int32 success_criteria_quantity = 9;
     repeated Result results = 10;
+    int32 results_quantity = 11;
 }
 
 message Assertion {

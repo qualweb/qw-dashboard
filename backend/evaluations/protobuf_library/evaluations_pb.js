@@ -399,7 +399,9 @@ proto.runtimePackage.Result.toObject = function(includeInstance, msg) {
 verdict: jspb.Message.getFieldWithDefault(msg, 1, ""),
 description: jspb.Message.getFieldWithDefault(msg, 2, ""),
 elementsList: jspb.Message.toObjectList(msg.getElementsList(),
-    proto.runtimePackage.Element.toObject, includeInstance)
+    proto.runtimePackage.Element.toObject, includeInstance),
+elementsQuantity: jspb.Message.getFieldWithDefault(msg, 4, 0),
+resultCode: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -448,6 +450,14 @@ proto.runtimePackage.Result.deserializeBinaryFromReader = function(msg, reader) 
       var value = new proto.runtimePackage.Element;
       reader.readMessage(value,proto.runtimePackage.Element.deserializeBinaryFromReader);
       msg.addElements(value);
+      break;
+    case 4:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setElementsQuantity(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setResultCode(value);
       break;
     default:
       reader.skipField();
@@ -498,6 +508,20 @@ proto.runtimePackage.Result.serializeBinaryToWriter = function(message, writer) 
       3,
       f,
       proto.runtimePackage.Element.serializeBinaryToWriter
+    );
+  }
+  f = message.getElementsQuantity();
+  if (f !== 0) {
+    writer.writeInt32(
+      4,
+      f
+    );
+  }
+  f = message.getResultCode();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
     );
   }
 };
@@ -574,6 +598,42 @@ proto.runtimePackage.Result.prototype.addElements = function(opt_value, opt_inde
  */
 proto.runtimePackage.Result.prototype.clearElementsList = function() {
   return this.setElementsList([]);
+};
+
+
+/**
+ * optional int32 elements_quantity = 4;
+ * @return {number}
+ */
+proto.runtimePackage.Result.prototype.getElementsQuantity = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.Result} returns this
+ */
+proto.runtimePackage.Result.prototype.setElementsQuantity = function(value) {
+  return jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional string result_code = 5;
+ * @return {string}
+ */
+proto.runtimePackage.Result.prototype.getResultCode = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.runtimePackage.Result} returns this
+ */
+proto.runtimePackage.Result.prototype.setResultCode = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
@@ -847,7 +907,8 @@ successCriteriaList: jspb.Message.toObjectList(msg.getSuccessCriteriaList(),
     proto.runtimePackage.SuccessCriteria.toObject, includeInstance),
 successCriteriaQuantity: jspb.Message.getFieldWithDefault(msg, 9, 0),
 resultsList: jspb.Message.toObjectList(msg.getResultsList(),
-    proto.runtimePackage.Result.toObject, includeInstance)
+    proto.runtimePackage.Result.toObject, includeInstance),
+resultsQuantity: jspb.Message.getFieldWithDefault(msg, 11, 0)
   };
 
   if (includeInstance) {
@@ -925,6 +986,10 @@ proto.runtimePackage.AssertionMetadata.deserializeBinaryFromReader = function(ms
       var value = new proto.runtimePackage.Result;
       reader.readMessage(value,proto.runtimePackage.Result.deserializeBinaryFromReader);
       msg.addResults(value);
+      break;
+    case 11:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setResultsQuantity(value);
       break;
     default:
       reader.skipField();
@@ -1025,6 +1090,13 @@ proto.runtimePackage.AssertionMetadata.serializeBinaryToWriter = function(messag
       10,
       f,
       proto.runtimePackage.Result.serializeBinaryToWriter
+    );
+  }
+  f = message.getResultsQuantity();
+  if (f !== 0) {
+    writer.writeInt32(
+      11,
+      f
     );
   }
 };
@@ -1285,6 +1357,24 @@ proto.runtimePackage.AssertionMetadata.prototype.addResults = function(opt_value
  */
 proto.runtimePackage.AssertionMetadata.prototype.clearResultsList = function() {
   return this.setResultsList([]);
+};
+
+
+/**
+ * optional int32 results_quantity = 11;
+ * @return {number}
+ */
+proto.runtimePackage.AssertionMetadata.prototype.getResultsQuantity = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 11, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.AssertionMetadata} returns this
+ */
+proto.runtimePackage.AssertionMetadata.prototype.setResultsQuantity = function(value) {
+  return jspb.Message.setProto3IntField(this, 11, value);
 };
 
 

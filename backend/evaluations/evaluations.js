@@ -14,7 +14,10 @@ var app = express();
 var port = 8081;
 app.use(express.json());
 console.debug(evaluations_database_ip);
-var client = new EvaluationsClient(evaluations_database_ip + ':6000', grpc.credentials.createInsecure());
+var client = new EvaluationsClient(evaluations_database_ip + ':6000', grpc.credentials.createInsecure(), {
+    "grpc.max_receive_message_length": 100 * 1024 * 1024, // 100 MB
+    "grpc.max_send_message_length": 100 * 1024 * 1024 // 100 MB
+});
 console.debug(client);
 // This endpoint executes the evaluations
 app.post('/api/evaluate', function (req, res) {
@@ -139,7 +142,9 @@ function getMetadata(assertion) {
     }
     assertion_metadata.setSuccessCriteriaList(getSuccessCriteriaList(assertion));
     assertion_metadata.setSuccessCriteriaQuantity(assertion.metadata['success-criteria'].length);
-    assertion_metadata.setResultsList(getResults(assertion));
+    var results = getResults(assertion);
+    assertion_metadata.setResultsList(results[0]);
+    assertion_metadata.setResultsQuantity(results[1]);
     return assertion_metadata;
 }
 function getSuccessCriteriaList(assertion) {
@@ -156,11 +161,13 @@ function getSuccessCriteriaList(assertion) {
 }
 function getResults(assertion) {
     var results = [];
+    var results_counter = 0;
     assertion.results.forEach(function (result) {
         var new_result = new evaluations_pb_1.Result();
+        var elements = [];
+        var elements_counter = 0;
         new_result.setVerdict(result.verdict);
         new_result.setDescription(result.description);
-        var elements = [];
         result.elements.forEach(function (element) {
             var new_element = new evaluations_pb_1.Element();
             if (element.htmlCode !== undefined)
@@ -168,8 +175,15 @@ function getResults(assertion) {
             if (element.pointer !== undefined)
                 new_element.setPointer(element.pointer);
             elements.push(new_element);
+            elements_counter++;
         });
+        new_result.setResultCode(result.resultCode);
         new_result.setElementsList(elements);
+        new_result.setElementsQuantity(elements_counter);
+        results.push(new_result);
+        results_counter++;
     });
-    return results;
+    console.debug("OLAAAAAAAAAAAAAAAAA");
+    console.debug(results.length);
+    return [results, results_counter];
 }
