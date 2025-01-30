@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package runtimePackage;
+
+message IssueElement {
+    string html_code = 1;
+    string pointer = 2;
+}
+
+message Issue {
+    int32 assertion_id = 1;
+    string verdict = 2;
+    string description = 3;
+    string result_code = 4;
+    repeated IssueElement elements = 5;
+    int32 elements_quantity = 6;
+}
+
+message AddIssuesRequest {
+    repeated Issue issues = 1;
+    int32 issues_quantity = 2;
+}
+
+message AddIssuesResponse {
+    int32 status_code = 1;
+}
+
+service Issues {
+    rpc AddIssues(AddIssuesRequest) returns (AddIssuesResponse);
+}
