@@ -3,6 +3,7 @@
 example.json
 
 backend/evaluations/node_modules/
+frontend/node_modules/
 
 backend/evaluations-database/.venv/
 backend/evaluations-database/path/
