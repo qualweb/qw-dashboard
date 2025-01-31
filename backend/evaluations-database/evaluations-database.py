@@ -35,8 +35,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
         issues = list()
 
-        print("KEKW", file=sys.stderr, flush=True)
-
         try:
             cursor.execute('''
                 INSERT INTO Evaluation (
@@ -100,8 +98,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                     else:
                         assertion_metadata_id = exists_assertion_metadata_id[0]
 
-                    print("KEKW", file=sys.stderr, flush=True)
-
                     cursor.execute('''
                         INSERT INTO Assertion (
                             module_id, assertion_metadata_id,  passed, warning, failed, inapplicable, outcome, description              
@@ -148,8 +144,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                             success_criteria_name = exists_success_criteria_id[0]
                             success_criteria_level = exists_success_criteria_id[1]
 
-                        print("KEKW", file=sys.stderr, flush=True)
-
                         cursor.execute('''
                             SELECT assertion_metadata_id, success_criteria_name, success_criteria_level FROM Assertion_Metadata_Success_Criteria               
                             WHERE assertion_metadata_id = %s AND success_criteria_name = %s AND success_criteria_level = %s
@@ -173,11 +167,8 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                             ''', (
                                 assertion_metadata_id, success_criteria_name, success_criteria_level
                             ))
-                    print("KEKW", file=sys.stderr, flush=True)
-                    print("OLAAAAAAAAA", file=sys.stderr, flush=True)
                     for g in range(request.modules[i].assertions[k].metadata.results_quantity):
                         elements = list()
-                        print("OLEEEEEEEEEE", file=sys.stderr, flush=True)
                         for y in range(request.modules[i].assertions[k].metadata.results[g].elements_quantity):
                             elements.append(
                                 IssueElement(
@@ -193,12 +184,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                             elements = elements,
                             elements_quantity = len(elements)
                         ))
-                    print("KEKW", file=sys.stderr, flush=True)
                         
             add_issues_request = AddIssuesRequest(issues=issues, issues_quantity=len(issues))
             add_issues_response = issues_database_client.AddIssues(add_issues_request)
-
-            print(len(issues), file=sys.stderr, flush=True)
 
             if add_issues_response.status_code == 500:
                 raise Exception("Results insertion failed!")

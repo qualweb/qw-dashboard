@@ -35,7 +35,6 @@ const port = 8081;
 
 app.use(express.json());
 
-console.debug(evaluations_database_ip);
 const client = new EvaluationsClient(
     evaluations_database_ip + ':6000', 
     grpc.credentials.createInsecure(),
@@ -44,7 +43,6 @@ const client = new EvaluationsClient(
         "grpc.max_send_message_length": 100 * 1024 * 1024     // 100 MB
     }
 );
-console.debug(client);
 
 // This endpoint executes the evaluations
 app.post('/api/evaluate', (req: Request, res: Response) => {
@@ -145,7 +143,6 @@ function getAssertions(module : EvaluationReport, assertions_quantity : number) 
     for(var i = 1; i <= assertions_quantity; i++) {
         var new_assertion = new Assertion();
         const assertion = module.assertions[rule_prefix.concat(i.toString())];
-        console.debug(rule_prefix.concat(i.toString()));
         
         if(module.assertions[rule_prefix.concat(i.toString())] !== undefined) {
             new_assertion.setPassed(assertion.metadata.passed);
@@ -252,9 +249,6 @@ function getResults(assertion : QualwebAssertion) : [Result[], number] {
         results.push(new_result);
         results_counter++;
     });
-
-    console.debug("OLAAAAAAAAAAAAAAAAA");
-    console.debug(results.length);
 
     return  [results, results_counter];
 }

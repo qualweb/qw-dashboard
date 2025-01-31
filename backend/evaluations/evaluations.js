@@ -13,12 +13,10 @@ var evaluate = require('./evaluate');
 var app = express();
 var port = 8081;
 app.use(express.json());
-console.debug(evaluations_database_ip);
 var client = new EvaluationsClient(evaluations_database_ip + ':6000', grpc.credentials.createInsecure(), {
     "grpc.max_receive_message_length": 100 * 1024 * 1024, // 100 MB
     "grpc.max_send_message_length": 100 * 1024 * 1024 // 100 MB
 });
-console.debug(client);
 // This endpoint executes the evaluations
 app.post('/api/evaluate', function (req, res) {
     var urlToEvaluate = req.body.url;
@@ -102,7 +100,6 @@ function getAssertions(module, assertions_quantity) {
     for (var i = 1; i <= assertions_quantity; i++) {
         var new_assertion = new evaluations_pb_1.Assertion();
         var assertion = module.assertions[rule_prefix.concat(i.toString())];
-        console.debug(rule_prefix.concat(i.toString()));
         if (module.assertions[rule_prefix.concat(i.toString())] !== undefined) {
             new_assertion.setPassed(assertion.metadata.passed);
             new_assertion.setWarning(assertion.metadata.warning);
@@ -183,7 +180,5 @@ function getResults(assertion) {
         results.push(new_result);
         results_counter++;
     });
-    console.debug("OLAAAAAAAAAAAAAAAAA");
-    console.debug(results.length);
     return [results, results_counter];
 }
