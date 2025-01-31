@@ -39,8 +39,8 @@ const client = new EvaluationsClient(
     evaluations_database_ip + ':6000', 
     grpc.credentials.createInsecure(),
     {
-        "grpc.max_receive_message_length": 100 * 1024 * 1024, // 100 MB
-        "grpc.max_send_message_length": 100 * 1024 * 1024     // 100 MB
+        "grpc.max_receive_message_length": 100 * 1024 * 1024,
+        "grpc.max_send_message_length": 100 * 1024 * 1024
     }
 );
 

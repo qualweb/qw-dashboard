@@ -67,8 +67,8 @@ def serve():
         futures.ThreadPoolExecutor(max_workers=10), 
         interceptors=interceptors,
         options=[
-            ("grpc.max_receive_message_length", 100 * 1024 * 1024),  # 100 MB
-            ("grpc.max_send_message_length", 100 * 1024 * 1024)      # 100 MB
+            ("grpc.max_receive_message_length", 100 * 1024 * 1024),
+            ("grpc.max_send_message_length", 100 * 1024 * 1024)
         ]
     )
     issues_pb2_grpc.add_IssuesServicer_to_server(
