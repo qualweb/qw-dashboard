@@ -1,0 +1,29 @@
+{
+  "name": "evaluations",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.5",
+    "@grpc/proto-loader": "^0.7.13",
+    "@qualweb/act-rules": "^0.7.3",
+    "@qualweb/core": "^0.8.2",
+    "@qualweb/earl-reporter": "^0.5.2",
+    "@qualweb/locale": "^0.2.2",
+    "@qualweb/wcag-techniques": "^0.4.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "google-protobuf": "^3.21.4",
+    "puppeteer": "^24.1.0",
+    "typescript": "^5.7.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.10"
+  }
+}

@@ -1,0 +1,6 @@
+grpc-interceptor ~= 0.11.0
+grpcio
+grpcio-tools ~= 1.30
+psycopg2
+python-dotenv
+  

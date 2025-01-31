@@ -1,0 +1,2 @@
+docker build -t evaluations-container -f Dockerfile .
+docker run --name evaluations-container -d -p 8081:8081 --network microservices -e EVALUATIONS_DATABASE_HOST=evaluations-database-container evaluations-container
