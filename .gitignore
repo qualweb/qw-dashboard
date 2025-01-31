@@ -10,3 +10,6 @@ backend/evaluations-database/.env
 
 backend/protobufs/myenv/
 
+copy_to_server.sh
+
+to_transfer.txt
