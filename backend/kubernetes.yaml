@@ -1,0 +1,150 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: evaluations-database
+    labels:
+        app: evaluations-database
+spec:
+    replicas: 1
+    revisionHistoryLimit: 5
+    selector:
+        matchLabels:
+            app: evaluations-database
+    template:
+        metadata:
+            labels:
+                app: evaluations-database
+        spec:
+            containers:
+                - name: evaluations-database-container
+                  image: tomasbarreto/evaluations-database-container:latest
+                  env:
+                      - name: ISSUES_DATABASE_HOST
+                        valueFrom:
+                            secretKeyRef:
+                                name: app-secrets
+                                key: ISSUES_DATABASE_HOST
+                      - name: DATABASE_HOST
+                        valueFrom:
+                            secretKeyRef:
+                                name: app-secrets
+                                key: DATABASE_HOST
+                  ports:
+                      - containerPort: 6000
+                  resources:
+                      requests:
+                          memory: "48Mi"
+                          cpu: "20m"
+                      limits:
+                          memory: "512Mi"
+                          cpu: "40m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: issues-database
+    labels:
+        app: issues-database
+spec:
+    replicas: 1
+    revisionHistoryLimit: 5
+    selector:
+        matchLabels:
+            app: issues-database
+    template:
+        metadata:
+            labels:
+                app: issues-database
+        spec:
+            containers:
+                - name: issues-database-container
+                  image: tomasbarreto/issues-database-container:latest
+                  env:
+                      - name: DATABASE_HOST
+                        valueFrom:
+                            secretKeyRef:
+                                name: app-secrets
+                                key: DATABASE_HOST
+                  ports:
+                      - containerPort: 6001
+                  resources:
+                      requests:
+                          memory: "48Mi"
+                          cpu: "20m"
+                      limits:
+                          memory: "512Mi"
+                          cpu: "40m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: evaluations
+    labels:
+        app: evaluations
+spec:
+    replicas: 1
+    revisionHistoryLimit: 5
+    selector:
+        matchLabels:
+            app: evaluations
+    template:
+        metadata:
+            labels:
+                app: evaluations
+        spec:
+            containers:
+                - name: evaluations-container
+                  image: tomasbarreto/evaluations-container:latest
+                  env:
+                      - name: EVALUATIONS_DATABASE_HOST
+                        valueFrom:
+                            secretKeyRef:
+                                name: app-secrets
+                                key: EVALUATIONS_DATABASE_HOST
+                  ports:
+                      - containerPort: 8081
+                  resources:
+                      requests:
+                          memory: "48Mi"
+                          cpu: "20m"
+                      limits:
+                          memory: "2Gi"
+                          cpu: "2"
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: evaluations-database
+spec:
+    selector:
+        app: evaluations-database
+    ports:
+        - protocol: TCP
+          port: 6000
+          targetPort: 6000
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: issues-database
+spec:
+    selector:
+        app: issues-database
+    ports:
+        - protocol: TCP
+          port: 6001
+          targetPort: 6001
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: evaluations
+spec:
+    selector:
+        app: evaluations
+    ports:
+        - protocol: TCP
+          port: 8081
+          targetPort: 8081
+---

@@ -1,0 +1,5 @@
+./run_k8s.sh
+
+kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8080:80
+
+ngrok http 8080
