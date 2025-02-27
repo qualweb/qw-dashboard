@@ -16,6 +16,7 @@
     "@qualweb/earl-reporter": "^0.5.2",
     "@qualweb/locale": "^0.2.2",
     "@qualweb/wcag-techniques": "^0.4.2",
+    "crawlee": "^3.12.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "google-protobuf": "^3.21.4",

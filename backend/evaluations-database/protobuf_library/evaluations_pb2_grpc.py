@@ -34,17 +34,39 @@ class EvaluationsStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.AddMonitoringRegistry = channel.unary_unary(
+                '/runtimePackage.Evaluations/AddMonitoringRegistry',
+                request_serializer=evaluations__pb2.AddMonitoringRegistryRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.AddMonitoringRegistryResponse.FromString,
+                _registered_method=True)
         self.AddEvaluation = channel.unary_unary(
                 '/runtimePackage.Evaluations/AddEvaluation',
                 request_serializer=evaluations__pb2.AddEvaluationRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.AddEvaluationResponse.FromString,
+                _registered_method=True)
+        self.GetMonitoringRegistry = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetMonitoringRegistry',
+                request_serializer=evaluations__pb2.GetMonitoringRegistryRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetMonitoringRegistryResponse.FromString,
                 _registered_method=True)
 
 
 class EvaluationsServicer(object):
     """Missing associated documentation comment in .proto file."""
 
+    def AddMonitoringRegistry(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def AddEvaluation(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMonitoringRegistry(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -53,10 +75,20 @@ class EvaluationsServicer(object):
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'AddMonitoringRegistry': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddMonitoringRegistry,
+                    request_deserializer=evaluations__pb2.AddMonitoringRegistryRequest.FromString,
+                    response_serializer=evaluations__pb2.AddMonitoringRegistryResponse.SerializeToString,
+            ),
             'AddEvaluation': grpc.unary_unary_rpc_method_handler(
                     servicer.AddEvaluation,
                     request_deserializer=evaluations__pb2.AddEvaluationRequest.FromString,
                     response_serializer=evaluations__pb2.AddEvaluationResponse.SerializeToString,
+            ),
+            'GetMonitoringRegistry': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMonitoringRegistry,
+                    request_deserializer=evaluations__pb2.GetMonitoringRegistryRequest.FromString,
+                    response_serializer=evaluations__pb2.GetMonitoringRegistryResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -68,6 +100,33 @@ def add_EvaluationsServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class Evaluations(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def AddMonitoringRegistry(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/AddMonitoringRegistry',
+            evaluations__pb2.AddMonitoringRegistryRequest.SerializeToString,
+            evaluations__pb2.AddMonitoringRegistryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def AddEvaluation(request,
@@ -86,6 +145,33 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/AddEvaluation',
             evaluations__pb2.AddEvaluationRequest.SerializeToString,
             evaluations__pb2.AddEvaluationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMonitoringRegistry(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetMonitoringRegistry',
+            evaluations__pb2.GetMonitoringRegistryRequest.SerializeToString,
+            evaluations__pb2.GetMonitoringRegistryResponse.FromString,
             options,
             channel_credentials,
             insecure,

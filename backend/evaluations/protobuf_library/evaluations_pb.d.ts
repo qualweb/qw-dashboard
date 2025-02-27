@@ -264,29 +264,8 @@ export class AddEvaluationRequest extends jspb.Message {
   getInputUrl(): string;
   setInputUrl(value: string): void;
 
-  getDomainName(): string;
-  setDomainName(value: string): void;
-
-  getDomain(): string;
-  setDomain(value: string): void;
-
-  getUri(): string;
-  setUri(value: string): void;
-
   getCompleteUrl(): string;
   setCompleteUrl(value: string): void;
-
-  getMobile(): boolean;
-  setMobile(value: boolean): void;
-
-  getLandscape(): boolean;
-  setLandscape(value: boolean): void;
-
-  getDisplayWidth(): number;
-  setDisplayWidth(value: number): void;
-
-  getDisplayHeight(): number;
-  setDisplayHeight(value: number): void;
 
   getDom(): string;
   setDom(value: string): void;
@@ -317,6 +296,9 @@ export class AddEvaluationRequest extends jspb.Message {
   getModulesQuantity(): number;
   setModulesQuantity(value: number): void;
 
+  getMonitoredWebsiteId(): number;
+  setMonitoredWebsiteId(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AddEvaluationRequest.AsObject;
   static toObject(includeInstance: boolean, msg: AddEvaluationRequest): AddEvaluationRequest.AsObject;
@@ -331,14 +313,7 @@ export namespace AddEvaluationRequest {
   export type AsObject = {
     qualwebVersion: string,
     inputUrl: string,
-    domainName: string,
-    domain: string,
-    uri: string,
     completeUrl: string,
-    mobile: boolean,
-    landscape: boolean,
-    displayWidth: number,
-    displayHeight: number,
     dom: string,
     title: string,
     elementCount: number,
@@ -348,6 +323,7 @@ export namespace AddEvaluationRequest {
     inapplicable: number,
     modulesList: Array<Module.AsObject>,
     modulesQuantity: number,
+    monitoredWebsiteId: number,
   }
 }
 
@@ -368,6 +344,146 @@ export class AddEvaluationResponse extends jspb.Message {
 export namespace AddEvaluationResponse {
   export type AsObject = {
     statusCode: number,
+  }
+}
+
+export class AddMonitoringRegistryRequest extends jspb.Message {
+  getMainUrl(): string;
+  setMainUrl(value: string): void;
+
+  getDomainName(): string;
+  setDomainName(value: string): void;
+
+  getIsMobile(): boolean;
+  setIsMobile(value: boolean): void;
+
+  getIsLandscape(): boolean;
+  setIsLandscape(value: boolean): void;
+
+  getDisplayWidth(): number;
+  setDisplayWidth(value: number): void;
+
+  getDisplayHeight(): number;
+  setDisplayHeight(value: number): void;
+
+  clearWebpagesList(): void;
+  getWebpagesList(): Array<string>;
+  setWebpagesList(value: Array<string>): void;
+  addWebpages(value: string, index?: number): string;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AddMonitoringRegistryRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: AddMonitoringRegistryRequest): AddMonitoringRegistryRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: AddMonitoringRegistryRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AddMonitoringRegistryRequest;
+  static deserializeBinaryFromReader(message: AddMonitoringRegistryRequest, reader: jspb.BinaryReader): AddMonitoringRegistryRequest;
+}
+
+export namespace AddMonitoringRegistryRequest {
+  export type AsObject = {
+    mainUrl: string,
+    domainName: string,
+    isMobile: boolean,
+    isLandscape: boolean,
+    displayWidth: number,
+    displayHeight: number,
+    webpagesList: Array<string>,
+  }
+}
+
+export class AddMonitoringRegistryResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AddMonitoringRegistryResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: AddMonitoringRegistryResponse): AddMonitoringRegistryResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: AddMonitoringRegistryResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AddMonitoringRegistryResponse;
+  static deserializeBinaryFromReader(message: AddMonitoringRegistryResponse, reader: jspb.BinaryReader): AddMonitoringRegistryResponse;
+}
+
+export namespace AddMonitoringRegistryResponse {
+  export type AsObject = {
+    statusCode: number,
+  }
+}
+
+export class GetMonitoringRegistryRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetMonitoringRegistryRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetMonitoringRegistryRequest): GetMonitoringRegistryRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetMonitoringRegistryRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetMonitoringRegistryRequest;
+  static deserializeBinaryFromReader(message: GetMonitoringRegistryRequest, reader: jspb.BinaryReader): GetMonitoringRegistryRequest;
+}
+
+export namespace GetMonitoringRegistryRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+  }
+}
+
+export class GetMonitoringRegistryResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  getId(): number;
+  setId(value: number): void;
+
+  getMainUrl(): string;
+  setMainUrl(value: string): void;
+
+  getDomainName(): string;
+  setDomainName(value: string): void;
+
+  getIsMobile(): boolean;
+  setIsMobile(value: boolean): void;
+
+  getIsLandscape(): boolean;
+  setIsLandscape(value: boolean): void;
+
+  getDisplayWidth(): number;
+  setDisplayWidth(value: number): void;
+
+  getDisplayHeight(): number;
+  setDisplayHeight(value: number): void;
+
+  clearWebpagesList(): void;
+  getWebpagesList(): Array<string>;
+  setWebpagesList(value: Array<string>): void;
+  addWebpages(value: string, index?: number): string;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetMonitoringRegistryResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetMonitoringRegistryResponse): GetMonitoringRegistryResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetMonitoringRegistryResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetMonitoringRegistryResponse;
+  static deserializeBinaryFromReader(message: GetMonitoringRegistryResponse, reader: jspb.BinaryReader): GetMonitoringRegistryResponse;
+}
+
+export namespace GetMonitoringRegistryResponse {
+  export type AsObject = {
+    statusCode: number,
+    id: number,
+    mainUrl: string,
+    domainName: string,
+    isMobile: boolean,
+    isLandscape: boolean,
+    displayWidth: number,
+    displayHeight: number,
+    webpagesList: Array<string>,
   }
 }
 

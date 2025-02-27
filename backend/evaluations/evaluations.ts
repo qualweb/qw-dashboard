@@ -16,9 +16,14 @@ import {
     AssertionMetadata,
     SuccessCriteria,
     Result,
-    Element
+    Element,
+    AddMonitoringRegistryRequest,
+    GetMonitoringRegistryRequest,
+    AddMonitoringRegistryResponse,
+    GetMonitoringRegistryResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
+import { PuppeteerCrawler } from 'crawlee';
 
 dotenv.config();
 
@@ -44,43 +49,171 @@ const client = new EvaluationsClient(
     }
 );
 
+// This endpoint executes the crawling of the URLs in the domain of the input URL
+app.post('/api/crawl', (req: Request, res: Response) => { 
+    const main_url = req.body.url
+    const domain_name = new URL(main_url).hostname;
+    const is_mobile = req.body.is_mobile;
+    const is_landscape = req.body.is_landscape;
+    const display_width = req.body.display_width;
+    const display_height = req.body.display_height;
+
+    const puppeteerOptions = {
+        headless: true,
+        args: ['--no-sandbox']
+    };
+
+    async function run (urlToCrawl : string) {
+        const urls: string[] = [];
+      
+        const crawler = new PuppeteerCrawler({
+          async requestHandler({ request, page, enqueueLinks, log }) {
+              urls.push(request.url);
+      
+              await enqueueLinks({
+                  globs: [`http?(s)://${new URL(urlToCrawl).hostname}/**`],
+              });
+          },
+          maxRequestsPerCrawl: 10,
+          launchContext: {
+            launchOptions: puppeteerOptions,
+          },
+        });
+      
+        await crawler.addRequests([urlToCrawl]);
+      
+        await crawler.run();
+      
+        return urls;
+    }
+
+    run(main_url)
+        .then(async (urls) => {
+            try {
+                const monitoring_registry_request = new AddMonitoringRegistryRequest();
+                
+                monitoring_registry_request.setMainUrl(main_url);
+                monitoring_registry_request.setDomainName(domain_name);
+                monitoring_registry_request.setIsMobile(is_mobile);
+                monitoring_registry_request.setIsLandscape(is_landscape);
+                monitoring_registry_request.setDisplayWidth(display_width);
+                monitoring_registry_request.setDisplayHeight(display_height);
+                monitoring_registry_request.setWebpagesList(urls);
+
+                const response = await new Promise((resolve, reject) => {
+                    client.addMonitoringRegistry(monitoring_registry_request, (err : Error, response : AddMonitoringRegistryResponse) => {
+                        if (err) reject(err);
+                        else resolve(response);
+                    });
+                });
+
+                console.log('Successfully added monitoring registry');
+                res.send(200);
+            } catch (error) {
+                console.error('Error adding monitoring registry:', error);
+                res.send(500);
+            }
+        }).catch(error => {
+            console.error('Error during crawling:', error);
+            res.send(500);
+        });
+});
+
 // This endpoint executes the evaluations
-app.post('/api/evaluate', (req: Request, res: Response) => {
-    const urlToEvaluate = req.body.url
+app.post('/api/evaluate', async (req: Request, res: Response) => {
+    const monitoring_registry_id = req.body.monitoring_registry_id;
 
-    evaluate(urlToEvaluate).then((report: QualwebReport) => {
-        if (report) {
+    const getWebpagesRequest = new GetMonitoringRegistryRequest();
+    getWebpagesRequest.setMonitoringRegistryId(monitoring_registry_id);
 
-            const evaluations_request = new AddEvaluationRequest();
-
-            evaluations_request.setQualwebVersion(report.system.version);
-            evaluations_request.setInputUrl(report.system.url?.inputUrl ?? "");
-            evaluations_request.setDomainName(report.system.url?.domainName ?? "");
-            evaluations_request.setDomain(report.system.url?.domain ?? "");
-            evaluations_request.setUri(report.system.url?.uri ?? "");
-            evaluations_request.setCompleteUrl(report.system.url?.completeUrl ?? "");
-            evaluations_request.setMobile(report.system.page.viewport.mobile ?? false);
-            evaluations_request.setLandscape(report.system.page.viewport.landscape ?? false);
-            evaluations_request.setDisplayWidth(report.system.page.viewport.resolution?.width ?? 0);
-            evaluations_request.setDisplayHeight(report.system.page.viewport.resolution?.height ?? 0);
-            evaluations_request.setDom(report.system.page.dom.html);
-            evaluations_request.setTitle(report.system.page.dom.title ?? "");
-            evaluations_request.setElementCount(report.system.page.dom.elementCount ?? 0);
-            evaluations_request.setPassed(report.metadata.passed);
-            evaluations_request.setWarning(report.metadata.warning);
-            evaluations_request.setFailed(report.metadata.failed);
-            evaluations_request.setInapplicable(report.metadata.inapplicable);
-            evaluations_request.setModulesList(getModules(report));
-            evaluations_request.setModulesQuantity(2);
-
-            client.addEvaluation(evaluations_request, (err : Error , response : AddEvaluationResponse) => {
-                res.send(response.getStatusCode());
-            });
-            
-        }
-        else
-            res.status(400).send('Could not find the URL send to evaluate.');
+    const response = await new Promise<GetMonitoringRegistryResponse>((resolve, reject) => {
+        client.getMonitoringRegistry(getWebpagesRequest, (err: Error, callResponse: GetMonitoringRegistryResponse) => {
+          if (err) reject(err);
+          else resolve(callResponse);
+        });
     });
+
+    console.log(response)
+
+    if (response.getStatusCode() !== 200) {
+        res.send(response.getStatusCode());
+        return;
+    }
+
+    const urls = response.getWebpagesList();
+    
+    urls.forEach(url => {
+        console.log(url);
+    });
+
+    try {
+        const reports = await evaluate(
+            urls,
+            response.getDisplayWidth(),
+            response.getDisplayHeight(),
+            response.getIsMobile(),
+            response.getIsLandscape()
+        );
+        
+        const validReports = urls
+            .filter(url => reports[url])
+            .map(url => (
+                {
+                    url,
+                    report: reports[url]
+                }
+            ));
+
+        if (validReports.length === 0) {
+            res.send(404);
+            return;
+        }
+
+        async function processReport(index : number): Promise<void> {
+            if (index >= validReports.length) {
+                res.send(200);
+                return;
+            }
+            
+            const { url, report } = validReports[index];
+            
+            try {
+                const evaluations_request = new AddEvaluationRequest();
+                evaluations_request.setQualwebVersion(report.system.version);
+                evaluations_request.setInputUrl(report.system.url?.inputUrl ?? "");
+                evaluations_request.setCompleteUrl(report.system.url?.completeUrl ?? "");
+                evaluations_request.setDom(report.system.page.dom.html);
+                evaluations_request.setTitle(report.system.page.dom.title ?? "");
+                evaluations_request.setElementCount(report.system.page.dom.elementCount ?? 0);
+                evaluations_request.setPassed(report.metadata.passed);
+                evaluations_request.setWarning(report.metadata.warning);
+                evaluations_request.setFailed(report.metadata.failed);
+                evaluations_request.setInapplicable(report.metadata.inapplicable);
+                evaluations_request.setModulesList(getModules(report));
+                evaluations_request.setModulesQuantity(2);
+                evaluations_request.setMonitoredWebsiteId(monitoring_registry_id);
+                
+                const response = await new Promise<AddEvaluationResponse>((resolve, reject) => {
+                    client.addEvaluation(evaluations_request, (err : Error, response : AddEvaluationResponse) => {
+                        if (err) reject(err);
+                        else resolve(response);
+                    });
+                });
+                
+                console.log(`Successfully added evaluation for URL ${url}`);
+            } catch (error) {
+                console.error(`Error adding evaluation for URL ${url}:`, error);
+            }
+            
+            return processReport(index + 1);
+        }
+        
+        await processReport(0);
+        
+    } catch (error) {
+        console.error('Error during evaluation:', error);
+        res.send(500);
+    }
 });
 
 app.listen(port, () => {

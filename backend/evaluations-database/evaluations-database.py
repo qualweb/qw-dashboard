@@ -7,7 +7,8 @@ import psycopg2
 from dotenv import load_dotenv
 
 from protobuf_library.evaluations_pb2 import (
-    AddEvaluationResponse
+    AddEvaluationResponse,
+    GetMonitoringRegistryResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -30,6 +31,34 @@ POSTGRES_DB = os.getenv("POSTGRES_DB")
 class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
     global database
 
+    def AddMonitoringRegistry(self, request, context):
+        cursor = database.cursor()
+        database.autocommit = False
+
+        try:
+            cursor.execute('''
+                INSERT INTO MonitoringRegistry (
+                    main_url, domain_name, is_mobile, is_landscape, display_width, display_height, webpages
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s
+                )
+            ''', (
+                request.main_url, request.domain_name, request.is_mobile, request.is_landscape, 
+                request.display_width, request.display_height, list(request.webpages)
+            ))
+
+            database.commit()
+            cursor.close()
+            print("Insert successful", file=sys.stderr, flush=True)
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            database.rollback()
+            return AddEvaluationResponse(status_code=500)
+        finally:
+            database.autocommit = True
+
+        return AddEvaluationResponse(status_code=200)
+    
     def AddEvaluation(self, request, context):
         cursor = database.cursor()
 
@@ -38,19 +67,17 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
         try:
             cursor.execute('''
                 INSERT INTO Evaluation (
-                    qualweb_version, input_url, domainName, domain, uri, 
-                    complete_url, is_mobile, is_landscape, display_width, display_height, 
+                    qualweb_version, monitored_website_id, input_url,
+                    complete_url,
                     dom, title, element_count, passed, warning, failed, inapplicable
                 ) VALUES (
-                    %s, %s, %s, %s, %s, 
-                    %s, %s, %s, %s, %s, 
+                    %s, %s, %s,
+                    %s,
                     %s, %s, %s, %s, %s, %s, %s
                 ) RETURNING id
             ''', (
-                str(request.qualweb_version), str(request.input_url), 
-                str(request.domain_name), str(request.domain), str(request.uri), 
-                str(request.complete_url), str(bool(request.mobile)).upper(), str(bool(request.landscape)).upper(), 
-                str(int(request.display_width)), str(int(request.display_height)), 
+                str(request.qualweb_version), str(request.monitored_website_id), str(request.input_url), 
+                str(request.complete_url),
                 str(request.dom), str(request.title), str(request.element_count), 
                 str(int(request.passed)), str(int(request.warning)), str(int(request.failed)), str(int(request.inapplicable))
             ))
@@ -122,6 +149,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         ))
 
                         exists_success_criteria_id = cursor.fetchone()
+                        
+                        print("AQUIIIIIII: " + str(exists_success_criteria_id is None), file=sys.stderr, flush=True)
+                        print(exists_success_criteria_id, file=sys.stderr, flush=True)
 
                         if exists_success_criteria_id is None:
                             cursor.execute('''
@@ -129,7 +159,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                                     success_criteria_name, success_criteria_level, principle, success_criteria_url
                                 ) VALUES (
                                     %s, %s, %s, %s
-                                ) RETURNING success_criteria_name, success_criteria_level
+                                ) RETURNING success_criteria_name, success_criteria_level 
                             ''', (
                                 request.modules[i].assertions[k].metadata.success_criteria[h].name,
                                 request.modules[i].assertions[k].metadata.success_criteria[h].level,
@@ -140,33 +170,26 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                             success_criteria_name_level = cursor.fetchone()
                             success_criteria_name = success_criteria_name_level[0]
                             success_criteria_level = success_criteria_name_level[1]
+                            print("2 ---- " + str(success_criteria_name), file=sys.stderr, flush=True)
+                            print("2 ---- " + str(success_criteria_level), file=sys.stderr, flush=True)
                         else:
                             success_criteria_name = exists_success_criteria_id[0]
                             success_criteria_level = exists_success_criteria_id[1]
 
+                        print(" ----------------------------------- ", file=sys.stderr, flush=True)
+
                         cursor.execute('''
-                            SELECT assertion_metadata_id, success_criteria_name, success_criteria_level FROM Assertion_Metadata_Success_Criteria               
-                            WHERE assertion_metadata_id = %s AND success_criteria_name = %s AND success_criteria_level = %s
+                            INSERT INTO Assertion_Metadata_Success_Criteria (
+                                assertion_metadata_id,
+                                success_criteria_name,
+                                success_criteria_level       
+                            ) VALUES (
+                                %s, %s, %s
+                            ) ON CONFLICT (assertion_metadata_id, success_criteria_name, success_criteria_level) DO NOTHING
                         ''', (
-                            assertion_metadata_id,
-                            success_criteria_name,
-                            success_criteria_level     
+                            assertion_metadata_id, success_criteria_name, success_criteria_level
                         ))
 
-                        exists_assertion_metadata_success_criteria_id = cursor.fetchone()
-                        
-                        if exists_assertion_metadata_success_criteria_id is None:
-                            cursor.execute('''
-                                INSERT INTO Assertion_Metadata_Success_Criteria (
-                                    assertion_metadata_id,
-                                    success_criteria_name,
-                                    success_criteria_level       
-                                ) VALUES (
-                                    %s, %s, %s
-                                )
-                            ''', (
-                                assertion_metadata_id, success_criteria_name, success_criteria_level
-                            ))
                     for g in range(request.modules[i].assertions[k].metadata.results_quantity):
                         elements = list()
                         for y in range(request.modules[i].assertions[k].metadata.results[g].elements_quantity):
@@ -184,24 +207,53 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                             elements = elements,
                             elements_quantity = len(elements)
                         ))
-                        
+
             add_issues_request = AddIssuesRequest(issues=issues, issues_quantity=len(issues))
             add_issues_response = issues_database_client.AddIssues(add_issues_request)
 
             if add_issues_response.status_code == 500:
                 raise Exception("Results insertion failed!")
-                    
+            
             database.commit()
+            cursor.close()
+            
             print("Insert successful", file=sys.stderr, flush=True)
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
             database.rollback()
             return AddEvaluationResponse(status_code=500)
 
-        cursor.close()
-
         return AddEvaluationResponse(status_code=200)
+    
+    def GetMonitoringRegistry(self, request, context):
+        cursor = database.cursor()
 
+        try:
+            cursor.execute('''
+                SELECT * FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (str(int(request.monitoring_registry_id)), ))
+
+            result = cursor.fetchone()
+            cursor.close()
+
+            print(result, file=sys.stderr, flush=True)
+
+            return GetMonitoringRegistryResponse(
+                status_code=200,
+                id=result[0],
+                main_url=result[1],
+                domain_name=result[2],
+                is_mobile=result[3],
+                is_landscape=result[4],
+                display_width=result[5],
+                display_height=result[6],
+                webpages=result[7]                                 
+            )
+        
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            return GetMonitoringRegistryResponse(status_code=500, webpages=[])
 
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

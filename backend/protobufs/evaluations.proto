@@ -59,14 +59,7 @@ message Module {
 message AddEvaluationRequest {
     string qualweb_version = 1;
     string input_url = 2;
-    string domain_name = 3;
-    string domain = 4;
-    string uri = 5;
     string complete_url = 6;
-    bool mobile = 7;
-    bool landscape = 8;
-    int32 display_width = 9;
-    int32 display_height = 10;
     string dom = 11;
     string title = 12;
     int32 element_count = 13;
@@ -76,12 +69,45 @@ message AddEvaluationRequest {
     int32 inapplicable = 17;
     repeated Module modules = 18;
     int32 modules_quantity = 19;
+    int32 monitored_website_id = 20;
 }
 
 message AddEvaluationResponse {
     int32 status_code = 1;
 }
 
+message AddMonitoringRegistryRequest {
+    string main_url = 1;
+    string domain_name = 2;
+    bool is_mobile = 3;
+    bool is_landscape = 4;
+    int32 display_width = 5;
+    int32 display_height = 6;
+    repeated string webpages = 7;
+}
+
+message AddMonitoringRegistryResponse {
+    int32 status_code = 1;
+}
+
+message GetMonitoringRegistryRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message GetMonitoringRegistryResponse {
+    int32 status_code = 1;
+    int32 id = 2;
+    string main_url = 3;
+    string domain_name = 4;
+    bool is_mobile = 5;
+    bool is_landscape = 6;
+    int32 display_width = 7;
+    int32 display_height = 8;
+    repeated string webpages = 9;
+}
+
 service Evaluations {
+    rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
+    rpc GetMonitoringRegistry(GetMonitoringRegistryRequest) returns (GetMonitoringRegistryResponse);
 }

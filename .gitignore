@@ -3,11 +3,17 @@
 example.json
 
 backend/evaluations/node_modules/
+backend/evaluations/other_way/
+
+backend/crawler
 frontend/node_modules/
 
 backend/evaluations-database/.venv/
 backend/evaluations-database/path/
 backend/evaluations-database/.env
+
+backend/protobufs/compile_proto_crawler.sh
+backend/protobufs/proto
 
 backend/protobufs/myenv/
 

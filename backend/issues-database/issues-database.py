@@ -53,6 +53,7 @@ class IssuesDatabaseService(issues_pb2_grpc.IssuesServicer):
                     ))
 
             database.commit()
+            cursor.close()
             print("Insert successful", file=sys.stderr, flush=True)
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)

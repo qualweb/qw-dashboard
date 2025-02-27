@@ -1,3 +1,10 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: manual
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -9,7 +16,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path:  /home/tbarreto/qw-dashboard/backend/postgres
+    path: /data/qw-dashboard/postgres-database
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -41,10 +48,12 @@ spec:
       - name: postgres
         image: postgres:latest  
         env:
+        - name: PGDATA
+          value: /var/lib/postgresql/data
         - name: POSTGRES_USER
           value: postgres  
         - name: POSTGRES_PASSWORD
-          value: password  
+          value: password
         ports:
         - containerPort: 5432
         volumeMounts:

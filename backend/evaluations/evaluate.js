@@ -5,7 +5,7 @@ const { WCAGTechniques } = require('@qualweb/wcag-techniques');
 /**
  * @param {string} urlToEvaluate
  */
-async function evaluate(urlToEvaluate) {
+async function evaluate(urlsToEvaluate, screenWidth, screenHeight, isMobile, isLandscape) {
   const plugins = {
   };
   const qualweb = new QualWeb(plugins);
@@ -16,13 +16,15 @@ async function evaluate(urlToEvaluate) {
     monitor: true // Displays urls information on the terminal. Default value = false
   };
 
-  const args = [];
-
-  args.push('--no-sandbox');
-
   const puppeteerOptions = {
     headless: true,
-    args
+    args: ['--no-sandbox', '--disable-gpu'],
+    defaultViewport: {
+      width: screenWidth,
+      height: screenHeight,
+      isMobile: isMobile,
+      isLandscape: isLandscape
+    }
   };
 
   // Starts the QualWeb core engine
@@ -31,12 +33,10 @@ async function evaluate(urlToEvaluate) {
   const wcagTechniquesModule = new WCAGTechniques();
   const actRulesModule = new ACTRules();
 
-  console.debug(urlToEvaluate);
-
   // Evaluates the given options - will only return after all urls have finished evaluating or resulted in an error
   const reports = await qualweb.evaluate(
     {
-      url: urlToEvaluate,
+      urls: urlsToEvaluate,
       modules: [
         wcagTechniquesModule,
         actRulesModule
@@ -44,13 +44,11 @@ async function evaluate(urlToEvaluate) {
     }
   );
 
-  const urlReport = reports[urlToEvaluate];
-
   // Remember to stop QualWeb once you're done. This closes the Puppeteer
   // instance.
   await qualweb.stop();
 
-  return urlReport;
+  return reports;
 }
 
 module.exports = evaluate;

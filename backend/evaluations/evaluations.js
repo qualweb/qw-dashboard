@@ -1,8 +1,45 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@qualweb/core");
 var evaluations_pb_1 = require("./protobuf_library/evaluations_pb");
 var dotenv = require("dotenv");
+var crawlee_1 = require("crawlee");
 dotenv.config();
 // Access environment variables
 var evaluations_database_ip = process.env.EVALUATIONS_DATABASE_HOST;
@@ -17,40 +54,207 @@ var client = new EvaluationsClient(evaluations_database_ip + ':6000', grpc.crede
     "grpc.max_receive_message_length": 100 * 1024 * 1024,
     "grpc.max_send_message_length": 100 * 1024 * 1024
 });
-// This endpoint executes the evaluations
-app.post('/api/evaluate', function (req, res) {
-    var urlToEvaluate = req.body.url;
-    evaluate(urlToEvaluate).then(function (report) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
-        if (report) {
-            var evaluations_request = new evaluations_pb_1.AddEvaluationRequest();
-            evaluations_request.setQualwebVersion(report.system.version);
-            evaluations_request.setInputUrl((_b = (_a = report.system.url) === null || _a === void 0 ? void 0 : _a.inputUrl) !== null && _b !== void 0 ? _b : "");
-            evaluations_request.setDomainName((_d = (_c = report.system.url) === null || _c === void 0 ? void 0 : _c.domainName) !== null && _d !== void 0 ? _d : "");
-            evaluations_request.setDomain((_f = (_e = report.system.url) === null || _e === void 0 ? void 0 : _e.domain) !== null && _f !== void 0 ? _f : "");
-            evaluations_request.setUri((_h = (_g = report.system.url) === null || _g === void 0 ? void 0 : _g.uri) !== null && _h !== void 0 ? _h : "");
-            evaluations_request.setCompleteUrl((_k = (_j = report.system.url) === null || _j === void 0 ? void 0 : _j.completeUrl) !== null && _k !== void 0 ? _k : "");
-            evaluations_request.setMobile((_l = report.system.page.viewport.mobile) !== null && _l !== void 0 ? _l : false);
-            evaluations_request.setLandscape((_m = report.system.page.viewport.landscape) !== null && _m !== void 0 ? _m : false);
-            evaluations_request.setDisplayWidth((_p = (_o = report.system.page.viewport.resolution) === null || _o === void 0 ? void 0 : _o.width) !== null && _p !== void 0 ? _p : 0);
-            evaluations_request.setDisplayHeight((_r = (_q = report.system.page.viewport.resolution) === null || _q === void 0 ? void 0 : _q.height) !== null && _r !== void 0 ? _r : 0);
-            evaluations_request.setDom(report.system.page.dom.html);
-            evaluations_request.setTitle((_s = report.system.page.dom.title) !== null && _s !== void 0 ? _s : "");
-            evaluations_request.setElementCount((_t = report.system.page.dom.elementCount) !== null && _t !== void 0 ? _t : 0);
-            evaluations_request.setPassed(report.metadata.passed);
-            evaluations_request.setWarning(report.metadata.warning);
-            evaluations_request.setFailed(report.metadata.failed);
-            evaluations_request.setInapplicable(report.metadata.inapplicable);
-            evaluations_request.setModulesList(getModules(report));
-            evaluations_request.setModulesQuantity(2);
-            client.addEvaluation(evaluations_request, function (err, response) {
-                res.send(response.getStatusCode());
+// This endpoint executes the crawling of the URLs in the domain of the input URL
+app.post('/api/crawl', function (req, res) {
+    var main_url = req.body.url;
+    var domain_name = new URL(main_url).hostname;
+    var is_mobile = req.body.is_mobile;
+    var is_landscape = req.body.is_landscape;
+    var display_width = req.body.display_width;
+    var display_height = req.body.display_height;
+    var puppeteerOptions = {
+        headless: true,
+        args: ['--no-sandbox']
+    };
+    function run(urlToCrawl) {
+        return __awaiter(this, void 0, void 0, function () {
+            var urls, crawler;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        urls = [];
+                        crawler = new crawlee_1.PuppeteerCrawler({
+                            requestHandler: function (_a) {
+                                return __awaiter(this, arguments, void 0, function (_b) {
+                                    var request = _b.request, page = _b.page, enqueueLinks = _b.enqueueLinks, log = _b.log;
+                                    return __generator(this, function (_c) {
+                                        switch (_c.label) {
+                                            case 0:
+                                                urls.push(request.url);
+                                                return [4 /*yield*/, enqueueLinks({
+                                                        globs: ["http?(s)://".concat(new URL(urlToCrawl).hostname, "/**")],
+                                                    })];
+                                            case 1:
+                                                _c.sent();
+                                                return [2 /*return*/];
+                                        }
+                                    });
+                                });
+                            },
+                            maxRequestsPerCrawl: 10,
+                            launchContext: {
+                                launchOptions: puppeteerOptions,
+                            },
+                        });
+                        return [4 /*yield*/, crawler.addRequests([urlToCrawl])];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, crawler.run()];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/, urls];
+                }
             });
-        }
-        else
-            res.status(400).send('Could not find the URL send to evaluate.');
+        });
+    }
+    run(main_url)
+        .then(function (urls) { return __awaiter(void 0, void 0, void 0, function () {
+        var monitoring_registry_request_1, response, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    monitoring_registry_request_1 = new evaluations_pb_1.AddMonitoringRegistryRequest();
+                    monitoring_registry_request_1.setMainUrl(main_url);
+                    monitoring_registry_request_1.setDomainName(domain_name);
+                    monitoring_registry_request_1.setIsMobile(is_mobile);
+                    monitoring_registry_request_1.setIsLandscape(is_landscape);
+                    monitoring_registry_request_1.setDisplayWidth(display_width);
+                    monitoring_registry_request_1.setDisplayHeight(display_height);
+                    monitoring_registry_request_1.setWebpagesList(urls);
+                    return [4 /*yield*/, new Promise(function (resolve, reject) {
+                            client.addMonitoringRegistry(monitoring_registry_request_1, function (err, response) {
+                                if (err)
+                                    reject(err);
+                                else
+                                    resolve(response);
+                            });
+                        })];
+                case 1:
+                    response = _a.sent();
+                    console.log('Successfully added monitoring registry');
+                    res.send(200);
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_1 = _a.sent();
+                    console.error('Error adding monitoring registry:', error_1);
+                    res.send(500);
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    }); }).catch(function (error) {
+        console.error('Error during crawling:', error);
+        res.send(500);
     });
 });
+// This endpoint executes the evaluations
+app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    function processReport(index) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, url, report, evaluations_request_1, response_1, error_3;
+            var _b, _c, _d, _e, _f, _g;
+            return __generator(this, function (_h) {
+                switch (_h.label) {
+                    case 0:
+                        if (index >= validReports_1.length) {
+                            res.send(200);
+                            return [2 /*return*/];
+                        }
+                        _a = validReports_1[index], url = _a.url, report = _a.report;
+                        _h.label = 1;
+                    case 1:
+                        _h.trys.push([1, 3, , 4]);
+                        evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
+                        evaluations_request_1.setQualwebVersion(report.system.version);
+                        evaluations_request_1.setInputUrl((_c = (_b = report.system.url) === null || _b === void 0 ? void 0 : _b.inputUrl) !== null && _c !== void 0 ? _c : "");
+                        evaluations_request_1.setCompleteUrl((_e = (_d = report.system.url) === null || _d === void 0 ? void 0 : _d.completeUrl) !== null && _e !== void 0 ? _e : "");
+                        evaluations_request_1.setDom(report.system.page.dom.html);
+                        evaluations_request_1.setTitle((_f = report.system.page.dom.title) !== null && _f !== void 0 ? _f : "");
+                        evaluations_request_1.setElementCount((_g = report.system.page.dom.elementCount) !== null && _g !== void 0 ? _g : 0);
+                        evaluations_request_1.setPassed(report.metadata.passed);
+                        evaluations_request_1.setWarning(report.metadata.warning);
+                        evaluations_request_1.setFailed(report.metadata.failed);
+                        evaluations_request_1.setInapplicable(report.metadata.inapplicable);
+                        evaluations_request_1.setModulesList(getModules(report));
+                        evaluations_request_1.setModulesQuantity(2);
+                        evaluations_request_1.setMonitoredWebsiteId(monitoring_registry_id);
+                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                client.addEvaluation(evaluations_request_1, function (err, response) {
+                                    if (err)
+                                        reject(err);
+                                    else
+                                        resolve(response);
+                                });
+                            })];
+                    case 2:
+                        response_1 = _h.sent();
+                        console.log("Successfully added evaluation for URL ".concat(url));
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_3 = _h.sent();
+                        console.error("Error adding evaluation for URL ".concat(url, ":"), error_3);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/, processReport(index + 1)];
+                }
+            });
+        });
+    }
+    var monitoring_registry_id, getWebpagesRequest, response, urls, reports_1, validReports_1, error_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_registry_id = req.body.monitoring_registry_id;
+                getWebpagesRequest = new evaluations_pb_1.GetMonitoringRegistryRequest();
+                getWebpagesRequest.setMonitoringRegistryId(monitoring_registry_id);
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getMonitoringRegistry(getWebpagesRequest, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 1:
+                response = _a.sent();
+                console.log(response);
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                urls = response.getWebpagesList();
+                urls.forEach(function (url) {
+                    console.log(url);
+                });
+                _a.label = 2;
+            case 2:
+                _a.trys.push([2, 5, , 6]);
+                return [4 /*yield*/, evaluate(urls, response.getDisplayWidth(), response.getDisplayHeight(), response.getIsMobile(), response.getIsLandscape())];
+            case 3:
+                reports_1 = _a.sent();
+                validReports_1 = urls
+                    .filter(function (url) { return reports_1[url]; })
+                    .map(function (url) { return ({
+                    url: url,
+                    report: reports_1[url]
+                }); });
+                if (validReports_1.length === 0) {
+                    res.send(404);
+                    return [2 /*return*/];
+                }
+                return [4 /*yield*/, processReport(0)];
+            case 4:
+                _a.sent();
+                return [3 /*break*/, 6];
+            case 5:
+                error_2 = _a.sent();
+                console.error('Error during evaluation:', error_2);
+                res.send(500);
+                return [3 /*break*/, 6];
+            case 6: return [2 /*return*/];
+        }
+    });
+}); });
 app.listen(port, function () {
     console.log("Server is running on http://localhost:".concat(port));
 });
