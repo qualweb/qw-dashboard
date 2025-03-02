@@ -1,14 +1,15 @@
+import psycopg2.pool
 import grpc
 from grpc_interceptor import ExceptionToStatusInterceptor
 from concurrent import futures
 import sys
 import os
-import psycopg2
 from dotenv import load_dotenv
 
 from protobuf_library.evaluations_pb2 import (
     AddEvaluationResponse,
-    GetMonitoringRegistryResponse
+    GetMonitoringRegistryResponse,
+    SetAccessibilityMetricResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -28,14 +29,17 @@ POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_DB = os.getenv("POSTGRES_DB")
 
-class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
-    global database
+connection_pool = None
 
+class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
     def AddMonitoringRegistry(self, request, context):
-        cursor = database.cursor()
-        database.autocommit = False
+        conn = None
 
         try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
             cursor.execute('''
                 INSERT INTO MonitoringRegistry (
                     main_url, domain_name, is_mobile, is_landscape, display_width, display_height, webpages
@@ -47,24 +51,30 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 request.display_width, request.display_height, list(request.webpages)
             ))
 
-            database.commit()
+            conn.commit()
             cursor.close()
             print("Insert successful", file=sys.stderr, flush=True)
+
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
-            database.rollback()
             return AddEvaluationResponse(status_code=500)
+        
         finally:
-            database.autocommit = True
-
+            if conn:
+                connection_pool.putconn(conn)
+        
         return AddEvaluationResponse(status_code=200)
     
     def AddEvaluation(self, request, context):
-        cursor = database.cursor()
 
-        issues = list()
+        conn = None
 
         try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            issues = list()
+
             cursor.execute('''
                 INSERT INTO Evaluation (
                     qualweb_version, monitored_website_id, input_url,
@@ -214,21 +224,29 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             if add_issues_response.status_code == 500:
                 raise Exception("Results insertion failed!")
             
-            database.commit()
+            conn.commit()
             cursor.close()
             
             print("Insert successful", file=sys.stderr, flush=True)
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
-            database.rollback()
+            if conn:
+                conn.rollback()
+
             return AddEvaluationResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
 
         return AddEvaluationResponse(status_code=200)
     
     def GetMonitoringRegistry(self, request, context):
-        cursor = database.cursor()
+        conn = None
 
         try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
             cursor.execute('''
                 SELECT * FROM MonitoringRegistry
                 WHERE id = %s
@@ -239,7 +257,17 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             print(result, file=sys.stderr, flush=True)
 
-            return GetMonitoringRegistryResponse(
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetMonitoringRegistryResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+        
+        return GetMonitoringRegistryResponse(
                 status_code=200,
                 id=result[0],
                 main_url=result[1],
@@ -250,11 +278,35 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 display_height=result[6],
                 webpages=result[7]                                 
             )
-        
+    
+    def SetAccessibilityMetric(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                UPDATE MonitoringRegistry
+                    SET accessibility_metric = %s
+                    WHERE id = %s
+            ''', (request.accessibility_metric, request.monitoring_registry_id))
+
+            conn.commit()
+            cursor.close()
+            print("Update successful", file=sys.stderr, flush=True)
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
-            return GetMonitoringRegistryResponse(status_code=500, webpages=[])
+            if conn:
+                conn.rollback()
 
+            return SetAccessibilityMetricResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return SetAccessibilityMetricResponse(status_code=200)
+    
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]
     server = grpc.server(
@@ -273,11 +325,13 @@ def serve():
     server.start()
     server.wait_for_termination()
 
-    database.close()
+    if connection_pool:
+        connection_pool.closeall()
 
-database = None
 if __name__ == "__main__":
-    database = psycopg2.connect(
+    connection_pool = psycopg2.pool.ThreadedConnectionPool(
+        minconn = 1,
+        maxconn = 10,
         dbname = POSTGRES_DB,
         user = POSTGRES_USER,
         password = POSTGRES_PASSWORD,

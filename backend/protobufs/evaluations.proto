@@ -106,8 +106,18 @@ message GetMonitoringRegistryResponse {
     repeated string webpages = 9;
 }
 
+message SetAccessibilityMetricRequest {
+    int32 monitoring_registry_id = 1;
+    string accessibility_metric = 2;
+}
+
+message SetAccessibilityMetricResponse {
+    int32 status_code = 1;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
     rpc GetMonitoringRegistry(GetMonitoringRegistryRequest) returns (GetMonitoringRegistryResponse);
+    rpc SetAccessibilityMetric(SetAccessibilityMetricRequest) returns (SetAccessibilityMetricResponse);
 }

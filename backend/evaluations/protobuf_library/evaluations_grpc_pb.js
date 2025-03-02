@@ -70,6 +70,28 @@ function deserialize_runtimePackage_GetMonitoringRegistryResponse(buffer_arg) {
   return evaluations_pb.GetMonitoringRegistryResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_SetAccessibilityMetricRequest(arg) {
+  if (!(arg instanceof evaluations_pb.SetAccessibilityMetricRequest)) {
+    throw new Error('Expected argument of type runtimePackage.SetAccessibilityMetricRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_SetAccessibilityMetricRequest(buffer_arg) {
+  return evaluations_pb.SetAccessibilityMetricRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_SetAccessibilityMetricResponse(arg) {
+  if (!(arg instanceof evaluations_pb.SetAccessibilityMetricResponse)) {
+    throw new Error('Expected argument of type runtimePackage.SetAccessibilityMetricResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_SetAccessibilityMetricResponse(buffer_arg) {
+  return evaluations_pb.SetAccessibilityMetricResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 
 var EvaluationsService = exports.EvaluationsService = {
   addMonitoringRegistry: {
@@ -104,6 +126,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_GetMonitoringRegistryRequest,
     responseSerialize: serialize_runtimePackage_GetMonitoringRegistryResponse,
     responseDeserialize: deserialize_runtimePackage_GetMonitoringRegistryResponse,
+  },
+  setAccessibilityMetric: {
+    path: '/runtimePackage.Evaluations/SetAccessibilityMetric',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.SetAccessibilityMetricRequest,
+    responseType: evaluations_pb.SetAccessibilityMetricResponse,
+    requestSerialize: serialize_runtimePackage_SetAccessibilityMetricRequest,
+    requestDeserialize: deserialize_runtimePackage_SetAccessibilityMetricRequest,
+    responseSerialize: serialize_runtimePackage_SetAccessibilityMetricResponse,
+    responseDeserialize: deserialize_runtimePackage_SetAccessibilityMetricResponse,
   },
 };
 

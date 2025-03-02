@@ -6,16 +6,18 @@ CREATE TYPE module_type AS ENUM('wcag-techniques', 'act-rules', 'best-practices'
 CREATE TYPE success_criteria_level AS ENUM('A', 'AA', 'AAA');
 CREATE TYPE success_criteria_principle AS ENUM('Perceivable', 'Operable', 'Understandable', 'Robust');
 CREATE TYPE result_verdict AS ENUM('passed', 'warning', 'failed', 'inapplicable');
+CREATE TYPE accessibility_metric AS ENUM('a3');
 
 CREATE TABLE MonitoringRegistry (
-    id                  SERIAL PRIMARY KEY,
-    main_url            VARCHAR NOT NULL,
-    domain_name         VARCHAR NOT NULL,
-    is_mobile           BOOLEAN NOT NULL,
-    is_landscape        BOOLEAN NOT NULL,
-    display_width       INTEGER NOT NULL,
-    display_height      INTEGER NOT NULL,
-    webpages            VARCHAR[] NOT NULL
+    id                      SERIAL PRIMARY KEY,
+    accessibility_metric    accessibility_metric,
+    main_url                VARCHAR NOT NULL,
+    domain_name             VARCHAR NOT NULL,
+    is_mobile               BOOLEAN NOT NULL,
+    is_landscape            BOOLEAN NOT NULL,
+    display_width           INTEGER NOT NULL,
+    display_height          INTEGER NOT NULL,
+    webpages                VARCHAR[] NOT NULL
 );
 
 CREATE TABLE Evaluation (

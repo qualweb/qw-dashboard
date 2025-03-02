@@ -487,3 +487,47 @@ export namespace GetMonitoringRegistryResponse {
   }
 }
 
+export class SetAccessibilityMetricRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  getAccessibilityMetric(): string;
+  setAccessibilityMetric(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SetAccessibilityMetricRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: SetAccessibilityMetricRequest): SetAccessibilityMetricRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SetAccessibilityMetricRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SetAccessibilityMetricRequest;
+  static deserializeBinaryFromReader(message: SetAccessibilityMetricRequest, reader: jspb.BinaryReader): SetAccessibilityMetricRequest;
+}
+
+export namespace SetAccessibilityMetricRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+    accessibilityMetric: string,
+  }
+}
+
+export class SetAccessibilityMetricResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SetAccessibilityMetricResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: SetAccessibilityMetricResponse): SetAccessibilityMetricResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SetAccessibilityMetricResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SetAccessibilityMetricResponse;
+  static deserializeBinaryFromReader(message: SetAccessibilityMetricResponse, reader: jspb.BinaryReader): SetAccessibilityMetricResponse;
+}
+
+export namespace SetAccessibilityMetricResponse {
+  export type AsObject = {
+    statusCode: number,
+  }
+}
+

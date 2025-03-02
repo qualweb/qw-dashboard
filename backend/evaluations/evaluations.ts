@@ -20,7 +20,9 @@ import {
     AddMonitoringRegistryRequest,
     GetMonitoringRegistryRequest,
     AddMonitoringRegistryResponse,
-    GetMonitoringRegistryResponse
+    GetMonitoringRegistryResponse,
+    SetAccessibilityMetricRequest,
+    SetAccessibilityMetricResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler } from 'crawlee';
@@ -119,34 +121,58 @@ app.post('/api/crawl', (req: Request, res: Response) => {
         });
 });
 
+app.post('/api/set-accessibility-metric', async (req: Request, res: Response) => {
+    const monitoring_registry_id = req.body.monitoring_registry_id;
+    const accessibility_metric = req.body.accessibility_metric;
+
+    try {
+        const accessibility_metric_request = new SetAccessibilityMetricRequest();
+        accessibility_metric_request.setMonitoringRegistryId(monitoring_registry_id);
+        accessibility_metric_request.setAccessibilityMetric(accessibility_metric);
+
+        const response = await new Promise((resolve, reject) => {
+            client.setAccessibilityMetric(accessibility_metric_request, (err : Error, response : SetAccessibilityMetricResponse) => {
+                if (err) reject(err);
+                else resolve(response);
+            });
+        });
+    }
+    catch (error) {
+        console.error('Error setting accessibility metric:', error);
+        res.send(500);
+    }
+
+    res.send(200);
+});
+
 // This endpoint executes the evaluations
 app.post('/api/evaluate', async (req: Request, res: Response) => {
     const monitoring_registry_id = req.body.monitoring_registry_id;
 
-    const getWebpagesRequest = new GetMonitoringRegistryRequest();
-    getWebpagesRequest.setMonitoringRegistryId(monitoring_registry_id);
-
-    const response = await new Promise<GetMonitoringRegistryResponse>((resolve, reject) => {
-        client.getMonitoringRegistry(getWebpagesRequest, (err: Error, callResponse: GetMonitoringRegistryResponse) => {
-          if (err) reject(err);
-          else resolve(callResponse);
-        });
-    });
-
-    console.log(response)
-
-    if (response.getStatusCode() !== 200) {
-        res.send(response.getStatusCode());
-        return;
-    }
-
-    const urls = response.getWebpagesList();
-    
-    urls.forEach(url => {
-        console.log(url);
-    });
-
     try {
+        const getWebpagesRequest = new GetMonitoringRegistryRequest();
+        getWebpagesRequest.setMonitoringRegistryId(monitoring_registry_id);
+
+        const response = await new Promise<GetMonitoringRegistryResponse>((resolve, reject) => {
+            client.getMonitoringRegistry(getWebpagesRequest, (err: Error, callResponse: GetMonitoringRegistryResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        console.log(response);
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        const urls = response.getWebpagesList();
+        
+        urls.forEach(url => {
+            console.log(url);
+        });
+
         const reports = await evaluate(
             urls,
             response.getDisplayWidth(),
@@ -157,26 +183,17 @@ app.post('/api/evaluate', async (req: Request, res: Response) => {
         
         const validReports = urls
             .filter(url => reports[url])
-            .map(url => (
-                {
-                    url,
-                    report: reports[url]
-                }
-            ));
+            .map(url => ({
+                url,
+                report: reports[url]
+            }));
 
         if (validReports.length === 0) {
             res.send(404);
             return;
         }
 
-        async function processReport(index : number): Promise<void> {
-            if (index >= validReports.length) {
-                res.send(200);
-                return;
-            }
-            
-            const { url, report } = validReports[index];
-            
+        const processPromises = validReports.map(async ({ url, report }) => {
             try {
                 const evaluations_request = new AddEvaluationRequest();
                 evaluations_request.setQualwebVersion(report.system.version);
@@ -192,27 +209,47 @@ app.post('/api/evaluate', async (req: Request, res: Response) => {
                 evaluations_request.setModulesList(getModules(report));
                 evaluations_request.setModulesQuantity(2);
                 evaluations_request.setMonitoredWebsiteId(monitoring_registry_id);
-                
+
                 const response = await new Promise<AddEvaluationResponse>((resolve, reject) => {
-                    client.addEvaluation(evaluations_request, (err : Error, response : AddEvaluationResponse) => {
+                    client.addEvaluation(evaluations_request, (err: Error, response: AddEvaluationResponse) => {
                         if (err) reject(err);
                         else resolve(response);
                     });
                 });
                 
                 console.log(`Successfully added evaluation for URL ${url}`);
+                return { url, success: true, statusCode: response.getStatusCode() };
             } catch (error) {
                 console.error(`Error adding evaluation for URL ${url}:`, error);
+                return { url, success: false, error };
             }
-            
-            return processReport(index + 1);
+        });
+        
+        const results = await Promise.all(processPromises);
+        
+        const successful = results.filter(result => result.success).length;
+        const failed = results.length - successful;
+        
+        console.log(`Processing complete. Successful: ${successful}, Failed: ${failed}`);
+        
+        if (successful === 0 && failed > 0) {
+            res.status(500).json({ 
+                message: 'All evaluations failed',
+                results 
+            });
+            return;
         }
         
-        await processReport(0);
+        res.status(200).json({ 
+            message: 'Evaluation processing complete',
+            total: results.length,
+            successful,
+            failed
+        });
         
     } catch (error) {
         console.error('Error during evaluation:', error);
-        res.send(500);
+        res.status(500).json({ message: 'Error processing evaluations', error });
     }
 });
 

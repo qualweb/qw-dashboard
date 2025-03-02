@@ -1,3 +1,4 @@
+import psycopg2.pool
 import grpc
 from grpc_interceptor import ExceptionToStatusInterceptor
 from concurrent import futures
@@ -20,13 +21,16 @@ POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_DB = os.getenv("POSTGRES_DB")
 
-class IssuesDatabaseService(issues_pb2_grpc.IssuesServicer):
-    global database
+connection_pool = None
 
+class IssuesDatabaseService(issues_pb2_grpc.IssuesServicer):
     def AddIssues(self, request, context):
-        cursor = database.cursor()
+        conn = None
 
         try:
+            conn = database.getconn()
+            cursor = conn.cursor()
+
             for i in range(request.issues_quantity):
                 cursor.execute('''
                     INSERT INTO Issue (
@@ -52,14 +56,18 @@ class IssuesDatabaseService(issues_pb2_grpc.IssuesServicer):
                         issue_id, request.issues[i].elements[k].html_code, request.issues[i].elements[k].pointer 
                     ))
 
-            database.commit()
+            conn.commit()
             cursor.close()
             print("Insert successful", file=sys.stderr, flush=True)
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
-            database.rollback()
+            if conn:
+                conn.rollback()
             return AddIssuesResponse(status_code=500)
-
+        finally:
+            if conn:
+                database.putconn(conn)
+        
         return AddIssuesResponse(status_code=200)
 
 def serve():
@@ -82,9 +90,10 @@ def serve():
 
     database.close()
 
-database = None
 if __name__ == "__main__":
-    database = psycopg2.connect(
+    database = psycopg2.pool.ThreadedConnectionPool(
+        minconn=1,
+        maxconn=10,
         dbname = POSTGRES_DB,
         user = POSTGRES_USER,
         password = POSTGRES_PASSWORD,

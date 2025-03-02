@@ -29,26 +29,33 @@ CREATE TYPE module_type AS ENUM('wcag-techniques', 'act-rules', 'best-practices'
 CREATE TYPE success_criteria_level AS ENUM('A', 'AA', 'AAA');
 CREATE TYPE success_criteria_principle AS ENUM('Perceivable', 'Operable', 'Understandable', 'Robust');
 
-CREATE TABLE Evaluation (
+CREATE TABLE MonitoringRegistry (
     id                  SERIAL PRIMARY KEY,
-    qualweb_version     VARCHAR NOT NULL,
-    evaluation_date     DATE DEFAULT CURRENT_DATE,
-    input_url           VARCHAR NOT NULL,
-    domainName          VARCHAR NOT NULL,
-    domain              VARCHAR NOT NULL,
-    uri                 VARCHAR NOT NULL,
-    complete_url        VARCHAR NOT NULL,
+    main_url            VARCHAR NOT NULL,
+    domain_name         VARCHAR NOT NULL,
     is_mobile           BOOLEAN NOT NULL,
     is_landscape        BOOLEAN NOT NULL,
     display_width       INTEGER NOT NULL,
     display_height      INTEGER NOT NULL,
-    dom                 VARCHAR NOT NULL,
-    title               VARCHAR NOT NULL,
-    element_count       INTEGER NOT NULL,
-    passed              INTEGER NOT NULL,
-    warning             INTEGER NOT NULL,
-    failed              INTEGER NOT NULL,
-    inapplicable        INTEGER NOT NULL
+    webpages            VARCHAR[] NOT NULL
+);
+
+CREATE TABLE Evaluation (
+    id                      SERIAL PRIMARY KEY,
+    monitored_website_id    INTEGER NOT NULL,
+    qualweb_version         VARCHAR NOT NULL,
+    evaluation_date         DATE DEFAULT CURRENT_DATE,
+    input_url               VARCHAR NOT NULL,
+    complete_url            VARCHAR NOT NULL,
+    dom                     VARCHAR NOT NULL,
+    title                   VARCHAR NOT NULL,
+    element_count           INTEGER NOT NULL,
+    passed                  INTEGER NOT NULL,
+    warning                 INTEGER NOT NULL,
+    failed                  INTEGER NOT NULL,
+    inapplicable            INTEGER NOT NULL,
+
+    FOREIGN KEY (monitored_website_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Module (

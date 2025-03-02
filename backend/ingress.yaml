@@ -17,3 +17,10 @@ spec:
               name: evaluations
               port:
                 number: 8081
+        - path: /api/crawl
+          pathType: Prefix
+          backend:
+            service:
+              name: evaluations
+              port:
+                number: 8081

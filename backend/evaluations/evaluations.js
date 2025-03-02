@@ -148,74 +148,62 @@ app.post('/api/crawl', function (req, res) {
         res.send(500);
     });
 });
-// This endpoint executes the evaluations
-app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    function processReport(index) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, url, report, evaluations_request_1, response_1, error_3;
-            var _b, _c, _d, _e, _f, _g;
-            return __generator(this, function (_h) {
-                switch (_h.label) {
-                    case 0:
-                        if (index >= validReports_1.length) {
-                            res.send(200);
-                            return [2 /*return*/];
-                        }
-                        _a = validReports_1[index], url = _a.url, report = _a.report;
-                        _h.label = 1;
-                    case 1:
-                        _h.trys.push([1, 3, , 4]);
-                        evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
-                        evaluations_request_1.setQualwebVersion(report.system.version);
-                        evaluations_request_1.setInputUrl((_c = (_b = report.system.url) === null || _b === void 0 ? void 0 : _b.inputUrl) !== null && _c !== void 0 ? _c : "");
-                        evaluations_request_1.setCompleteUrl((_e = (_d = report.system.url) === null || _d === void 0 ? void 0 : _d.completeUrl) !== null && _e !== void 0 ? _e : "");
-                        evaluations_request_1.setDom(report.system.page.dom.html);
-                        evaluations_request_1.setTitle((_f = report.system.page.dom.title) !== null && _f !== void 0 ? _f : "");
-                        evaluations_request_1.setElementCount((_g = report.system.page.dom.elementCount) !== null && _g !== void 0 ? _g : 0);
-                        evaluations_request_1.setPassed(report.metadata.passed);
-                        evaluations_request_1.setWarning(report.metadata.warning);
-                        evaluations_request_1.setFailed(report.metadata.failed);
-                        evaluations_request_1.setInapplicable(report.metadata.inapplicable);
-                        evaluations_request_1.setModulesList(getModules(report));
-                        evaluations_request_1.setModulesQuantity(2);
-                        evaluations_request_1.setMonitoredWebsiteId(monitoring_registry_id);
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                client.addEvaluation(evaluations_request_1, function (err, response) {
-                                    if (err)
-                                        reject(err);
-                                    else
-                                        resolve(response);
-                                });
-                            })];
-                    case 2:
-                        response_1 = _h.sent();
-                        console.log("Successfully added evaluation for URL ".concat(url));
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_3 = _h.sent();
-                        console.error("Error adding evaluation for URL ".concat(url, ":"), error_3);
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/, processReport(index + 1)];
-                }
-            });
-        });
-    }
-    var monitoring_registry_id, getWebpagesRequest, response, urls, reports_1, validReports_1, error_2;
+app.post('/api/set-accessibility-metric', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_registry_id, accessibility_metric, accessibility_metric_request_1, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 monitoring_registry_id = req.body.monitoring_registry_id;
-                getWebpagesRequest = new evaluations_pb_1.GetMonitoringRegistryRequest();
-                getWebpagesRequest.setMonitoringRegistryId(monitoring_registry_id);
+                accessibility_metric = req.body.accessibility_metric;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                accessibility_metric_request_1 = new evaluations_pb_1.SetAccessibilityMetricRequest();
+                accessibility_metric_request_1.setMonitoringRegistryId(monitoring_registry_id);
+                accessibility_metric_request_1.setAccessibilityMetric(accessibility_metric);
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        client.getMonitoringRegistry(getWebpagesRequest, function (err, callResponse) {
+                        client.setAccessibilityMetric(accessibility_metric_request_1, function (err, response) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(response);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                return [3 /*break*/, 4];
+            case 3:
+                error_2 = _a.sent();
+                console.error('Error setting accessibility metric:', error_2);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4:
+                res.send(200);
+                return [2 /*return*/];
+        }
+    });
+}); });
+// This endpoint executes the evaluations
+app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_registry_id, getWebpagesRequest_1, response, urls, reports_1, validReports, processPromises, results, successful, failed, error_3;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_registry_id = req.body.monitoring_registry_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 5, , 6]);
+                getWebpagesRequest_1 = new evaluations_pb_1.GetMonitoringRegistryRequest();
+                getWebpagesRequest_1.setMonitoringRegistryId(monitoring_registry_id);
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getMonitoringRegistry(getWebpagesRequest_1, function (err, callResponse) {
                             if (err)
                                 reject(err);
                             else
                                 resolve(callResponse);
                         });
                     })];
-            case 1:
+            case 2:
                 response = _a.sent();
                 console.log(response);
                 if (response.getStatusCode() !== 200) {
@@ -226,30 +214,85 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                 urls.forEach(function (url) {
                     console.log(url);
                 });
-                _a.label = 2;
-            case 2:
-                _a.trys.push([2, 5, , 6]);
                 return [4 /*yield*/, evaluate(urls, response.getDisplayWidth(), response.getDisplayHeight(), response.getIsMobile(), response.getIsLandscape())];
             case 3:
                 reports_1 = _a.sent();
-                validReports_1 = urls
+                validReports = urls
                     .filter(function (url) { return reports_1[url]; })
                     .map(function (url) { return ({
                     url: url,
                     report: reports_1[url]
                 }); });
-                if (validReports_1.length === 0) {
+                if (validReports.length === 0) {
                     res.send(404);
                     return [2 /*return*/];
                 }
-                return [4 /*yield*/, processReport(0)];
+                processPromises = validReports.map(function (_a) { return __awaiter(void 0, [_a], void 0, function (_b) {
+                    var evaluations_request_1, response_1, error_4;
+                    var _c, _d, _e, _f, _g, _h;
+                    var url = _b.url, report = _b.report;
+                    return __generator(this, function (_j) {
+                        switch (_j.label) {
+                            case 0:
+                                _j.trys.push([0, 2, , 3]);
+                                evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
+                                evaluations_request_1.setQualwebVersion(report.system.version);
+                                evaluations_request_1.setInputUrl((_d = (_c = report.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "");
+                                evaluations_request_1.setCompleteUrl((_f = (_e = report.system.url) === null || _e === void 0 ? void 0 : _e.completeUrl) !== null && _f !== void 0 ? _f : "");
+                                evaluations_request_1.setDom(report.system.page.dom.html);
+                                evaluations_request_1.setTitle((_g = report.system.page.dom.title) !== null && _g !== void 0 ? _g : "");
+                                evaluations_request_1.setElementCount((_h = report.system.page.dom.elementCount) !== null && _h !== void 0 ? _h : 0);
+                                evaluations_request_1.setPassed(report.metadata.passed);
+                                evaluations_request_1.setWarning(report.metadata.warning);
+                                evaluations_request_1.setFailed(report.metadata.failed);
+                                evaluations_request_1.setInapplicable(report.metadata.inapplicable);
+                                evaluations_request_1.setModulesList(getModules(report));
+                                evaluations_request_1.setModulesQuantity(2);
+                                evaluations_request_1.setMonitoredWebsiteId(monitoring_registry_id);
+                                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                        client.addEvaluation(evaluations_request_1, function (err, response) {
+                                            if (err)
+                                                reject(err);
+                                            else
+                                                resolve(response);
+                                        });
+                                    })];
+                            case 1:
+                                response_1 = _j.sent();
+                                console.log("Successfully added evaluation for URL ".concat(url));
+                                return [2 /*return*/, { url: url, success: true, statusCode: response_1.getStatusCode() }];
+                            case 2:
+                                error_4 = _j.sent();
+                                console.error("Error adding evaluation for URL ".concat(url, ":"), error_4);
+                                return [2 /*return*/, { url: url, success: false, error: error_4 }];
+                            case 3: return [2 /*return*/];
+                        }
+                    });
+                }); });
+                return [4 /*yield*/, Promise.all(processPromises)];
             case 4:
-                _a.sent();
+                results = _a.sent();
+                successful = results.filter(function (result) { return result.success; }).length;
+                failed = results.length - successful;
+                console.log("Processing complete. Successful: ".concat(successful, ", Failed: ").concat(failed));
+                if (successful === 0 && failed > 0) {
+                    res.status(500).json({
+                        message: 'All evaluations failed',
+                        results: results
+                    });
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    message: 'Evaluation processing complete',
+                    total: results.length,
+                    successful: successful,
+                    failed: failed
+                });
                 return [3 /*break*/, 6];
             case 5:
-                error_2 = _a.sent();
-                console.error('Error during evaluation:', error_2);
-                res.send(500);
+                error_3 = _a.sent();
+                console.error('Error during evaluation:', error_3);
+                res.status(500).json({ message: 'Error processing evaluations', error: error_3 });
                 return [3 /*break*/, 6];
             case 6: return [2 /*return*/];
         }
