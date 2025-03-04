@@ -17,14 +17,15 @@ CREATE TABLE MonitoringRegistry (
     is_landscape            BOOLEAN NOT NULL,
     display_width           INTEGER NOT NULL,
     display_height          INTEGER NOT NULL,
-    webpages                VARCHAR[] NOT NULL
+    webpages                VARCHAR[] NOT NULL,
+    latest_evaluation       TIMESTAMP
 );
 
 CREATE TABLE Evaluation (
     id                      SERIAL PRIMARY KEY,
     monitored_website_id    INTEGER NOT NULL,
     qualweb_version         VARCHAR NOT NULL,
-    evaluation_date         DATE DEFAULT CURRENT_DATE,
+    evaluation_date         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     input_url               VARCHAR NOT NULL,
     complete_url            VARCHAR NOT NULL,
     dom                     VARCHAR NOT NULL,

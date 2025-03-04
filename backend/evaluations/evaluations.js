@@ -185,14 +185,14 @@ app.post('/api/set-accessibility-metric', function (req, res) { return __awaiter
 }); });
 // This endpoint executes the evaluations
 app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_registry_id, getWebpagesRequest_1, response, urls, reports_1, validReports, processPromises, results, successful, failed, error_3;
+    var monitoring_registry_id, getWebpagesRequest_1, response, urls, reports_1, validReports, processPromises, results, successful, failed, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 monitoring_registry_id = req.body.monitoring_registry_id;
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 5, , 6]);
+                _a.trys.push([1, 6, , 7]);
                 getWebpagesRequest_1 = new evaluations_pb_1.GetMonitoringRegistryRequest();
                 getWebpagesRequest_1.setMonitoringRegistryId(monitoring_registry_id);
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
@@ -282,19 +282,83 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                     });
                     return [2 /*return*/];
                 }
+                if (failed > 0) {
+                    res.status(207).json({
+                        message: 'Some evaluations failed',
+                        total: results.length,
+                        successful: successful,
+                        failed: failed,
+                        results: results
+                    });
+                    return [2 /*return*/];
+                }
+                setLatestEvalRequest_1 = new evaluations_pb_1.SetLatestEvaluationRequest();
+                setLatestEvalRequest_1.setMonitoringRegistryId(monitoring_registry_id);
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.setLatestEvaluation(setLatestEvalRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 5:
+                setLatestEvalResponse = _a.sent();
+                if (setLatestEvalResponse.getStatusCode() !== 200) {
+                    res.send(setLatestEvalResponse.getStatusCode());
+                    return [2 /*return*/];
+                }
                 res.status(200).json({
                     message: 'Evaluation processing complete',
                     total: results.length,
                     successful: successful,
                     failed: failed
                 });
-                return [3 /*break*/, 6];
-            case 5:
+                return [3 /*break*/, 7];
+            case 6:
                 error_3 = _a.sent();
                 console.error('Error during evaluation:', error_3);
                 res.status(500).json({ message: 'Error processing evaluations', error: error_3 });
-                return [3 /*break*/, 6];
-            case 6: return [2 /*return*/];
+                return [3 /*break*/, 7];
+            case 7: return [2 /*return*/];
+        }
+    });
+}); });
+app.post('/api/calculate-score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_registry_id, calculateScoreRequest_1, response, error_5;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_registry_id = req.body.monitoring_registry_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                calculateScoreRequest_1 = new evaluations_pb_1.CalculateAccessibilityScoreRequest();
+                calculateScoreRequest_1.setMonitoringRegistryId(monitoring_registry_id);
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.calculateAccessibilityScore(calculateScoreRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                console.log(response);
+                return [3 /*break*/, 4];
+            case 3:
+                error_5 = _a.sent();
+                console.error('Error calculating the accessibility score:', error_5);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4:
+                res.send(200);
+                return [2 /*return*/];
         }
     });
 }); });

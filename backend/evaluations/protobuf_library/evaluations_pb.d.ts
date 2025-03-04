@@ -531,3 +531,87 @@ export namespace SetAccessibilityMetricResponse {
   }
 }
 
+export class CalculateAccessibilityScoreRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CalculateAccessibilityScoreRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: CalculateAccessibilityScoreRequest): CalculateAccessibilityScoreRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: CalculateAccessibilityScoreRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CalculateAccessibilityScoreRequest;
+  static deserializeBinaryFromReader(message: CalculateAccessibilityScoreRequest, reader: jspb.BinaryReader): CalculateAccessibilityScoreRequest;
+}
+
+export namespace CalculateAccessibilityScoreRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+  }
+}
+
+export class CalculateAccessibilityScoreResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  getAccessibilityScore(): number;
+  setAccessibilityScore(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CalculateAccessibilityScoreResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: CalculateAccessibilityScoreResponse): CalculateAccessibilityScoreResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: CalculateAccessibilityScoreResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CalculateAccessibilityScoreResponse;
+  static deserializeBinaryFromReader(message: CalculateAccessibilityScoreResponse, reader: jspb.BinaryReader): CalculateAccessibilityScoreResponse;
+}
+
+export namespace CalculateAccessibilityScoreResponse {
+  export type AsObject = {
+    statusCode: number,
+    accessibilityScore: number,
+  }
+}
+
+export class SetLatestEvaluationRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SetLatestEvaluationRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: SetLatestEvaluationRequest): SetLatestEvaluationRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SetLatestEvaluationRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SetLatestEvaluationRequest;
+  static deserializeBinaryFromReader(message: SetLatestEvaluationRequest, reader: jspb.BinaryReader): SetLatestEvaluationRequest;
+}
+
+export namespace SetLatestEvaluationRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+  }
+}
+
+export class SetLatestEvaluationResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SetLatestEvaluationResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: SetLatestEvaluationResponse): SetLatestEvaluationResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SetLatestEvaluationResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SetLatestEvaluationResponse;
+  static deserializeBinaryFromReader(message: SetLatestEvaluationResponse, reader: jspb.BinaryReader): SetLatestEvaluationResponse;
+}
+
+export namespace SetLatestEvaluationResponse {
+  export type AsObject = {
+    statusCode: number,
+  }
+}
+

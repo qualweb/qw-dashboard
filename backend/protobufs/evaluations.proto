@@ -115,9 +115,28 @@ message SetAccessibilityMetricResponse {
     int32 status_code = 1;
 }
 
+message CalculateAccessibilityScoreRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message CalculateAccessibilityScoreResponse {
+    int32 status_code = 1;
+    float accessibility_score = 2;
+}
+
+message SetLatestEvaluationRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message SetLatestEvaluationResponse {
+    int32 status_code = 1;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
     rpc GetMonitoringRegistry(GetMonitoringRegistryRequest) returns (GetMonitoringRegistryResponse);
     rpc SetAccessibilityMetric(SetAccessibilityMetricRequest) returns (SetAccessibilityMetricResponse);
+    rpc CalculateAccessibilityScore(CalculateAccessibilityScoreRequest) returns (CalculateAccessibilityScoreResponse);
+    rpc SetLatestEvaluation(SetLatestEvaluationRequest) returns (SetLatestEvaluationResponse);
 }

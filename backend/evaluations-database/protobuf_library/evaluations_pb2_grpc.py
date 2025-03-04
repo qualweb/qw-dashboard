@@ -54,6 +54,16 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.SetAccessibilityMetricRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.SetAccessibilityMetricResponse.FromString,
                 _registered_method=True)
+        self.CalculateAccessibilityScore = channel.unary_unary(
+                '/runtimePackage.Evaluations/CalculateAccessibilityScore',
+                request_serializer=evaluations__pb2.CalculateAccessibilityScoreRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.CalculateAccessibilityScoreResponse.FromString,
+                _registered_method=True)
+        self.SetLatestEvaluation = channel.unary_unary(
+                '/runtimePackage.Evaluations/SetLatestEvaluation',
+                request_serializer=evaluations__pb2.SetLatestEvaluationRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.SetLatestEvaluationResponse.FromString,
+                _registered_method=True)
 
 
 class EvaluationsServicer(object):
@@ -83,6 +93,18 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CalculateAccessibilityScore(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetLatestEvaluation(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -105,6 +127,16 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     servicer.SetAccessibilityMetric,
                     request_deserializer=evaluations__pb2.SetAccessibilityMetricRequest.FromString,
                     response_serializer=evaluations__pb2.SetAccessibilityMetricResponse.SerializeToString,
+            ),
+            'CalculateAccessibilityScore': grpc.unary_unary_rpc_method_handler(
+                    servicer.CalculateAccessibilityScore,
+                    request_deserializer=evaluations__pb2.CalculateAccessibilityScoreRequest.FromString,
+                    response_serializer=evaluations__pb2.CalculateAccessibilityScoreResponse.SerializeToString,
+            ),
+            'SetLatestEvaluation': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetLatestEvaluation,
+                    request_deserializer=evaluations__pb2.SetLatestEvaluationRequest.FromString,
+                    response_serializer=evaluations__pb2.SetLatestEvaluationResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -215,6 +247,60 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/SetAccessibilityMetric',
             evaluations__pb2.SetAccessibilityMetricRequest.SerializeToString,
             evaluations__pb2.SetAccessibilityMetricResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CalculateAccessibilityScore(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/CalculateAccessibilityScore',
+            evaluations__pb2.CalculateAccessibilityScoreRequest.SerializeToString,
+            evaluations__pb2.CalculateAccessibilityScoreResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetLatestEvaluation(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/SetLatestEvaluation',
+            evaluations__pb2.SetLatestEvaluationRequest.SerializeToString,
+            evaluations__pb2.SetLatestEvaluationResponse.FromString,
             options,
             channel_credentials,
             insecure,

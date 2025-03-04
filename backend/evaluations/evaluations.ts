@@ -22,7 +22,11 @@ import {
     AddMonitoringRegistryResponse,
     GetMonitoringRegistryResponse,
     SetAccessibilityMetricRequest,
-    SetAccessibilityMetricResponse
+    SetAccessibilityMetricResponse,
+    CalculateAccessibilityScoreRequest,
+    CalculateAccessibilityScoreResponse,
+    SetLatestEvaluationRequest,
+    SetLatestEvaluationResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler } from 'crawlee';
@@ -122,7 +126,7 @@ app.post('/api/crawl', (req: Request, res: Response) => {
 });
 
 app.post('/api/set-accessibility-metric', async (req: Request, res: Response) => {
-    const monitoring_registry_id = req.body.monitoring_registry_id;
+    const monitoring_registry_id = req.body.monitoring_registry_id  ;
     const accessibility_metric = req.body.accessibility_metric;
 
     try {
@@ -193,6 +197,13 @@ app.post('/api/evaluate', async (req: Request, res: Response) => {
             return;
         }
 
+        if (validReports.length < urls.length) {
+            res.status(207).json({ 
+                message: 'Some URLs could not be evaluated',
+                urls: urls.filter(url => !reports[url])
+            });
+        }
+
         const processPromises = validReports.map(async ({ url, report }) => {
             try {
                 const evaluations_request = new AddEvaluationRequest();
@@ -239,7 +250,22 @@ app.post('/api/evaluate', async (req: Request, res: Response) => {
             });
             return;
         }
-        
+
+        const setLatestEvalRequest = new SetLatestEvaluationRequest();
+        setLatestEvalRequest.setMonitoringRegistryId(monitoring_registry_id);
+
+        const setLatestEvalResponse = await new Promise<SetLatestEvaluationResponse>((resolve, reject) => {
+            client.setLatestEvaluation(setLatestEvalRequest, (err: Error, callResponse: SetLatestEvaluationResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (setLatestEvalResponse.getStatusCode() !== 200) {
+            res.send(setLatestEvalResponse.getStatusCode());
+            return;
+        }
+
         res.status(200).json({ 
             message: 'Evaluation processing complete',
             total: results.length,
@@ -251,6 +277,35 @@ app.post('/api/evaluate', async (req: Request, res: Response) => {
         console.error('Error during evaluation:', error);
         res.status(500).json({ message: 'Error processing evaluations', error });
     }
+});
+
+app.post('/api/calculate-score', async (req: Request, res: Response) => {
+    const monitoring_registry_id = req.body.monitoring_registry_id;
+
+    try {
+        const calculateScoreRequest = new CalculateAccessibilityScoreRequest();
+        calculateScoreRequest.setMonitoringRegistryId(monitoring_registry_id);
+
+        const response = await new Promise<CalculateAccessibilityScoreResponse>((resolve, reject) => {
+            client.calculateAccessibilityScore(calculateScoreRequest, (err: Error, callResponse: CalculateAccessibilityScoreResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        console.log(response);
+    }
+    catch (error) {
+        console.error('Error calculating the accessibility score:', error);
+        res.send(500);
+    }
+
+    res.send(200);
 });
 
 app.listen(port, () => {

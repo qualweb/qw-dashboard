@@ -48,6 +48,28 @@ function deserialize_runtimePackage_AddMonitoringRegistryResponse(buffer_arg) {
   return evaluations_pb.AddMonitoringRegistryResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_CalculateAccessibilityScoreRequest(arg) {
+  if (!(arg instanceof evaluations_pb.CalculateAccessibilityScoreRequest)) {
+    throw new Error('Expected argument of type runtimePackage.CalculateAccessibilityScoreRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_CalculateAccessibilityScoreRequest(buffer_arg) {
+  return evaluations_pb.CalculateAccessibilityScoreRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_CalculateAccessibilityScoreResponse(arg) {
+  if (!(arg instanceof evaluations_pb.CalculateAccessibilityScoreResponse)) {
+    throw new Error('Expected argument of type runtimePackage.CalculateAccessibilityScoreResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_CalculateAccessibilityScoreResponse(buffer_arg) {
+  return evaluations_pb.CalculateAccessibilityScoreResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetMonitoringRegistryRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetMonitoringRegistryRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetMonitoringRegistryRequest');
@@ -90,6 +112,28 @@ function serialize_runtimePackage_SetAccessibilityMetricResponse(arg) {
 
 function deserialize_runtimePackage_SetAccessibilityMetricResponse(buffer_arg) {
   return evaluations_pb.SetAccessibilityMetricResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_SetLatestEvaluationRequest(arg) {
+  if (!(arg instanceof evaluations_pb.SetLatestEvaluationRequest)) {
+    throw new Error('Expected argument of type runtimePackage.SetLatestEvaluationRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_SetLatestEvaluationRequest(buffer_arg) {
+  return evaluations_pb.SetLatestEvaluationRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_SetLatestEvaluationResponse(arg) {
+  if (!(arg instanceof evaluations_pb.SetLatestEvaluationResponse)) {
+    throw new Error('Expected argument of type runtimePackage.SetLatestEvaluationResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_SetLatestEvaluationResponse(buffer_arg) {
+  return evaluations_pb.SetLatestEvaluationResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 
@@ -137,6 +181,28 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_SetAccessibilityMetricRequest,
     responseSerialize: serialize_runtimePackage_SetAccessibilityMetricResponse,
     responseDeserialize: deserialize_runtimePackage_SetAccessibilityMetricResponse,
+  },
+  calculateAccessibilityScore: {
+    path: '/runtimePackage.Evaluations/CalculateAccessibilityScore',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.CalculateAccessibilityScoreRequest,
+    responseType: evaluations_pb.CalculateAccessibilityScoreResponse,
+    requestSerialize: serialize_runtimePackage_CalculateAccessibilityScoreRequest,
+    requestDeserialize: deserialize_runtimePackage_CalculateAccessibilityScoreRequest,
+    responseSerialize: serialize_runtimePackage_CalculateAccessibilityScoreResponse,
+    responseDeserialize: deserialize_runtimePackage_CalculateAccessibilityScoreResponse,
+  },
+  setLatestEvaluation: {
+    path: '/runtimePackage.Evaluations/SetLatestEvaluation',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.SetLatestEvaluationRequest,
+    responseType: evaluations_pb.SetLatestEvaluationResponse,
+    requestSerialize: serialize_runtimePackage_SetLatestEvaluationRequest,
+    requestDeserialize: deserialize_runtimePackage_SetLatestEvaluationRequest,
+    responseSerialize: serialize_runtimePackage_SetLatestEvaluationResponse,
+    responseDeserialize: deserialize_runtimePackage_SetLatestEvaluationResponse,
   },
 };
 

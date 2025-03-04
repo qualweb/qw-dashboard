@@ -5,11 +5,14 @@ from concurrent import futures
 import sys
 import os
 from dotenv import load_dotenv
+import datetime
 
 from protobuf_library.evaluations_pb2 import (
     AddEvaluationResponse,
     GetMonitoringRegistryResponse,
-    SetAccessibilityMetricResponse
+    SetAccessibilityMetricResponse,
+    CalculateAccessibilityScoreResponse,
+    SetLatestEvaluationResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -270,13 +273,13 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
         return GetMonitoringRegistryResponse(
                 status_code=200,
                 id=result[0],
-                main_url=result[1],
-                domain_name=result[2],
-                is_mobile=result[3],
-                is_landscape=result[4],
-                display_width=result[5],
-                display_height=result[6],
-                webpages=result[7]                                 
+                main_url=result[2],
+                domain_name=result[3],
+                is_mobile=result[4],
+                is_landscape=result[5],
+                display_width=result[6],
+                display_height=result[7],
+                webpages=result[8]                                 
             )
     
     def SetAccessibilityMetric(self, request, context):
@@ -306,6 +309,109 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return SetAccessibilityMetricResponse(status_code=200)
+    
+    def CalculateAccessibilityScore(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            
+            # Get all webpages from the monitoring registry
+            cursor.execute('''
+                SELECT webpages FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_registry_id, ))
+
+            webpages = cursor.fetchone()[0]
+
+            # Get all the latests evaluations for all webpages in the monitoring registry
+            cursor.execute('''
+                SELECT e.id, e.input_url, e.complete_url, e.evaluation_date, 
+                    e.title, e.passed, e.warning, e.failed, e.inapplicable
+                FROM Evaluation e
+                INNER JOIN (
+                    SELECT complete_url, MAX(evaluation_date) as max_date
+                    FROM Evaluation
+                    WHERE monitored_website_id = %s
+                    AND complete_url = ANY(%s)
+                    GROUP BY complete_url
+                ) latest 
+                ON e.complete_url = latest.complete_url 
+                AND e.evaluation_date = latest.max_date
+                WHERE e.monitored_website_id = %s
+                ORDER BY e.evaluation_date DESC, e.complete_url
+            ''', (request.monitoring_registry_id, webpages, request.monitoring_registry_id))
+
+            latest_evaluations = cursor.fetchall()
+            
+            print(latest_evaluations, file=sys.stderr, flush=True)
+            
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+    
+            return CalculateAccessibilityScoreResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return CalculateAccessibilityScoreResponse(status_code=200)
+
+    def SetLatestEvaluation(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT id FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_registry_id, ))
+
+            exists_monitoring_registry = cursor.fetchone()
+
+            if exists_monitoring_registry is None:
+                return SetLatestEvaluationResponse(status_code=404)
+
+            cursor.execute('''
+                SELECT evaluation_date 
+                FROM Evaluation
+                WHERE monitored_website_id = %s
+                ORDER BY evaluation_date DESC
+                LIMIT 1
+            ''', (request.monitoring_registry_id, ))
+
+            exists_evaluation = cursor.fetchone()
+
+            if exists_evaluation is None:
+                return SetLatestEvaluationResponse(status_code=404)
+
+            cursor.execute('''
+                UPDATE MonitoringRegistry
+                SET latest_evaluation = %s
+                WHERE id = %s
+            ''', (exists_evaluation[0], request.monitoring_registry_id))
+
+            conn.commit()
+            cursor.close()
+            print("Update successful", file=sys.stderr, flush=True)
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return SetLatestEvaluationResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return SetLatestEvaluationResponse(status_code=200)
+
     
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]
