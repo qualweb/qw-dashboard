@@ -1,4 +1,2 @@
-source .env
-
 docker build -t issues-database-container -f Dockerfile .
-docker run --name issues-database-container -d -p $MS_PORT:$MS_PORT --network microservices -e DATABASE_HOST=postgres-database issues-database-container
+docker run --name issues-database-container -d -p 6001:6001 --network microservices -e DATABASE_HOST=postgres-database issues-database-container

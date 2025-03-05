@@ -5,7 +5,7 @@ const { WCAGTechniques } = require('@qualweb/wcag-techniques');
 /**
  * @param {string} urlToEvaluate
  */
-async function evaluate(urlsToEvaluate, screenWidth, screenHeight, isMobile, isLandscape) {
+async function evaluate(url, screenWidth, screenHeight, isMobile, isLandscape) {
   const plugins = {
   };
   const qualweb = new QualWeb(plugins);
@@ -36,7 +36,7 @@ async function evaluate(urlsToEvaluate, screenWidth, screenHeight, isMobile, isL
   // Evaluates the given options - will only return after all urls have finished evaluating or resulted in an error
   const reports = await qualweb.evaluate(
     {
-      urls: urlsToEvaluate,
+      url: url,
       modules: [
         wcagTechniquesModule,
         actRulesModule

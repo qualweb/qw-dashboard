@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -185,14 +185,14 @@ app.post('/api/set-accessibility-metric', function (req, res) { return __awaiter
 }); });
 // This endpoint executes the evaluations
 app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_registry_id, getWebpagesRequest_1, response, urls, reports_1, validReports, processPromises, results, successful, failed, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
+    var monitoring_registry_id, getWebpagesRequest_1, response, urls, reports_1, _i, urls_1, url, report, validReports, processPromises, results, successful, failed, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 monitoring_registry_id = req.body.monitoring_registry_id;
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 6, , 7]);
+                _a.trys.push([1, 10, , 11]);
                 getWebpagesRequest_1 = new evaluations_pb_1.GetMonitoringRegistryRequest();
                 getWebpagesRequest_1.setMonitoringRegistryId(monitoring_registry_id);
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
@@ -211,12 +211,26 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                     return [2 /*return*/];
                 }
                 urls = response.getWebpagesList();
-                urls.forEach(function (url) {
-                    console.log(url);
-                });
-                return [4 /*yield*/, evaluate(urls, response.getDisplayWidth(), response.getDisplayHeight(), response.getIsMobile(), response.getIsLandscape())];
+                reports_1 = {};
+                _i = 0, urls_1 = urls;
+                _a.label = 3;
             case 3:
-                reports_1 = _a.sent();
+                if (!(_i < urls_1.length)) return [3 /*break*/, 7];
+                url = urls_1[_i];
+                return [4 /*yield*/, evaluate(url, response.getDisplayWidth(), response.getDisplayHeight(), response.getIsMobile(), response.getIsLandscape())];
+            case 4:
+                report = _a.sent();
+                reports_1[url] = report[url];
+                if (!(url !== urls[urls.length - 1])) return [3 /*break*/, 6];
+                return [4 /*yield*/, (0, crawlee_1.sleep)(500)];
+            case 5:
+                _a.sent();
+                _a.label = 6;
+            case 6:
+                _i++;
+                return [3 /*break*/, 3];
+            case 7:
+                console.log(reports_1);
                 validReports = urls
                     .filter(function (url) { return reports_1[url]; })
                     .map(function (url) { return ({
@@ -226,6 +240,12 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                 if (validReports.length === 0) {
                     res.send(404);
                     return [2 /*return*/];
+                }
+                if (validReports.length < urls.length) {
+                    res.status(207).json({
+                        message: 'Some URLs could not be evaluated',
+                        urls: urls.filter(function (url) { return !reports_1[url]; })
+                    });
                 }
                 processPromises = validReports.map(function (_a) { return __awaiter(void 0, [_a], void 0, function (_b) {
                     var evaluations_request_1, response_1, error_4;
@@ -270,7 +290,7 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                     });
                 }); });
                 return [4 /*yield*/, Promise.all(processPromises)];
-            case 4:
+            case 8:
                 results = _a.sent();
                 successful = results.filter(function (result) { return result.success; }).length;
                 failed = results.length - successful;
@@ -278,16 +298,6 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                 if (successful === 0 && failed > 0) {
                     res.status(500).json({
                         message: 'All evaluations failed',
-                        results: results
-                    });
-                    return [2 /*return*/];
-                }
-                if (failed > 0) {
-                    res.status(207).json({
-                        message: 'Some evaluations failed',
-                        total: results.length,
-                        successful: successful,
-                        failed: failed,
                         results: results
                     });
                     return [2 /*return*/];
@@ -302,7 +312,7 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                                 resolve(callResponse);
                         });
                     })];
-            case 5:
+            case 9:
                 setLatestEvalResponse = _a.sent();
                 if (setLatestEvalResponse.getStatusCode() !== 200) {
                     res.send(setLatestEvalResponse.getStatusCode());
@@ -314,13 +324,13 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                     successful: successful,
                     failed: failed
                 });
-                return [3 /*break*/, 7];
-            case 6:
+                return [3 /*break*/, 11];
+            case 10:
                 error_3 = _a.sent();
                 console.error('Error during evaluation:', error_3);
                 res.status(500).json({ message: 'Error processing evaluations', error: error_3 });
-                return [3 /*break*/, 7];
-            case 7: return [2 /*return*/];
+                return [3 /*break*/, 11];
+            case 11: return [2 /*return*/];
         }
     });
 }); });

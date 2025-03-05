@@ -29,7 +29,7 @@ import {
     SetLatestEvaluationResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
-import { PuppeteerCrawler } from 'crawlee';
+import { PuppeteerCrawler, sleep } from 'crawlee';
 
 dotenv.config();
 
@@ -173,18 +173,27 @@ app.post('/api/evaluate', async (req: Request, res: Response) => {
 
         const urls = response.getWebpagesList();
         
-        urls.forEach(url => {
-            console.log(url);
-        });
+        type ReportMap = { [url: string]: any };
+        const reports: ReportMap = {};
 
-        const reports = await evaluate(
-            urls,
-            response.getDisplayWidth(),
-            response.getDisplayHeight(),
-            response.getIsMobile(),
-            response.getIsLandscape()
-        );
-        
+        for (const url of urls) {
+            const report = await evaluate(
+                url,
+                response.getDisplayWidth(),
+                response.getDisplayHeight(),
+                response.getIsMobile(),
+                response.getIsLandscape()
+            );
+            
+            reports[url] = report[url];
+            
+            if (url !== urls[urls.length - 1]) {
+                await sleep(500);
+            }
+        }
+
+        console.log(reports);
+
         const validReports = urls
             .filter(url => reports[url])
             .map(url => ({

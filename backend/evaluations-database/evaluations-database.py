@@ -310,6 +310,27 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
         return SetAccessibilityMetricResponse(status_code=200)
     
+    def calculateWebpageA3Score(self, webpage_id, cursor):
+        a3_score = 1
+
+        # Calculate A3 score for 1 webpage
+            # Calculate barrier score for all barriers
+                # Bpb - Total number of actual barrier fails in the page
+                # Npb - Total number of potential barrier fails in the page
+                # Bp  - Total number of actual barrier fails in all pages
+                # Fb  - Severity of a barrier
+
+        cursor.execute('''
+            SELECT id
+            FROM Module
+            WHERE evaluation_id = %s
+            AND module_type = 'act-rules'
+        ''', (webpage_id, ))
+
+        modules_ids = cursor.fetchone()[0]
+
+        return a3_score
+
     def CalculateAccessibilityScore(self, request, context):
         conn = None
 
@@ -326,28 +347,29 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             webpages = cursor.fetchone()[0]
 
-            # Get all the latests evaluations for all webpages in the monitoring registry
+            # Get the latest evaluation for each webpage
             cursor.execute('''
-                SELECT e.id, e.input_url, e.complete_url, e.evaluation_date, 
-                    e.title, e.passed, e.warning, e.failed, e.inapplicable
-                FROM Evaluation e
-                INNER JOIN (
-                    SELECT complete_url, MAX(evaluation_date) as max_date
-                    FROM Evaluation
-                    WHERE monitored_website_id = %s
-                    AND complete_url = ANY(%s)
-                    GROUP BY complete_url
-                ) latest 
-                ON e.complete_url = latest.complete_url 
-                AND e.evaluation_date = latest.max_date
-                WHERE e.monitored_website_id = %s
-                ORDER BY e.evaluation_date DESC, e.complete_url
-            ''', (request.monitoring_registry_id, webpages, request.monitoring_registry_id))
+                SELECT id, monitored_website_id, evaluation_date, input_url, title, element_count, passed, warning, failed, inapplicable
+                FROM Evaluation
+                WHERE monitored_website_id = %s
+                ORDER BY evaluation_date DESC
+                LIMIT %s
+            ''', (request.monitoring_registry_id, len(webpages)))
 
             latest_evaluations = cursor.fetchall()
-            
-            print(latest_evaluations, file=sys.stderr, flush=True)
-            
+
+            webpages_scores = list()
+
+            # Calculate A3 score for 1 webpage
+                # Calculate barrier score for all barriers
+                    # Bpb - Total number of actual barrier fails in the page
+                    # Npb - Total number of potential barrier fails in the page
+                    # Bp  - Total number of actual barrier fails in all pages
+                    # Fb  - Severity of a barrier
+
+            for i in range(len(webpages)):
+                calculateWebpageA3Score(webpages[i][0], cursor)
+
             cursor.close()
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
@@ -411,7 +433,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return SetLatestEvaluationResponse(status_code=200)
-
     
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]
