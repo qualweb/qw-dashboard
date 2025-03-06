@@ -18,7 +18,8 @@ CREATE TABLE MonitoringRegistry (
     display_width           INTEGER NOT NULL,
     display_height          INTEGER NOT NULL,
     webpages                VARCHAR[] NOT NULL,
-    latest_evaluation       TIMESTAMP
+    latest_evaluation       TIMESTAMP,
+    score                   FLOAT
 );
 
 CREATE TABLE Evaluation (
@@ -35,6 +36,7 @@ CREATE TABLE Evaluation (
     warning                 INTEGER NOT NULL,
     failed                  INTEGER NOT NULL,
     inapplicable            INTEGER NOT NULL,
+    score                   FLOAT,
 
     FOREIGN KEY (monitored_website_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE
 );
@@ -60,7 +62,8 @@ CREATE TABLE Assertion_Metadata (
     url                         VARCHAR NOT NULL,
     mapping                     VARCHAR NOT NULL,
     target_elements             VARCHAR[],
-    target_attributes           VARCHAR[]
+    target_attributes           VARCHAR[],
+    parent_module_type          module_type NOT NULL
 );
 
 CREATE TABLE Assertion (

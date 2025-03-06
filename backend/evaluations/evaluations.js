@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -205,7 +205,6 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                     })];
             case 2:
                 response = _a.sent();
-                console.log(response);
                 if (response.getStatusCode() !== 200) {
                     res.send(response.getStatusCode());
                     return [2 /*return*/];
@@ -230,7 +229,6 @@ app.post('/api/evaluate', function (req, res) { return __awaiter(void 0, void 0,
                 _i++;
                 return [3 /*break*/, 3];
             case 7:
-                console.log(reports_1);
                 validReports = urls
                     .filter(function (url) { return reports_1[url]; })
                     .map(function (url) { return ({
@@ -359,7 +357,6 @@ app.post('/api/calculate-score', function (req, res) { return __awaiter(void 0, 
                     res.send(response.getStatusCode());
                     return [2 /*return*/];
                 }
-                console.log(response);
                 return [3 /*break*/, 4];
             case 3:
                 error_5 = _a.sent();

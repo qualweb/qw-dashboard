@@ -164,8 +164,6 @@ app.post('/api/evaluate', async (req: Request, res: Response) => {
             });
         });
 
-        console.log(response);
-
         if (response.getStatusCode() !== 200) {
             res.send(response.getStatusCode());
             return;
@@ -191,8 +189,6 @@ app.post('/api/evaluate', async (req: Request, res: Response) => {
                 await sleep(500);
             }
         }
-
-        console.log(reports);
 
         const validReports = urls
             .filter(url => reports[url])
@@ -306,8 +302,6 @@ app.post('/api/calculate-score', async (req: Request, res: Response) => {
             res.send(response.getStatusCode());
             return;
         }
-
-        console.log(response);
     }
     catch (error) {
         console.error('Error calculating the accessibility score:', error);

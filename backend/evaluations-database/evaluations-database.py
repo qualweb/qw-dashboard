@@ -6,6 +6,7 @@ import sys
 import os
 from dotenv import load_dotenv
 import datetime
+from score import calculateWebsiteA3Score
 
 from protobuf_library.evaluations_pb2 import (
     AddEvaluationResponse,
@@ -75,6 +76,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
         try:
             conn = connection_pool.getconn()
             cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
             issues = list()
 
@@ -122,16 +124,17 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                     if exists_assertion_metadata_id is None:
                         cursor.execute('''
                             INSERT INTO Assertion_Metadata (
-                                code, assertion_name, description, url, mapping, target_elements, target_attributes    
+                                code, assertion_name, description, url, mapping, target_elements, target_attributes, parent_module_type
                             ) VALUES (
-                                %s, %s, %s, %s, %s, %s, %s
+                                %s, %s, %s, %s, %s, %s, %s, %s
                             ) RETURNING id
                         ''', (
                             request.modules[i].assertions[k].metadata.code, request.modules[i].assertions[k].metadata.name,
                             request.modules[i].assertions[k].metadata.description, request.modules[i].assertions[k].metadata.url, 
                             request.modules[i].assertions[k].metadata.mapping, 
                             [str(x) for x in request.modules[i].assertions[k].metadata.target_elements],
-                            [str(x) for x in request.modules[i].assertions[k].metadata.target_attributes]
+                            [str(x) for x in request.modules[i].assertions[k].metadata.target_attributes],
+                            str(request.modules[i].type)
                         ))
 
                         assertion_metadata_id = cursor.fetchone()[0]
@@ -153,6 +156,21 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                     assertion_id = cursor.fetchone()[0]
 
                     for h in range(request.modules[i].assertions[k].metadata.success_criteria_quantity):
+
+                        cursor.execute('''
+                            INSERT INTO Success_Criteria (
+                                success_criteria_name, success_criteria_level, principle, success_criteria_url
+                            ) VALUES (
+                                %s, %s, %s, %s
+                            ) ON CONFLICT (success_criteria_name, success_criteria_level) DO NOTHING
+                        ''', (
+                            request.modules[i].assertions[k].metadata.success_criteria[h].name,
+                            request.modules[i].assertions[k].metadata.success_criteria[h].level,
+                            request.modules[i].assertions[k].metadata.success_criteria[h].principle,
+                            request.modules[i].assertions[k].metadata.success_criteria[h].url
+                        ))
+
+                        # Then select the values - they'll either be from the just-inserted row or the pre-existing one
                         cursor.execute('''
                             SELECT success_criteria_name, success_criteria_level FROM Success_Criteria               
                             WHERE success_criteria_name = %s AND success_criteria_level = %s
@@ -161,35 +179,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                             request.modules[i].assertions[k].metadata.success_criteria[h].level      
                         ))
 
-                        exists_success_criteria_id = cursor.fetchone()
-                        
-                        print("AQUIIIIIII: " + str(exists_success_criteria_id is None), file=sys.stderr, flush=True)
-                        print(exists_success_criteria_id, file=sys.stderr, flush=True)
-
-                        if exists_success_criteria_id is None:
-                            cursor.execute('''
-                                INSERT INTO Success_Criteria (
-                                    success_criteria_name, success_criteria_level, principle, success_criteria_url
-                                ) VALUES (
-                                    %s, %s, %s, %s
-                                ) RETURNING success_criteria_name, success_criteria_level 
-                            ''', (
-                                request.modules[i].assertions[k].metadata.success_criteria[h].name,
-                                request.modules[i].assertions[k].metadata.success_criteria[h].level,
-                                request.modules[i].assertions[k].metadata.success_criteria[h].principle,
-                                request.modules[i].assertions[k].metadata.success_criteria[h].url
-                            ))
-
-                            success_criteria_name_level = cursor.fetchone()
-                            success_criteria_name = success_criteria_name_level[0]
-                            success_criteria_level = success_criteria_name_level[1]
-                            print("2 ---- " + str(success_criteria_name), file=sys.stderr, flush=True)
-                            print("2 ---- " + str(success_criteria_level), file=sys.stderr, flush=True)
-                        else:
-                            success_criteria_name = exists_success_criteria_id[0]
-                            success_criteria_level = exists_success_criteria_id[1]
-
-                        print(" ----------------------------------- ", file=sys.stderr, flush=True)
+                        success_criteria_name_level = cursor.fetchone()
+                        success_criteria_name = success_criteria_name_level[0]
+                        success_criteria_level = success_criteria_name_level[1]
 
                         cursor.execute('''
                             INSERT INTO Assertion_Metadata_Success_Criteria (
@@ -249,6 +241,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
         try:
             conn = connection_pool.getconn()
             cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
             cursor.execute('''
                 SELECT * FROM MonitoringRegistry
@@ -288,6 +281,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
         try:
             conn = connection_pool.getconn()
             cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
             cursor.execute('''
                 UPDATE MonitoringRegistry
@@ -310,26 +304,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
         return SetAccessibilityMetricResponse(status_code=200)
     
-    def calculateWebpageA3Score(self, webpage_id, cursor):
-        a3_score = 1
-
-        # Calculate A3 score for 1 webpage
-            # Calculate barrier score for all barriers
-                # Bpb - Total number of actual barrier fails in the page
-                # Npb - Total number of potential barrier fails in the page
-                # Bp  - Total number of actual barrier fails in all pages
-                # Fb  - Severity of a barrier
-
-        cursor.execute('''
-            SELECT id
-            FROM Module
-            WHERE evaluation_id = %s
-            AND module_type = 'act-rules'
-        ''', (webpage_id, ))
-
-        modules_ids = cursor.fetchone()[0]
-
-        return a3_score
 
     def CalculateAccessibilityScore(self, request, context):
         conn = None
@@ -337,7 +311,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
         try:
             conn = connection_pool.getconn()
             cursor = conn.cursor()
-
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
             
             # Get all webpages from the monitoring registry
             cursor.execute('''
@@ -347,29 +321,11 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             webpages = cursor.fetchone()[0]
 
-            # Get the latest evaluation for each webpage
-            cursor.execute('''
-                SELECT id, monitored_website_id, evaluation_date, input_url, title, element_count, passed, warning, failed, inapplicable
-                FROM Evaluation
-                WHERE monitored_website_id = %s
-                ORDER BY evaluation_date DESC
-                LIMIT %s
-            ''', (request.monitoring_registry_id, len(webpages)))
+            a3_website = calculateWebsiteA3Score(webpages, request.monitoring_registry_id, cursor)
 
-            latest_evaluations = cursor.fetchall()
+            print("Website A3 score: " + str(a3_website), file=sys.stderr, flush=True)
 
-            webpages_scores = list()
-
-            # Calculate A3 score for 1 webpage
-                # Calculate barrier score for all barriers
-                    # Bpb - Total number of actual barrier fails in the page
-                    # Npb - Total number of potential barrier fails in the page
-                    # Bp  - Total number of actual barrier fails in all pages
-                    # Fb  - Severity of a barrier
-
-            for i in range(len(webpages)):
-                calculateWebpageA3Score(webpages[i][0], cursor)
-
+            conn.commit()
             cursor.close()
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
@@ -389,6 +345,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
         try:
             conn = connection_pool.getconn()
             cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
             cursor.execute('''
                 SELECT id FROM MonitoringRegistry
