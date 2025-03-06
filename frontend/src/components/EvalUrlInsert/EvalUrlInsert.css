@@ -1,0 +1,70 @@
+:root {
+    --font-size: 1.2em;
+    --border-radius: 2.5rem;
+}
+
+[data-part='root'] {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    align-items: flex-start;
+}
+
+#input-field {
+    min-width: 50rem;
+    min-height: 1.5rem;
+    font-size: var(--font-size);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 0.2rem solid rgb(180, 178, 178);
+    background-color: rgb(241, 241, 241);
+    color: rgb(78, 78, 78);
+}
+
+#input-field:focus {
+    border-color: rgb(238, 197, 83);
+    outline: none;
+}
+
+[data-scope='field'] [data-part='label'] {
+    font-size: 1.6em;
+    font-weight: 600;
+    color: rgb(78, 78, 78);
+    padding-left: 1.5rem;
+}
+
+#field-button {
+    display: flex;
+    flex-direction: row;
+}
+
+#field-button button {
+    border-radius: var(--border-radius);
+    margin-left: 1.5rem;
+    padding: 1.5rem;
+    outline: none;
+    font-size: 1em;
+    font-weight: 600;
+    background-color: rgb(78, 78, 78);
+}
+
+#field-button button:active {
+    background: rgb(238, 197, 83);
+    outline: none;
+    border-color: rgb(238, 197, 83);
+}
+
+#errors {
+    color: red;
+    padding-left: 1.5rem;
+    position: absolute;
+    margin-top: 6rem;
+}
+
+#form-errors {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: flex-start;
+    position: relative;
+}

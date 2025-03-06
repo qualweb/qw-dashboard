@@ -1,0 +1,19 @@
+[data-scope="progress"] {
+    position: absolute;
+    top: 50rem;
+    background-color: black;
+    width: 20rem;
+    height: 20rem;
+}
+
+[data-score="progress"][data-part="circle"] {
+    background-color: red;
+}
+
+[data-score="progress"][data-part="circle-track"] {
+    background-color: green;
+}
+
+[data-score="progress"][data-part="circle-range"] {
+    background-color: yellow;
+}
