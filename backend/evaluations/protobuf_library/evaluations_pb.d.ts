@@ -661,3 +661,43 @@ export namespace AddWebpagesResponse {
   }
 }
 
+export class SetAccessibilityMetricAllWebsitesRequest extends jspb.Message {
+  getAccessibilityMetric(): string;
+  setAccessibilityMetric(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SetAccessibilityMetricAllWebsitesRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: SetAccessibilityMetricAllWebsitesRequest): SetAccessibilityMetricAllWebsitesRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SetAccessibilityMetricAllWebsitesRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SetAccessibilityMetricAllWebsitesRequest;
+  static deserializeBinaryFromReader(message: SetAccessibilityMetricAllWebsitesRequest, reader: jspb.BinaryReader): SetAccessibilityMetricAllWebsitesRequest;
+}
+
+export namespace SetAccessibilityMetricAllWebsitesRequest {
+  export type AsObject = {
+    accessibilityMetric: string,
+  }
+}
+
+export class SetAccessibilityMetricAllWebsitesResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SetAccessibilityMetricAllWebsitesResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: SetAccessibilityMetricAllWebsitesResponse): SetAccessibilityMetricAllWebsitesResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SetAccessibilityMetricAllWebsitesResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SetAccessibilityMetricAllWebsitesResponse;
+  static deserializeBinaryFromReader(message: SetAccessibilityMetricAllWebsitesResponse, reader: jspb.BinaryReader): SetAccessibilityMetricAllWebsitesResponse;
+}
+
+export namespace SetAccessibilityMetricAllWebsitesResponse {
+  export type AsObject = {
+    statusCode: number,
+  }
+}
+

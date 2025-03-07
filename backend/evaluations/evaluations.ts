@@ -28,7 +28,9 @@ import {
     SetLatestEvaluationRequest,
     SetLatestEvaluationResponse,
     AddWebpagesRequest,
-    AddWebpagesResponse
+    AddWebpagesResponse,
+    SetAccessibilityMetricAllWebsitesResponse,
+    SetAccessibilityMetricAllWebsitesRequest
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, sleep } from 'crawlee';
@@ -339,6 +341,34 @@ app.post('/api/add-webpage', async (req: Request, res: Response) => {
         res.send(200);
     } catch (error) {
         console.error('Error adding webpages:', error);
+        res.send(500);
+    }
+});
+
+app.post('/api/set-accessibility-metric-all-websites', async (req: Request, res: Response) => {
+    const accessibility_metric = req.body.accessibility_metric;
+
+    try {
+        const setMetricRequest = new SetAccessibilityMetricAllWebsitesRequest();
+        setMetricRequest.setAccessibilityMetric(accessibility_metric);
+
+        const response = await new Promise<SetAccessibilityMetricAllWebsitesResponse>((resolve, reject) => {
+            client.setAccessibilityMetricAllWebsites(setMetricRequest, (err: Error, callResponse: SetAccessibilityMetricAllWebsitesResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+        
+        console.log('Successfully set accessibility metric for all websites');
+        res.send(200);
+    }
+    catch (error) {
+        console.error('Error setting accessibility metric:', error);
         res.send(500);
     }
 });

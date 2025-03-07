@@ -141,6 +141,14 @@ message AddWebpagesResponse {
     int32 status_code = 1;
 }
 
+message SetAccessibilityMetricAllWebsitesRequest {
+    string accessibility_metric = 1;
+}
+
+message SetAccessibilityMetricAllWebsitesResponse {
+    int32 status_code = 1;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -149,4 +157,5 @@ service Evaluations {
     rpc CalculateAccessibilityScore(CalculateAccessibilityScoreRequest) returns (CalculateAccessibilityScoreResponse);
     rpc SetLatestEvaluation(SetLatestEvaluationRequest) returns (SetLatestEvaluationResponse);
     rpc AddWebpages(AddWebpagesRequest) returns (AddWebpagesResponse);
+    rpc SetAccessibilityMetricAllWebsites(SetAccessibilityMetricAllWebsitesRequest) returns (SetAccessibilityMetricAllWebsitesResponse);
 }

@@ -15,7 +15,8 @@ from protobuf_library.evaluations_pb2 import (
     GetMonitoringRegistryResponse,
     SetAccessibilityMetricResponse,
     CalculateAccessibilityScoreResponse,
-    SetLatestEvaluationResponse
+    SetLatestEvaluationResponse,
+    SetAccessibilityMetricAllWebsitesResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -450,6 +451,33 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return SetLatestEvaluationResponse(status_code=200)
+    
+    def SetAccessibilityMetricAllWebsites(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                UPDATE MonitoringRegistry
+                    SET accessibility_metric = %s
+            ''', (request.accessibility_metric,))
+
+            conn.commit()
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return SetAccessibilityMetricAllWebsitesResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return SetAccessibilityMetricAllWebsitesResponse(status_code=200)
     
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

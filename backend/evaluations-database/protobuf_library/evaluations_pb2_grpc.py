@@ -69,6 +69,11 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.AddWebpagesRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.AddWebpagesResponse.FromString,
                 _registered_method=True)
+        self.SetAccessibilityMetricAllWebsites = channel.unary_unary(
+                '/runtimePackage.Evaluations/SetAccessibilityMetricAllWebsites',
+                request_serializer=evaluations__pb2.SetAccessibilityMetricAllWebsitesRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.SetAccessibilityMetricAllWebsitesResponse.FromString,
+                _registered_method=True)
 
 
 class EvaluationsServicer(object):
@@ -116,6 +121,12 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SetAccessibilityMetricAllWebsites(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -153,6 +164,11 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     servicer.AddWebpages,
                     request_deserializer=evaluations__pb2.AddWebpagesRequest.FromString,
                     response_serializer=evaluations__pb2.AddWebpagesResponse.SerializeToString,
+            ),
+            'SetAccessibilityMetricAllWebsites': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetAccessibilityMetricAllWebsites,
+                    request_deserializer=evaluations__pb2.SetAccessibilityMetricAllWebsitesRequest.FromString,
+                    response_serializer=evaluations__pb2.SetAccessibilityMetricAllWebsitesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -344,6 +360,33 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/AddWebpages',
             evaluations__pb2.AddWebpagesRequest.SerializeToString,
             evaluations__pb2.AddWebpagesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetAccessibilityMetricAllWebsites(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/SetAccessibilityMetricAllWebsites',
+            evaluations__pb2.SetAccessibilityMetricAllWebsitesRequest.SerializeToString,
+            evaluations__pb2.SetAccessibilityMetricAllWebsitesResponse.FromString,
             options,
             channel_credentials,
             insecure,

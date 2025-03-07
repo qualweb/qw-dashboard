@@ -114,6 +114,28 @@ function deserialize_runtimePackage_GetMonitoringRegistryResponse(buffer_arg) {
   return evaluations_pb.GetMonitoringRegistryResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_SetAccessibilityMetricAllWebsitesRequest(arg) {
+  if (!(arg instanceof evaluations_pb.SetAccessibilityMetricAllWebsitesRequest)) {
+    throw new Error('Expected argument of type runtimePackage.SetAccessibilityMetricAllWebsitesRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_SetAccessibilityMetricAllWebsitesRequest(buffer_arg) {
+  return evaluations_pb.SetAccessibilityMetricAllWebsitesRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_SetAccessibilityMetricAllWebsitesResponse(arg) {
+  if (!(arg instanceof evaluations_pb.SetAccessibilityMetricAllWebsitesResponse)) {
+    throw new Error('Expected argument of type runtimePackage.SetAccessibilityMetricAllWebsitesResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_SetAccessibilityMetricAllWebsitesResponse(buffer_arg) {
+  return evaluations_pb.SetAccessibilityMetricAllWebsitesResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_SetAccessibilityMetricRequest(arg) {
   if (!(arg instanceof evaluations_pb.SetAccessibilityMetricRequest)) {
     throw new Error('Expected argument of type runtimePackage.SetAccessibilityMetricRequest');
@@ -236,6 +258,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_AddWebpagesRequest,
     responseSerialize: serialize_runtimePackage_AddWebpagesResponse,
     responseDeserialize: deserialize_runtimePackage_AddWebpagesResponse,
+  },
+  setAccessibilityMetricAllWebsites: {
+    path: '/runtimePackage.Evaluations/SetAccessibilityMetricAllWebsites',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.SetAccessibilityMetricAllWebsitesRequest,
+    responseType: evaluations_pb.SetAccessibilityMetricAllWebsitesResponse,
+    requestSerialize: serialize_runtimePackage_SetAccessibilityMetricAllWebsitesRequest,
+    requestDeserialize: deserialize_runtimePackage_SetAccessibilityMetricAllWebsitesRequest,
+    responseSerialize: serialize_runtimePackage_SetAccessibilityMetricAllWebsitesResponse,
+    responseDeserialize: deserialize_runtimePackage_SetAccessibilityMetricAllWebsitesResponse,
   },
 };
 

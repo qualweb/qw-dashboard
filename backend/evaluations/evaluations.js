@@ -408,6 +408,43 @@ app.post('/api/add-webpage', function (req, res) { return __awaiter(void 0, void
         }
     });
 }); });
+app.post('/api/set-accessibility-metric-all-websites', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var accessibility_metric, setMetricRequest_1, response, error_7;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                accessibility_metric = req.body.accessibility_metric;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                setMetricRequest_1 = new evaluations_pb_1.SetAccessibilityMetricAllWebsitesRequest();
+                setMetricRequest_1.setAccessibilityMetric(accessibility_metric);
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.setAccessibilityMetricAllWebsites(setMetricRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                console.log('Successfully set accessibility metric for all websites');
+                res.send(200);
+                return [3 /*break*/, 4];
+            case 3:
+                error_7 = _a.sent();
+                console.error('Error setting accessibility metric:', error_7);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 app.listen(port, function () {
     console.log("Server is running on http://localhost:".concat(port));
 });
