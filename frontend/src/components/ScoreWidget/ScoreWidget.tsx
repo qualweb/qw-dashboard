@@ -41,7 +41,7 @@ function ScoreWidget() {
                 className="score-progress"
             >
                 <div className="score-value-container">
-                    <Progress.ValueText className="score-value" />
+                    <strong><Progress.ValueText className="score-value" /></strong>
                 </div>
                 <Progress.Circle className="score-circle">
                     <Progress.CircleTrack className="score-track" />

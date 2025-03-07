@@ -15,7 +15,9 @@
     height: 100vh;
     width: 21rem;
     background-color: var(--secondary-color);
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
 .sidebar h1 {

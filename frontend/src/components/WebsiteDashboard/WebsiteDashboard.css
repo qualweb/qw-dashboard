@@ -5,7 +5,7 @@
     --smaller-font-size: 0.8rem;
     --h1-font-size: 0.9rem;
     --h2-font-size: 0.7rem;
-    --h3-font-size: 0.5rem;
+    --h3-font-size: 0.9rem;
 }
 
 @media (max-width: 48rem) {
@@ -17,6 +17,7 @@
 
     .wrapper {
         justify-content: flex-start;
+        margin-left: 0 !important;
     }
 
     .main-content {
@@ -66,8 +67,10 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     overflow-y: auto;
+    margin-left: 21rem;
+    height: 100vh;
+    padding-top: 5rem;
 }
 
 .main-content {
@@ -78,6 +81,8 @@ html, body {
     align-items: start;
     justify-items: start;
     width: fit-content;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
 }
 
 .score-container, .progress {
