@@ -3,6 +3,9 @@
     --secondary-color: #1A1A1A;
     --terciary-color: #0E0D0D;
     --smaller-font-size: 0.8rem;
+    --h1-font-size: 0.9rem;
+    --h2-font-size: 0.7rem;
+    --h3-font-size: 0.5rem;
 }
 
 @media (max-width: 48rem) {
@@ -22,7 +25,7 @@
         grid-template-rows: auto auto auto !important;
     }
 
-    .main-content > .issues {
+    .main-content > .issues-container {
         grid-column: span 1 !important;
     }
 }
@@ -38,7 +41,7 @@
         grid-template-rows: auto auto auto !important;
     }
 
-    .main-content > .issues {
+    .main-content > .issues-container {
         grid-column: span 1 !important;
     }
 }
@@ -93,6 +96,6 @@ html, body {
     height: fit-content;
 }
 
-.main-content > .issues {
+.main-content > .issues-container {
     grid-column: span 2;
 }

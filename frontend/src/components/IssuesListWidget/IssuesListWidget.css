@@ -1,0 +1,143 @@
+.issues-container {
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.pills {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    max-height: 4rem;
+}
+
+.title-pill {
+    background-color: #1a1a1a;
+    border-radius: 3rem;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    font-size: var(--h2-font-size);
+}
+
+.filter-pills {
+    display: flex;
+    gap: 1rem;
+}
+
+.dropdown-pill {
+    background-color: #1a1a1a;
+    border-radius: 3rem;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.stats-pill {
+    background-color: #1a1a1a;
+    border-radius: 3rem;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.icon-success {
+    background-color: #4CAF50;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.icon-warning {
+    background-color: #FFC107;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.icon-error {
+    background-color: #F44336;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.filters-pill {
+    background-color: #1a1a1a;
+    border-radius: 3rem;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.issues-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--secondary-color);
+    border-radius: 3rem;
+    padding: 1.5rem 1.5rem;
+}
+
+.issue-item {
+    background-color: var(--terciary-color);
+    border-radius: 3rem;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 3rem;
+}
+
+.issue-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.globe-icon {
+    border-radius: 50%;
+    width: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.issue-url {
+    font-size: var(--h1-font-size);
+}
+
+.issue-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
