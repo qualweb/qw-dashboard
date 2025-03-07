@@ -6,7 +6,7 @@ import sys
 import os
 from dotenv import load_dotenv
 import datetime
-from score import calculateWebsiteA3Score
+from score import calculate_website_a3_score
 
 from protobuf_library.evaluations_pb2 import (
     AddEvaluationResponse,
@@ -321,9 +321,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             webpages = cursor.fetchone()[0]
 
-            a3_website = calculateWebsiteA3Score(webpages, request.monitoring_registry_id, cursor)
+            print(webpages, file=sys.stderr, flush=True)
 
-            print("Website A3 score: " + str(a3_website), file=sys.stderr, flush=True)
+            calculate_website_a3_score(webpages, request.monitoring_registry_id, cursor)
 
             conn.commit()
             cursor.close()
@@ -375,6 +375,45 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 SET latest_evaluation = %s
                 WHERE id = %s
             ''', (exists_evaluation[0], request.monitoring_registry_id))
+
+            conn.commit()
+            cursor.close()
+            print("Update successful", file=sys.stderr, flush=True)
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return SetLatestEvaluationResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return SetLatestEvaluationResponse(status_code=200)
+
+    def AddWebpages(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                SELECT webpages FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_registry_id, ))
+
+            webpages = cursor.fetchone()[0]
+
+            for webpage in request.webpages:
+                webpages.append(webpage)
+
+            cursor.execute('''
+                UPDATE MonitoringRegistry
+                SET webpages = %s
+                WHERE id = %s
+            ''', (webpages, request.monitoring_registry_id))
 
             conn.commit()
             cursor.close()
