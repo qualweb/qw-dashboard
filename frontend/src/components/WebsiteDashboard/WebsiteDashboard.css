@@ -77,7 +77,7 @@ html, body {
     width: fit-content;
 }
 
-.score, .progress {
+.score-container, .progress {
     width: 100%;
     height: 25vw;
     border-radius: 4rem;

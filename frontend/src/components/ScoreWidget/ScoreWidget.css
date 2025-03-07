@@ -1,19 +1,60 @@
-[data-scope="progress"] {
+.score-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+}
+  
+.score-title {
+    color: white;
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 4rem;
+}
+
+.score-progress { 
+    --size: 12rem;
+    --thickness: 1rem;
+    --color-track: rgba(255, 255, 255, 0.2);
+    --color-range: #4CAF50;
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  
+.score-circle {
+    width: var(--size);
+    height: var(--size);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  
+.score-track {
+    stroke: var(--color-track);
+    stroke-width: var(--thickness);
+}
+  
+.score-range {
+    stroke: var(--color-range);
+    stroke-width: var(--thickness);
+    stroke-linecap: round;
+}
+  
+.score-value-container {
     position: absolute;
-    top: 50rem;
-    background-color: black;
-    width: 20rem;
-    height: 20rem;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-
-[data-score="progress"][data-part="circle"] {
-    background-color: red;
-}
-
-[data-score="progress"][data-part="circle-track"] {
-    background-color: green;
-}
-
-[data-score="progress"][data-part="circle-range"] {
-    background-color: yellow;
+  
+.score-value {
+    color: white;
+    font-size: 3.5rem;
+    font-weight: 500;
 }
