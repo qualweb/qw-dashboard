@@ -7,6 +7,8 @@ import os
 from dotenv import load_dotenv
 import datetime
 from score import calculate_website_a3_score
+from urllib.parse import urlparse
+import requests
 
 from protobuf_library.evaluations_pb2 import (
     AddEvaluationResponse,
@@ -400,13 +402,32 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
             cursor.execute('''
-                SELECT webpages FROM MonitoringRegistry
+                SELECT webpages, domain_name FROM MonitoringRegistry
                 WHERE id = %s
             ''', (request.monitoring_registry_id, ))
 
-            webpages = cursor.fetchone()[0]
+            result = cursor.fetchone()
+            webpages = result[0]
+            domain = result[1]
 
             for webpage in request.webpages:
+                if webpage in webpages:
+                    return SetLatestEvaluationResponse(status_code=400)
+
+                # Check if the webpage is from the same domain as the monitoring registry
+                url = urlparse(webpage)
+                if url.hostname != domain:
+                    return SetLatestEvaluationResponse(status_code=400)
+                
+                # Check if the webpage is accessible
+                try:
+                    response = requests.head(webpage, timeout=5)
+
+                    if response.status_code >= 400:
+                        return SetLatestEvaluationResponse(status_code=400)
+                except requests.RequestException as e:
+                    return SetLatestEvaluationResponse(status_code=400)
+                
                 webpages.append(webpage)
 
             cursor.execute('''

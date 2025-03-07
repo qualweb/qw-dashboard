@@ -64,6 +64,11 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.SetLatestEvaluationRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.SetLatestEvaluationResponse.FromString,
                 _registered_method=True)
+        self.AddWebpages = channel.unary_unary(
+                '/runtimePackage.Evaluations/AddWebpages',
+                request_serializer=evaluations__pb2.AddWebpagesRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.AddWebpagesResponse.FromString,
+                _registered_method=True)
 
 
 class EvaluationsServicer(object):
@@ -105,6 +110,12 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AddWebpages(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -137,6 +148,11 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     servicer.SetLatestEvaluation,
                     request_deserializer=evaluations__pb2.SetLatestEvaluationRequest.FromString,
                     response_serializer=evaluations__pb2.SetLatestEvaluationResponse.SerializeToString,
+            ),
+            'AddWebpages': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddWebpages,
+                    request_deserializer=evaluations__pb2.AddWebpagesRequest.FromString,
+                    response_serializer=evaluations__pb2.AddWebpagesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -301,6 +317,33 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/SetLatestEvaluation',
             evaluations__pb2.SetLatestEvaluationRequest.SerializeToString,
             evaluations__pb2.SetLatestEvaluationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AddWebpages(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/AddWebpages',
+            evaluations__pb2.AddWebpagesRequest.SerializeToString,
+            evaluations__pb2.AddWebpagesResponse.FromString,
             options,
             channel_credentials,
             insecure,
