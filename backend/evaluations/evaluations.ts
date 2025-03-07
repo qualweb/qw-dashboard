@@ -26,7 +26,9 @@ import {
     CalculateAccessibilityScoreRequest,
     CalculateAccessibilityScoreResponse,
     SetLatestEvaluationRequest,
-    SetLatestEvaluationResponse
+    SetLatestEvaluationResponse,
+    AddWebpagesRequest,
+    AddWebpagesResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, sleep } from 'crawlee';
@@ -309,6 +311,36 @@ app.post('/api/calculate-score', async (req: Request, res: Response) => {
     }
 
     res.send(200);
+});
+
+app.post('/api/add-webpage', async (req: Request, res: Response) => {
+    const monitoring_registry_id = req.body.monitoring_registry_id;
+    const urls = req.body.urls;
+
+    try {
+        const add_webpages_request = new AddWebpagesRequest();
+        
+        add_webpages_request.setMonitoringRegistryId(monitoring_registry_id);
+        add_webpages_request.setWebpagesList(urls);
+
+        const response = await new Promise<AddWebpagesResponse>((resolve, reject) => {
+            client.addWebpages(add_webpages_request, (err : Error, response : AddWebpagesResponse) => {
+                if (err) reject(err);
+                else resolve(response);
+            });
+        });
+        
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+        
+        console.log('Successfully added webpages');
+        res.send(200);
+    } catch (error) {
+        console.error('Error adding webpages:', error);
+        res.send(500);
+    }
 });
 
 app.listen(port, () => {

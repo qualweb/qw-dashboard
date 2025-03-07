@@ -369,6 +369,45 @@ app.post('/api/calculate-score', function (req, res) { return __awaiter(void 0, 
         }
     });
 }); });
+app.post('/api/add-webpage', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_registry_id, urls, add_webpages_request_1, response, error_6;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_registry_id = req.body.monitoring_registry_id;
+                urls = req.body.urls;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                add_webpages_request_1 = new evaluations_pb_1.AddWebpagesRequest();
+                add_webpages_request_1.setMonitoringRegistryId(monitoring_registry_id);
+                add_webpages_request_1.setWebpagesList(urls);
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.addWebpages(add_webpages_request_1, function (err, response) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(response);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                console.log('Successfully added webpages');
+                res.send(200);
+                return [3 /*break*/, 4];
+            case 3:
+                error_6 = _a.sent();
+                console.error('Error adding webpages:', error_6);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 app.listen(port, function () {
     console.log("Server is running on http://localhost:".concat(port));
 });

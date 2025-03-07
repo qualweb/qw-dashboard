@@ -615,3 +615,49 @@ export namespace SetLatestEvaluationResponse {
   }
 }
 
+export class AddWebpagesRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  clearWebpagesList(): void;
+  getWebpagesList(): Array<string>;
+  setWebpagesList(value: Array<string>): void;
+  addWebpages(value: string, index?: number): string;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AddWebpagesRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: AddWebpagesRequest): AddWebpagesRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: AddWebpagesRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AddWebpagesRequest;
+  static deserializeBinaryFromReader(message: AddWebpagesRequest, reader: jspb.BinaryReader): AddWebpagesRequest;
+}
+
+export namespace AddWebpagesRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+    webpagesList: Array<string>,
+  }
+}
+
+export class AddWebpagesResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AddWebpagesResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: AddWebpagesResponse): AddWebpagesResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: AddWebpagesResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AddWebpagesResponse;
+  static deserializeBinaryFromReader(message: AddWebpagesResponse, reader: jspb.BinaryReader): AddWebpagesResponse;
+}
+
+export namespace AddWebpagesResponse {
+  export type AsObject = {
+    statusCode: number,
+  }
+}
+

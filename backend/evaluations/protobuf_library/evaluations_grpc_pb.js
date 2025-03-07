@@ -48,6 +48,28 @@ function deserialize_runtimePackage_AddMonitoringRegistryResponse(buffer_arg) {
   return evaluations_pb.AddMonitoringRegistryResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_AddWebpagesRequest(arg) {
+  if (!(arg instanceof evaluations_pb.AddWebpagesRequest)) {
+    throw new Error('Expected argument of type runtimePackage.AddWebpagesRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_AddWebpagesRequest(buffer_arg) {
+  return evaluations_pb.AddWebpagesRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_AddWebpagesResponse(arg) {
+  if (!(arg instanceof evaluations_pb.AddWebpagesResponse)) {
+    throw new Error('Expected argument of type runtimePackage.AddWebpagesResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_AddWebpagesResponse(buffer_arg) {
+  return evaluations_pb.AddWebpagesResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_CalculateAccessibilityScoreRequest(arg) {
   if (!(arg instanceof evaluations_pb.CalculateAccessibilityScoreRequest)) {
     throw new Error('Expected argument of type runtimePackage.CalculateAccessibilityScoreRequest');
@@ -203,6 +225,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_SetLatestEvaluationRequest,
     responseSerialize: serialize_runtimePackage_SetLatestEvaluationResponse,
     responseDeserialize: deserialize_runtimePackage_SetLatestEvaluationResponse,
+  },
+  addWebpages: {
+    path: '/runtimePackage.Evaluations/AddWebpages',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.AddWebpagesRequest,
+    responseType: evaluations_pb.AddWebpagesResponse,
+    requestSerialize: serialize_runtimePackage_AddWebpagesRequest,
+    requestDeserialize: deserialize_runtimePackage_AddWebpagesRequest,
+    responseSerialize: serialize_runtimePackage_AddWebpagesResponse,
+    responseDeserialize: deserialize_runtimePackage_AddWebpagesResponse,
   },
 };
 
