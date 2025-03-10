@@ -21,15 +21,16 @@
     --color-track: rgba(255, 255, 255, 0.2);
     --color-range: #4CAF50;
     margin-top: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: relative;
 }
   
 .score-circle {
     width: var(--size);
     height: var(--size);
-    position: relative;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -48,7 +49,7 @@
   
 .score-value-container {
     position: absolute;
-    top: 14.5rem;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
