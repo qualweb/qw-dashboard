@@ -144,7 +144,6 @@
 }
 
 [data-scope="menu"][data-part="trigger"] {
-    outline: none;
     min-width: 14rem;
     min-height: 3.5rem;
     display: flex;
