@@ -26,17 +26,16 @@ def calculate_website_a3_score(
     ''')
     assertion_codes = [code[0] for code in cursor.fetchall()]
     
-    # Get all evaluation IDs for all webpages once
-    evaluation_ids = [get_most_recent_evaluation(cursor, url) for url in webpages]
-    
     # Calculate A3 score for each webpage
     webpage_scores = []
     for i, webpage in enumerate(webpages):
+        bp = get_fails_for_webpage(cursor, webpage, assertion_codes)
+
         webpage_a3_score = calculate_webpage_a3_score(
             webpage, 
-            evaluation_ids, 
             cursor, 
-            assertion_codes
+            assertion_codes,
+            bp
         )
         
         if webpage_a3_score == -1:
@@ -54,9 +53,9 @@ def calculate_website_a3_score(
 
 def calculate_webpage_a3_score(
     webpage: str, 
-    evaluation_ids: List[int], 
     cursor: Any, 
-    assertion_codes: List[str]
+    assertion_codes: List[str],
+    bp: int
 ) -> float:
     """
     Calculate the A3 score for a single webpage.
@@ -79,16 +78,16 @@ def calculate_webpage_a3_score(
     for assertion_code in assertion_codes:
         results = get_assertion_results(cursor, assertion_code, current_page_evaluation_id)
 
-        npb = results[1] # warning count
-        bpb = results[2] # failed count
+        passed = results[0] # passed count
+        warning = results[1] # warning count
+        failed = results[2] # failed count
+        npb = passed + warning + failed
+        bpb = failed
 
-        bp = 0
+        print(f'Assertion: {assertion_code}, Passed: {passed}, Warning: {warning}, Failed: {failed}, NPB: {npb}, BPB: {bpb}, BP: {bp}', file=sys.stderr)
 
-        # Calculate total failures across all pages
-        for evaluation_id in evaluation_ids:
-            if evaluation_id != -1:
-                results = get_assertion_results(cursor, assertion_code, evaluation_id)
-                bp += results[2]
+        if npb == 0:
+            continue
 
         # Calculate barrier score
         barrier_score = get_barrier_score(cursor, assertion_code)
@@ -96,10 +95,12 @@ def calculate_webpage_a3_score(
         if barrier_score != -1:
             a3_exp = 0
 
-            if bpb != 0 and npb != 0:
+            if bp != 0:
                 a3_exp = (bpb / npb) + (bpb / bp)
 
             a3_score *= (1 - barrier_score) ** a3_exp
+
+            print(f'Assertion: {assertion_code}, Barrier: {barrier_score}, A3 exp: {a3_exp}, A3 Score: {a3_score}', file=sys.stderr)
 
      # Store and return the score
     store_webpage_a3_score(cursor, current_page_evaluation_id, a3_score)
@@ -143,10 +144,12 @@ def get_barrier_score(
     level = success_criteria[0][0]
     multiple_criteria = len(success_criteria) > 1
     
+    print(success_criteria, file=sys.stderr, flush=True)
+
     barrier_scores = {
-        "A": 0.8 if multiple_criteria else 0.9,
-        "AA": 0.4 if multiple_criteria else 0.5,
-        "AAA": 0.1 if multiple_criteria else 0.2
+        "A": 0.81 if multiple_criteria else 0.8,
+        "AA": 0.17 if multiple_criteria else 0.16,
+        "AAA": 0.05 if multiple_criteria else 0.04
     }
     
     return barrier_scores.get(level, -1)
@@ -253,3 +256,30 @@ def store_website_a3_score(
         SET score = %s
         WHERE id = %s
     ''', (a3_score, monitoring_registry_id))
+
+def get_fails_for_webpage(
+    cursor: Any, 
+    webpage_url: str,
+    assertion_codes: List[str]
+) -> int:
+    """
+    Get the number of failed assertions for a webpage.
+    
+    Args:
+        cursor: Database cursor for executing queries
+        webpage_url: URL of the webpage
+        
+    Returns:
+        Number of failed assertions
+    """
+    failed = 0
+
+    for assertion_code in assertion_codes:
+        evaluation_id = get_most_recent_evaluation(cursor, webpage_url)
+
+        results = get_assertion_results(cursor, assertion_code, evaluation_id)
+
+        if results:
+            failed += results[2]
+
+    return failed
