@@ -1,16 +1,24 @@
 import './IssuesListWidget.css';
-import { ChevronDown, Globe, Filter, X } from 'lucide-react';
+import { ChevronDown, Filter, X } from 'lucide-react';
 import { Portal } from '@ark-ui/react/portal'
 import { Select, createListCollection } from '@ark-ui/react/select'
 import { Dialog } from '@ark-ui/react/dialog'
 import { RadioGroup } from '@ark-ui/react/radio-group'
 import { useState } from 'react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons'
+import IssuesWebsiteItem from '../IssuesWebsiteItem/IssuesWebsiteItem';
+import { EvaluationData } from '../Types/Types.tsx';
+import mockEvaluationData from '../MockEvalData/MockEvalData.tsx.ts';
+
+interface ExpandedItems {
+    [url: string]: boolean;
+}
 
 function IssuesListWidget() {
     const [selectedState, setSelectedState] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('');
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(false);
+    const [expandedItems, setExpandedItems] = useState<ExpandedItems>({});
 
     const collection = createListCollection({
         items: [
@@ -21,6 +29,15 @@ function IssuesListWidget() {
 
     const wcagLevels = ['A', 'AA', 'AAA']
     const states = ['Success', 'Warning', 'Failed', 'Inapplicable']
+
+    const mockEvalData : EvaluationData = mockEvaluationData;
+
+    const toggleExpand = (url : string) => {
+        setExpandedItems(prev => ({
+            ...prev,
+            [url]: !prev[url]
+        }));
+    };
 
     return (
         <div className='issues-container'>
@@ -155,19 +172,14 @@ function IssuesListWidget() {
             </div>
             
             <div className="issues-list">
-                {[1, 2, 3, 4].map((item) => (
-                    <div className="issue-item" key={item}>
-                        <div className="issue-left">
-                            <div className="globe-icon">
-                                <Globe size={24} />
-                            </div>
-                            <strong><h3 className="issue-url">www.ciencias.ulisboa.pt</h3></strong>
-                        </div>
-                        <div className="issue-right">
-                            <strong><span>More info</span></strong>
-                            <ChevronDown size={20} />
-                        </div>
-                    </div>
+                {Object.keys(mockEvalData).map((url) => (
+                    <IssuesWebsiteItem 
+                        key={url}
+                        url={url}
+                        evalData={mockEvalData}
+                        expandedItems={expandedItems}
+                        toggleExpand={toggleExpand}
+                    />
                 ))}
             </div>
         </div>

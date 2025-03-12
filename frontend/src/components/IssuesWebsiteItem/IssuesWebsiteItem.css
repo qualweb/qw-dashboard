@@ -1,0 +1,187 @@
+.issue-main-info-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.issue-item {
+    background-color: var(--terciary-color);
+    border-radius: 3rem;
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+}
+
+.issue-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.globe-icon {
+    border-radius: 50%;
+    width: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.issue-right {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+}
+
+.expanded-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+}
+
+.category-item {
+    width: 100%;    
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--secondary-color);
+    border-radius: 3rem;
+    padding: 2rem 2rem;
+}
+
+.category-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.category-left svg {
+    width: 2rem;
+}
+
+.status-icon-success {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-icon-warning{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-icon-failed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-icon-inapplicable {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 2rem;
+    background-color: #DBDBDB;
+}
+
+.status-icon-success > svg {
+    color: #4CAF51;
+}
+
+.status-icon-warning > svg {
+    color: #EED027
+}
+
+.status-icon-failed > svg {
+    color: #FD3232;
+}
+
+.status-icon-inapplicable > svg {
+    width: 1rem;
+    color: var(--terciary-color);
+}
+
+.category-right {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.tests-container {
+    width: 100%;
+}
+
+.expanded-tests-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+    padding-top: 2rem;
+}
+
+.wrapper-3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.category-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.tests-item {
+    width: 100%;
+}
+
+.tests-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--terciary-color);
+    border-radius: 3rem;
+    padding: 2rem 2rem;
+}
+
+.tests-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tests-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.wrapper-4 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.tests-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

@@ -1,5 +1,6 @@
 .issues-container {
     width: 100%;
+    padding-bottom: 3rem;
 }
 
 .header {
@@ -96,45 +97,10 @@
 .issues-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
     background-color: var(--secondary-color);
-    border-radius: 3rem;
-    padding: 1.5rem 1.5rem;
-}
-
-.issue-item {
-    background-color: var(--terciary-color);
-    border-radius: 3rem;
-    padding: 16px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 3rem;
-}
-
-.issue-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.globe-icon {
-    border-radius: 50%;
-    width: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.issue-url {
-    font-size: var(--h1-font-size);
-}
-
-.issue-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
+    border-radius: 4rem;
+    padding: 2rem 2rem;
+    gap: 2rem;
 }
 
 .select-trigger {
