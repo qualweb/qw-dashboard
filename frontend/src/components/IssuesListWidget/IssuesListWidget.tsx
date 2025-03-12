@@ -111,16 +111,16 @@ function IssuesListWidget() {
                                     
                                     <div className='filters-wrapper'>
                                         <div className='by-state'>
-                                            <RadioGroup.Root className="radio-group">
-                                                <RadioGroup.Label className="radio-group-label"><h3>State</h3></RadioGroup.Label>
+                                            <RadioGroup.Root className="radio-group-1">
+                                                <RadioGroup.Label className="radio-group-label-1"><h3>State</h3></RadioGroup.Label>
                                                 <RadioGroup.Indicator />
                                                 {wcagLevels.map((level) => (
                                                     <RadioGroup.Item 
-                                                    key={level} 
-                                                    value={level} 
-                                                    className="radio-group-item"
-                                                    data-state={selectedLevel === level ? "checked" : "unchecked"}
-                                                    onClick={() => setSelectedLevel(level)}
+                                                        key={level} 
+                                                        value={level} 
+                                                        className="radio-group-item"
+                                                        data-state={selectedLevel === level ? "checked" : "unchecked"}
+                                                        onClick={() => setSelectedLevel(level)}
                                                     >
                                                         <RadioGroup.ItemText className="radio-group-item-text">{level}</RadioGroup.ItemText>
                                                         <RadioGroup.ItemControl className="radio-group-item-control" />
@@ -128,32 +128,32 @@ function IssuesListWidget() {
                                                             className="radio-group-item-hidden-input"
                                                             checked={selectedLevel === level}
                                                             onChange={() => setSelectedLevel(level)}
-                                                            name="framework"
+                                                            name="input-1"
                                                         />
                                                     </RadioGroup.Item>
                                                 ))}
                                             </RadioGroup.Root>
                                         </div>
                                         <div className='by-wcag-level'>
-                                            <RadioGroup.Root className="radio-group">
-                                                <RadioGroup.Label className="radio-group-label"><h3>WCAG Level</h3></RadioGroup.Label>
+                                            <RadioGroup.Root className="radio-group-2">
+                                                <RadioGroup.Label className="radio-group-label-2"><h3>WCAG Level</h3></RadioGroup.Label>
                                                 <RadioGroup.Indicator />
                                                 {states.map((state) => (
                                                     <RadioGroup.Item 
-                                                    key={state} 
-                                                    value={state} 
-                                                    className="radio-group-item"
-                                                    data-state={selectedState === state ? "checked" : "unchecked"}
-                                                    onClick={() => setSelectedState(state)}
+                                                        key={state} 
+                                                        value={state} 
+                                                        className="radio-group-item"
+                                                        data-state={selectedState === state ? "checked" : "unchecked"}
+                                                        onClick={() => setSelectedState(state)}
                                                     >
-                                                    <RadioGroup.ItemText className="radio-group-item-text">{state}</RadioGroup.ItemText>
-                                                    <RadioGroup.ItemControl className="radio-group-item-control" />
-                                                    <RadioGroup.ItemHiddenInput 
-                                                        className="radio-group-item-hidden-input"
-                                                        checked={selectedState === state}
-                                                        onChange={() => setSelectedState(state)}
-                                                        name="framework"
-                                                    />
+                                                        <RadioGroup.ItemText className="radio-group-item-text">{state}</RadioGroup.ItemText>
+                                                        <RadioGroup.ItemControl className="radio-group-item-control" />
+                                                        <RadioGroup.ItemHiddenInput 
+                                                            className="radio-group-item-hidden-input"
+                                                            checked={selectedState === state}
+                                                            onChange={() => setSelectedState(state)}
+                                                            name="input-2"
+                                                        />
                                                     </RadioGroup.Item>
                                                 ))}
                                             </RadioGroup.Root>

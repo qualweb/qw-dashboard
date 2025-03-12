@@ -29,7 +29,7 @@ const TestItem: React.FC<TestItemProps> = ({ test, className, icon }) => {
                             <h3>{test.description}</h3>
                         </div>
                     </div>
-                    <div 
+                    <button 
                         className="tests-right" 
                         onClick={toggleExpand}
                         style={{ cursor: 'pointer' }}
@@ -42,7 +42,7 @@ const TestItem: React.FC<TestItemProps> = ({ test, className, icon }) => {
                             transition: 'transform 0.3s ease'
                             }} 
                         />
-                    </div>
+                    </button>
                 </div>
                 {expanded && (
                     <div className='expanded-results'>

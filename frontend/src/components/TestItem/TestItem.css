@@ -3,4 +3,39 @@
     flex-direction: column;
     justify-content: center;
     width: 100% !important;
+    gap: 2rem;
+}
+
+.tests-item {
+    width: 100%;
+}
+
+.tests-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--terciary-color);
+    border-radius: 3rem;
+    padding: 2rem 2rem;
+    gap: 1rem;
+}
+
+.tests-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tests-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-radius: 2rem;
+}
+
+.wrapper-4 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }

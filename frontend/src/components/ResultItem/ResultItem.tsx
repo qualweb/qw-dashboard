@@ -1,4 +1,4 @@
-import { Eye, MapPin } from 'lucide-react';
+import { Eye, MapPin, Clipboard } from 'lucide-react';
 import './ResultItem.css';
 import { Result } from '../Types/Types.tsx';
 
@@ -17,12 +17,15 @@ const ResultItem: React.FC<ResultItemProps> = ({ result }) => {
           {result.code}
         </div>
         <div className='location-visualize-wrapper'>
-          <div className='location'>
+          <button className='copy'>
+            <Clipboard />
+          </button>
+          <button className='location'>
             <MapPin />
-          </div>
-          <div className='visualize'>
+          </button>
+          <button className='visualize'>
             <Eye />
-          </div>
+          </button>
         </div>
       </div>
     </div>

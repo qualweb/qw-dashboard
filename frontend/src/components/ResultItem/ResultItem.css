@@ -14,15 +14,25 @@
     background-color: var(--secondary-color);
     padding: 2rem 3rem;
     border-radius: 4rem;
+    gap: 1.5rem;
+}
+
+.result-desc {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding-left: 3rem;
 }
 
 .location-visualize-wrapper {
     display: flex;
     gap: 1rem;
     align-items: center;
+    max-width: 11rem;
 }
 
-.location, .visualize {
+.copy, .location, .visualize {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,15 +40,58 @@
     width: 3rem;
     height: 3rem;
     border-radius: 2rem;
+    padding: 0;
+}
+
+.copy:hover, .location:hover, .visualize:hover {
+    border-color: white;
 }
 
 .code-snippet {
     display: flex;
-    gap: 1rem;
     align-items: center;
     background-color: var(--terciary-color);
     padding: 0.8rem 1.5rem;
     border-radius: 2rem;
-    width: 75%;
+    width: 100%;
+    text-wrap: nowrap;
+    overflow-y: hidden;
+    overflow-x: auto;
 }
 
+.code-snippet::-webkit-scrollbar {
+    margin-top: 1rem;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 10px;
+}
+  
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+  
+::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+  
+::-webkit-scrollbar-thumb:active {
+    background: #bbb;
+}
+  
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #1a1a1a;
+}
+  
+::-webkit-scrollbar-corner {
+    background: #1a1a1a;
+}
