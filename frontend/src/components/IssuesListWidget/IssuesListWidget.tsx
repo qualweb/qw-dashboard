@@ -7,8 +7,9 @@ import { RadioGroup } from '@ark-ui/react/radio-group'
 import { useState } from 'react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons'
 import IssuesWebsiteItem from '../IssuesWebsiteItem/IssuesWebsiteItem';
-import { EvaluationData } from '../Types/Types.tsx';
-import mockEvaluationData from '../MockEvalData/MockEvalData.tsx.ts';
+import { EvaluationData, TestEvaluationData } from '../Types/Types.tsx';
+import { mockEvaluationData, mockTestsEvaluationData } from '../MockEvalData/MockEvalData.tsx.ts';
+import TestItem from '../TestItem/TestItem.tsx';
 
 interface ExpandedItems {
     [url: string]: boolean;
@@ -19,11 +20,12 @@ function IssuesListWidget() {
     const [selectedLevel, setSelectedLevel] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [expandedItems, setExpandedItems] = useState<ExpandedItems>({});
+    const [selectedFilter, setSelectedFilter] = useState('By webpage');
 
     const collection = createListCollection({
         items: [
-          { label: 'By webpage', value: 'react' },
-          { label: 'By test', value: 'solid' },
+          { label: 'By webpage', value: 'By webpage' },
+          { label: 'By test', value: 'By test' },
         ],
     });
 
@@ -31,6 +33,7 @@ function IssuesListWidget() {
     const states = ['Success', 'Warning', 'Failed', 'Inapplicable']
 
     const mockEvalData : EvaluationData = mockEvaluationData;
+    const mockTestsEvalData : TestEvaluationData = mockTestsEvaluationData;
 
     const toggleExpand = (url : string) => {
         setExpandedItems(prev => ({
@@ -51,7 +54,7 @@ function IssuesListWidget() {
                             </Select.Label>
                             <Select.Control className='select-control'>
                                 <Select.Trigger className="select-trigger">
-                                    <strong><Select.ValueText className="select-value" placeholder='By webpage' /></strong>
+                                    <strong><Select.ValueText className="select-value" placeholder={selectedFilter} /></strong>
                                     <Select.Indicator className="select-indicator">
                                         <ChevronDown size={20} />
                                     </Select.Indicator>
@@ -62,7 +65,7 @@ function IssuesListWidget() {
                                     <Select.Content className="select-content">
                                         <Select.ItemGroup className="select-item-group">
                                             {collection.items.map((item) => (
-                                                <Select.Item key={item.value} item={item} className="select-item">
+                                                <Select.Item key={item.value} item={item} className="select-item" onClick={() => {setSelectedFilter(item.value)}}>
                                                     <Select.ItemText>{item.label}</Select.ItemText>
                                                 </Select.Item>
                                             ))}
@@ -172,15 +175,28 @@ function IssuesListWidget() {
             </div>
             
             <div className="issues-list">
-                {Object.keys(mockEvalData).map((url) => (
-                    <IssuesWebsiteItem 
-                        key={url}
-                        url={url}
-                        evalData={mockEvalData}
-                        expandedItems={expandedItems}
-                        toggleExpand={toggleExpand}
+            {selectedFilter === 'By webpage' ? (
+                Object.keys(mockEvalData).map((url) => (
+                    <IssuesWebsiteItem
+                    key={url}
+                    url={url}
+                    evalData={mockEvalData}
+                    expandedItems={expandedItems}
+                    toggleExpand={toggleExpand}
                     />
-                ))}
+                ))
+            ) : selectedFilter === 'By test' ? (
+                (Object.keys(mockTestsEvalData) as Array<keyof typeof mockTestsEvalData>).flatMap(category => 
+                    Object.keys(mockTestsEvalData[category]).map(id => (
+                        <TestItem
+                            key={`${category}-${id}`}
+                            test={mockTestsEvalData[category][parseInt(id)]}
+                            className={category === 'passed' ? 'stat-success' : category === 'warnings' ? 'stat-warning' : category === 'failed' ? 'stat-fail' : 'stat-inapplicable'}
+                            icon={category === 'passed' ? CheckIcon : category === 'warnings' ? Warning2Icon : category === 'failed' ? FailIcon : InapplicableIcon}
+                        />
+                    ))
+                )
+            ) : null}
             </div>
         </div>
     );

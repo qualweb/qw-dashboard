@@ -12,7 +12,8 @@
     display: flex;
     width: 100%;
     justify-content: space-between;
-    max-height: 5rem;
+    min-height: 5rem;
+    gap: 1rem;
 }
 
 .title-pill {
@@ -21,7 +22,11 @@
     padding: 1rem 1.5rem;
     display: flex;
     align-items: center;
-    font-size: var(--h2-font-size);
+    font-size: var(--h3-font-size);
+}
+
+.title-pill h2 {
+    margin: 0;
 }
 
 .filter-pills {
@@ -137,7 +142,7 @@
 
 .select-value {
     padding-left: 0.5rem;
-    font-size: var(--h1-font-size) !important;
+    font-size: var(--h2-font-size) !important;
 }
 
 .dialog-trigger {

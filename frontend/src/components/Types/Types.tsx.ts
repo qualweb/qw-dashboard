@@ -3,11 +3,12 @@ export interface Result {
     description: string;
     code: string;
     location : string;
+    url?: string;
 }
 
 export interface Test {
     id : number;
-    description: string;
+    description?: string;
     rule : string;
     results: Result[];
 }
@@ -25,4 +26,15 @@ export interface WebsiteTestData {
   
 export interface EvaluationData {
     [url: string]: WebsiteTestData;
+}
+
+export interface TestData {
+    [id: string]: Test;
+}
+
+export interface TestEvaluationData {
+    passed: TestData;
+    warnings: TestData;
+    failed: TestData;
+    inapplicable: TestData;
 }

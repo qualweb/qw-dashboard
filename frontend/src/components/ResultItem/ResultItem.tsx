@@ -10,7 +10,7 @@ const ResultItem: React.FC<ResultItemProps> = ({ result }) => {
   return (
     <div className="result-item">
       <div className='result-desc'>
-        <h3>{result.description}</h3>
+        <h3>{result.description}</h3> <span>{result.url ? `(${result.url})` : ''}</span>
       </div>
       <div className='result-content'>
         <div className='code-snippet'>
