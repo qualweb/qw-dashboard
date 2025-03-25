@@ -1,13 +1,15 @@
 import './CategoryItem.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons';
 import TestItem from "../TestItem/TestItem";
 import { AssertionResponse } from "../Types/Types.tsx";
+import { getSuccessCriteriaLevels } from '../utils/utils.ts';
 
 interface CategoryItemProps {
   tests: AssertionResponse[];
   category: 'passed' | 'warnings' | 'failed' | 'inapplicable';
+  wcagLevelFilters: string[];
 }
 
 const categoryConfig = {
@@ -17,9 +19,23 @@ const categoryConfig = {
   inapplicable: { icon: InapplicableIcon, className: "status-icon-inapplicable" }
 };
 
-const CategoryItem: React.FC<CategoryItemProps> = ({ tests, category }) => {
+const CategoryItem: React.FC<CategoryItemProps> = ({ tests, category, wcagLevelFilters }) => {
   const [expanded, setExpanded] = useState(false);
   const { icon, className } = categoryConfig[category];
+
+  const filteredTests = tests.filter((test) => 
+    wcagLevelFilters.length === 0 || 
+    (test.metadata && test.metadata.successCriteria.length > 0 &&
+     getSuccessCriteriaLevels(test.metadata.successCriteria)
+       .every(level => wcagLevelFilters.includes(String(level)))
+    )
+  );
+
+  useEffect(() => {
+    setNrTest(filteredTests.length);
+  }, [filteredTests]);
+
+  const [nrTest, setNrTest] = useState(filteredTests.length);
 
   const toggleExpand = () => {
     setExpanded(prev => !prev);
@@ -34,7 +50,7 @@ const CategoryItem: React.FC<CategoryItemProps> = ({ tests, category }) => {
               {icon}
             </div>
             <span className="category-title">
-              <h3>{category.charAt(0).toUpperCase() + category.slice(1)} - {tests.length} tests</h3>
+              <h3>{category.charAt(0).toUpperCase() + category.slice(1)} - {nrTest} tests</h3>
             </span>
           </div>
           <button className="category-right" onClick={toggleExpand}>
@@ -52,14 +68,14 @@ const CategoryItem: React.FC<CategoryItemProps> = ({ tests, category }) => {
         <div className="tests-container">
           {expanded && (
             <div className="expanded-tests-2">
-              {tests.map((test) =>
+              {filteredTests.map((test) => (
                 <TestItem 
                   key={test.id}
                   test={test}
                   className={className}
                   icon={icon}
                 />
-              )}
+              ))}
             </div>
           )}
         </div>

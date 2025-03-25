@@ -2,6 +2,7 @@ import "./IssuesWebsiteItem.css";
 import { Globe, ChevronDown } from 'lucide-react';
 import { AssertionsGroupedByOutcomeResponse } from "../Types/Types.tsx";
 import CategoryItem from "../CategoryItem/CategoryItem.tsx";
+import { getCategory } from "../utils/utils.ts";
 
 interface IssueItemProps {
   url: string;
@@ -10,9 +11,11 @@ interface IssueItemProps {
     [url: string]: boolean;
   };
   toggleExpand: (url: string) => void;
+  statusFilters: string[];
+  wcagLevelFilters: string[];
 }
 
-const IssuesWebsiteItem: React.FC<IssueItemProps> = ({ url, assertions, expandedItems, toggleExpand }) => {
+const IssuesWebsiteItem: React.FC<IssueItemProps> = ({ url, assertions, expandedItems, toggleExpand, statusFilters, wcagLevelFilters }) => {
   return (
     <div className="issue-item-container" key={url}>
       <div className="issue-item">
@@ -41,8 +44,10 @@ const IssuesWebsiteItem: React.FC<IssueItemProps> = ({ url, assertions, expanded
         {expandedItems[url] && (
           <div className="expanded-content">
           {Object.keys(assertions).map((category) => {
-            const categoryKey = category as keyof AssertionsGroupedByOutcomeResponse;
-            return <CategoryItem key={categoryKey} tests={assertions[categoryKey]} category={categoryKey} />;
+            if (statusFilters.length === 0 || statusFilters.includes(getCategory(category))) {
+              const categoryKey = category as keyof AssertionsGroupedByOutcomeResponse;
+              return <CategoryItem key={categoryKey} tests={assertions[categoryKey]} category={categoryKey} wcagLevelFilters={wcagLevelFilters} />;
+            }
           })}
         </div>
         )}

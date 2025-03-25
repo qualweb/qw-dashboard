@@ -10,6 +10,7 @@ import { getCurrentIssuesByTest, getCurrentIssuesByWebpage } from '../../service
 import CircularLoader from '../CircularLoader/CircularLoader.tsx';
 import CategoryItem from '../CategoryItem/CategoryItem.tsx';
 import Filters from '../Filters/Filters.tsx';
+import { getCategory } from '../utils/utils.ts';
 
 interface ExpandedItems {
     [url: string]: boolean;
@@ -27,8 +28,8 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
     const [issuesByTest, setIssuesByTest] = useState(null);
 
     // Filters
-    const [wcagLevelFilter, setWcagLevelFilter] = useState<string[]>([]);
-    const [statusFilter, setStatusFilter] = useState<string[]>([]);
+    const [wcagLevelFilters, setWcagLevelFilters] = useState<string[]>([]);
+    const [statusFilters, setStatusFilters] = useState<string[]>([]);
 
     const toggleExpand = (url : string) => {
         setExpandedItems(prev => ({
@@ -61,9 +62,6 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                         setLoading(true);
                         const data = await getCurrentIssuesByTest(props.monitoring_id);
 
-                        console.log("Pre-process data")
-                        console.log(data)
-                        
                         setIssuesByTest(data);
                         setLoading(false);
                         break;
@@ -130,10 +128,10 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                             </div>
                         </div>
                         <Filters 
-                            wcagLevels={wcagLevelFilter}
-                            status={statusFilter}
-                            setStatusFilter={setStatusFilter}
-                            setWcagLevelFilter={setWcagLevelFilter}
+                            wcagLevels={wcagLevelFilters}
+                            status={statusFilters}
+                            setStatusFilter={setStatusFilters}
+                            setWcagLevelFilter={setWcagLevelFilters}
                         />
                     </div>
                 </div>
@@ -148,14 +146,18 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                             assertions={webpage.assertions}
                             expandedItems={expandedItems}
                             toggleExpand={toggleExpand}
+                            statusFilters={statusFilters}
+                            wcagLevelFilters={wcagLevelFilters}
                         />
                     ))
                 ) : selectedFilter === 'By test' && !loading && issuesByTest ? (
                     Object.keys(issuesByTest).map((category) => {
-                        const categoryKey = category as keyof AssertionsGroupedByOutcomeResponse;
-                        return (
-                            <CategoryItem key={categoryKey} tests={issuesByTest[categoryKey]} category={categoryKey} />
-                        )
+                        if (statusFilters.length === 0 || statusFilters.includes(getCategory(category))) {
+                            const categoryKey = category as keyof AssertionsGroupedByOutcomeResponse;
+                            return (
+                                <CategoryItem key={categoryKey} tests={issuesByTest[categoryKey]} category={categoryKey} wcagLevelFilters={wcagLevelFilters}/>
+                            )
+                        }
                     })
                 ) : loading ? (
                     <CircularLoader />

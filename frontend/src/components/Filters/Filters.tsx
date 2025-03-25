@@ -4,7 +4,7 @@ import { Dialog } from '@ark-ui/react/dialog';
 import { Portal } from '@ark-ui/react/portal';
 import { Checkbox } from '@ark-ui/react/checkbox'
 import { CheckIcon } from 'lucide-react'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface FiltersProps {
     wcagLevels: string[];
@@ -15,8 +15,32 @@ interface FiltersProps {
 
 function Filters(props: FiltersProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const states = ["Passed", "Failed", "Warning", "Inapplicable"];
+    const states = ["Passed", "Failed", "Warnings", "Inapplicable"];
     const wcagLevels = ["A", "AA", "AAA"];
+
+    const [wcagLevelFilter, setWcagLevelFilter] = useState<string[]>([]);
+    const [statusFilter, setStatusFilter] = useState<string[]>([]);
+
+    useEffect(() => {
+        setStatusFilter(props.status);
+        setWcagLevelFilter(props.wcagLevels);
+    }, [props.status, props.wcagLevels]);
+
+    const toggleWcagLevelFilter = (filter: string) => {
+        setWcagLevelFilter(prev => 
+            prev.includes(filter)
+                ? prev.filter(item => item !== filter)
+                : [...prev, filter]
+        );
+    };
+    
+    const toggleStatusFilter = (filter: string) => {
+        setStatusFilter(prev => 
+            prev.includes(filter)
+                ? prev.filter(item => item !== filter)
+                : [...prev, filter]
+        );
+    };
     
     return (
         <>
@@ -39,8 +63,8 @@ function Filters(props: FiltersProps) {
                                 <h3>WCAG Level</h3>
                                 <div className='wrapper-filters-options'>
                                     {wcagLevels.map((level) => (
-                                        <Checkbox.Root>
-                                            <Checkbox.Control>
+                                        <Checkbox.Root key={level} checked={wcagLevelFilter.includes(level)}>
+                                            <Checkbox.Control onClick={() => {toggleWcagLevelFilter(level)}}>
                                                 <Checkbox.Indicator>
                                                     <CheckIcon />
                                                 </Checkbox.Indicator>
@@ -55,8 +79,8 @@ function Filters(props: FiltersProps) {
                                 <h3>State</h3>
                                 <div className='wrapper-filters-options'>
                                     {states.map((state) => (
-                                        <Checkbox.Root>
-                                            <Checkbox.Control>
+                                        <Checkbox.Root key={state} checked={statusFilter.includes(state)}>
+                                            <Checkbox.Control onClick={() => {toggleStatusFilter(state)}}>
                                                 <Checkbox.Indicator>
                                                     <CheckIcon />
                                                 </Checkbox.Indicator>
@@ -69,8 +93,14 @@ function Filters(props: FiltersProps) {
                             </div>
                         </div>
                         <div className='wrapper-dialog-buttons'>
-                            <button className='dialog-button' onClick={() => setIsOpen(false)}>Apply</button>
-                            <button className='dialog-button' onClick={() => setIsOpen(false)}>Clear</button>
+                            <button className='dialog-button' onClick={() => {
+                                props.setStatusFilter(statusFilter);
+                                props.setWcagLevelFilter(wcagLevelFilter);
+                            }}>Apply</button>
+                            <button className='dialog-button' onClick={() => {
+                                setStatusFilter([]);
+                                setWcagLevelFilter([]);
+                            }}>Clear</button>
                         </div>
                     </Dialog.Content>
                     </Dialog.Positioner>

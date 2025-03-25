@@ -139,6 +139,12 @@
     gap: 0.5rem;
 }
 
+.by-state {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 .wrapper-filters-options {
     display: flex;
     flex-direction: column;
