@@ -1,18 +1,18 @@
 import "./IssuesWebsiteItem.css";
 import { Globe, ChevronDown } from 'lucide-react';
-import { EvaluationData, WebsiteTestData } from "../Types/Types.tsx";
+import { AssertionsGroupedByOutcomeResponse } from "../Types/Types.tsx";
 import CategoryItem from "../CategoryItem/CategoryItem.tsx";
 
 interface IssueItemProps {
   url: string;
-  evalData: EvaluationData;
+  assertions: AssertionsGroupedByOutcomeResponse;
   expandedItems: {
     [url: string]: boolean;
   };
   toggleExpand: (url: string) => void;
 }
 
-const IssuesWebsiteItem: React.FC<IssueItemProps> = ({ url, evalData, expandedItems, toggleExpand }) => {
+const IssuesWebsiteItem: React.FC<IssueItemProps> = ({ url, assertions, expandedItems, toggleExpand }) => {
   return (
     <div className="issue-item-container" key={url}>
       <div className="issue-item">
@@ -40,20 +40,9 @@ const IssuesWebsiteItem: React.FC<IssueItemProps> = ({ url, evalData, expandedIt
         </div>
         {expandedItems[url] && (
           <div className="expanded-content">
-          {Object.keys(evalData[url]).map((category) => {
-            const categoryKey = category as keyof WebsiteTestData;
-            switch (categoryKey) {
-              case 'passed':
-                return <CategoryItem key={categoryKey} tests={evalData[url].passed.tests} category='passed' />;
-              case 'warnings':
-                return <CategoryItem key={categoryKey} tests={evalData[url].warnings.tests} category='warnings' />;
-              case 'failed':
-                return <CategoryItem key={categoryKey} tests={evalData[url].failed.tests} category='failed' />;
-              case 'inapplicable':
-                return <CategoryItem key={categoryKey} tests={evalData[url].inapplicable.tests} category='inapplicable' />;
-              default:
-                return null;
-            }
+          {Object.keys(assertions).map((category) => {
+            const categoryKey = category as keyof AssertionsGroupedByOutcomeResponse;
+            return <CategoryItem key={categoryKey} tests={assertions[categoryKey]} category={categoryKey} />;
           })}
         </div>
         )}

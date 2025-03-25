@@ -1,23 +1,23 @@
 import { HistoryIcon, ManualIcon, SignOutIcon, TimeIcon, UserIcon, WarningIcon } from '../../assets/Icons';
-import WebsiteDashboardMenuItem from '../WebsiteDashboardMenuItem/WebsiteDashboardMenuItem';
-import './WebsiteDashboardMenu.css';
+import WebsiteDashboardMenuItem from '../DashboardMenuItem/DashboardMenuItem';
+import './DashboardMenu.css';
 
 import { Portal } from '@ark-ui/react/portal'
 import { Select, createListCollection } from '@ark-ui/react/select'
 import { ChevronDownIcon } from 'lucide-react'
 import { Menu } from '@ark-ui/react/menu'
 
-function WebsiteDashboardMenu() {
+interface DashboardMenuProps {
+    webpages : string[];
+}
+
+function DashboardMenu (props: DashboardMenuProps) {
+    const items = createWebpagesCollection(props.webpages);
+
     const collection = createListCollection({
-        items: [
-          { label: 'React', value: 'react' },
-          { label: 'Solid', value: 'solid' },
-          { label: 'Vue', value: 'vue' },
-          { label: 'Svelte', value: 'svelte'},
-        ],
+        items: items,
     });
-
-
+    
     const current_username = "Tomás"
 
     return (
@@ -87,10 +87,20 @@ function WebsiteDashboardMenu() {
                 </ul>
             </nav>
             <div className='qualweb-logo'>
-                <img src="src/assets/qualweb_logo.png" alt="Qualweb evaluator logo" />
+                <img src="/src/assets/qualweb_logo.png" alt="Qualweb evaluator logo" />
             </div>
         </div>
     );
 }
 
-export default WebsiteDashboardMenu;
+export default DashboardMenu;
+
+function createWebpagesCollection(list : string[]) {
+    const items : { label: string, value: string }[] = []
+
+    list.forEach(element => {
+        items.push({ label: element, value: element });
+    });
+
+    return items;
+}

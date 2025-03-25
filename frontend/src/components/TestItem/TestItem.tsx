@@ -2,10 +2,10 @@ import './TestItem.css';
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import ResultItem from '../ResultItem/ResultItem';
-import { Test } from '../Types/Types.tsx';
+import { AssertionResponse } from '../Types/Types.tsx';
 
 interface TestItemProps {
-    test: Test;
+    test: AssertionResponse;
     className: string;
     icon: React.ReactNode;
 }
@@ -18,7 +18,7 @@ const TestItem: React.FC<TestItemProps> = ({ test, className, icon }) => {
     };
 
     return (
-        <div className="tests-item" key={test.description}>
+        <div className="tests-item" key={test.id}>
             <div className="tests-header">
                 <div className='wrapper-4'>
                     <div className="tests-left">
@@ -26,7 +26,7 @@ const TestItem: React.FC<TestItemProps> = ({ test, className, icon }) => {
                             {icon}
                         </div>
                         <div className="tests-title">
-                            <h3>{test.description}</h3>
+                            <h3>{test.metadata?.description}</h3>
                         </div>
                     </div>
                     <button 
@@ -34,7 +34,7 @@ const TestItem: React.FC<TestItemProps> = ({ test, className, icon }) => {
                         onClick={toggleExpand}
                         style={{ cursor: 'pointer' }}
                     >
-                        <strong><span>{test.rule}</span></strong>
+                        <strong><span>{test.metadata?.code}</span></strong>
                         <ChevronDown 
                             size={20} 
                             style={{
@@ -46,12 +46,15 @@ const TestItem: React.FC<TestItemProps> = ({ test, className, icon }) => {
                 </div>
                 {expanded && (
                     <div className='expanded-results'>
-                        {test.results.map((result) =>
-                            <ResultItem 
-                                key={result.id}
-                                result={result}
-                            />
-                        )}
+                        {test.issues && test.issues.map((issue) => (
+                            issue.elements.map((element) => (
+                                <ResultItem 
+                                    key={element.id}
+                                    result={element}
+                                    description={issue.description}
+                                />
+                            ))
+                        ))}
                     </div>
                 )}
             </div>

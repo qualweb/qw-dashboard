@@ -1,13 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
+:root {
+  --primary-color: #313030;
+  --secondary-color: #1A1A1A;
+  --terciary-color: #0E0D0D;
+  --smaller-font-size: 0.8rem;
+  --h1-font-size: 1.2rem;
+  --h2-font-size: 1rem;
+  --h3-font-size: 0.8rem;
+}
+
 html, body {
   font-family: 'Inter', sans-serif;
 }
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 

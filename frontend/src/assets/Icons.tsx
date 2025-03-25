@@ -64,3 +64,21 @@ export const InapplicableIcon = (
         <path fillRule="evenodd" d="m6.72 5.66 11.62 11.62A8.25 8.25 0 0 0 6.72 5.66Zm10.56 12.68L5.66 6.72a8.25 8.25 0 0 0 11.62 11.62ZM5.105 5.106c3.807-3.808 9.98-3.808 13.788 0 3.808 3.807 3.808 9.98 0 13.788-3.807 3.808-9.98 3.808-13.788 0-3.808-3.807-3.808-9.98 0-13.788Z" clipRule="evenodd" />
     </svg>
 );
+
+export const Form1 = (
+    <svg id="sw-js-blob-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" version="1.1">                    <defs>                         <linearGradient id="sw-gradient" x1="0" x2="1" y1="1" y2="0">                            <stop id="stop1" stop-color="rgba(255, 124, 1, 1)" offset="0%"></stop>                            <stop id="stop2" stop-color="rgba(255, 124, 1, 1)" offset="100%"></stop>                        </linearGradient>                    </defs>                <path fill="url(#sw-gradient)" d="M21.6,-32.9C25.9,-26.7,25.6,-17.5,28.6,-9.1C31.6,-0.8,37.7,6.8,36.5,12.2C35.2,17.7,26.6,21.2,19.3,19.4C12,17.6,6,10.5,-0.5,11.2C-7,11.9,-14.1,20.5,-21.3,22.3C-28.5,24,-35.9,19,-36.6,12.8C-37.4,6.6,-31.6,-0.9,-25.8,-5.2C-20,-9.4,-14.1,-10.4,-9.8,-16.6C-5.5,-22.7,-2.8,-34,3,-38.1C8.7,-42.2,17.4,-39.1,21.6,-32.9Z" width="100%" height="100%" transform="translate(50 50)" stroke-width="0" stroke="url(#sw-gradient)">
+        </path>              
+    </svg>           
+);
+
+export const Form3 = (
+    <svg id="sw-js-blob-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" version="1.1">                    <defs>                         <linearGradient id="sw-gradient" x1="0" x2="1" y1="1" y2="0">                            <stop id="stop1" stop-color="rgba(255, 124, 1, 1)" offset="0%"></stop>                            <stop id="stop2" stop-color="rgba(255, 124, 1, 1)" offset="100%"></stop>                        </linearGradient>                    </defs>                <path fill="url(#sw-gradient)" d="M32.8,-24.9C40.1,-16.9,42.1,-3.4,38,6.3C33.9,16,23.7,22,14.3,24.7C4.8,27.4,-3.9,26.7,-12.2,23.5C-20.6,20.2,-28.6,14.3,-30.1,7C-31.7,-0.3,-26.9,-8.9,-20.8,-16.6C-14.7,-24.3,-7.4,-30.9,2.7,-33.1C12.7,-35.2,25.4,-32.8,32.8,-24.9Z" width="100%" height="100%" transform="translate(50 50)" stroke-width="0" stroke="url(#sw-gradient)">
+        </path>              
+    </svg>
+);
+
+export const Form4 = (
+    <svg id="sw-js-blob-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" version="1.1">                    <defs>                         <linearGradient id="sw-gradient" x1="0" x2="1" y1="1" y2="0">                            <stop id="stop1" stop-color="rgba(255, 124, 1, 1)" offset="0%"></stop>                            <stop id="stop2" stop-color="rgba(255, 124, 1, 1)" offset="100%"></stop>                        </linearGradient>                    </defs>                <path fill="url(#sw-gradient)" d="M18.7,-29.7C21.4,-23.7,18.8,-14.5,20.6,-7.1C22.4,0.2,28.6,5.8,26.5,7.5C24.4,9.3,14.1,7.3,8.3,12.1C2.6,17,1.3,28.7,-2.1,31.5C-5.4,34.3,-10.8,28.3,-18.1,23.9C-25.5,19.6,-34.9,17,-38.9,11.1C-42.9,5.2,-41.5,-3.9,-34.4,-6.7C-27.3,-9.5,-14.5,-5.9,-7.8,-10.6C-1.2,-15.3,-0.6,-28.2,3.7,-33.3C8,-38.4,16,-35.7,18.7,-29.7Z" width="100%" height="100%" transform="translate(50 50)" stroke-width="0" stroke="url(#sw-gradient)">
+        </path>              
+    </svg>
+);

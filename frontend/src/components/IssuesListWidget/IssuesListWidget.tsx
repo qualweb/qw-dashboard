@@ -1,39 +1,34 @@
 import './IssuesListWidget.css';
-import { ChevronDown, Filter, X } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Portal } from '@ark-ui/react/portal'
 import { Select, createListCollection } from '@ark-ui/react/select'
-import { Dialog } from '@ark-ui/react/dialog'
-import { RadioGroup } from '@ark-ui/react/radio-group'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons'
 import IssuesWebsiteItem from '../IssuesWebsiteItem/IssuesWebsiteItem';
-import { EvaluationData, TestEvaluationData } from '../Types/Types.tsx';
-import { mockEvaluationData, mockTestsEvaluationData } from '../MockEvalData/MockEvalData.tsx.ts';
-import TestItem from '../TestItem/TestItem.tsx';
+import { AssertionsGroupedByOutcomeResponse, WebpageIssueResponse } from '../Types/Types.tsx';
+import { getCurrentIssuesByTest, getCurrentIssuesByWebpage } from '../../services/EvaluationService.tsx';
+import CircularLoader from '../CircularLoader/CircularLoader.tsx';
+import CategoryItem from '../CategoryItem/CategoryItem.tsx';
+import Filters from '../Filters/Filters.tsx';
 
 interface ExpandedItems {
     [url: string]: boolean;
 }
 
-function IssuesListWidget() {
-    const [selectedState, setSelectedState] = useState('');
-    const [selectedLevel, setSelectedLevel] = useState('');
-    const [isOpen, setIsOpen] = useState(false);
+interface IssuesListWidgetProps {   
+    monitoring_id: string;
+}
+
+function IssuesListWidget(props: IssuesListWidgetProps) {
+    const [selectedFilter, setSelectedFilter] = useState("By webpage");
     const [expandedItems, setExpandedItems] = useState<ExpandedItems>({});
-    const [selectedFilter, setSelectedFilter] = useState('By webpage');
+    const [loading, setLoading] = useState(false);
+    const [issuesByWebpage, setIssuesByWebpage] = useState([]);
+    const [issuesByTest, setIssuesByTest] = useState(null);
 
-    const collection = createListCollection({
-        items: [
-          { label: 'By webpage', value: 'By webpage' },
-          { label: 'By test', value: 'By test' },
-        ],
-    });
-
-    const wcagLevels = ['A', 'AA', 'AAA']
-    const states = ['Success', 'Warning', 'Failed', 'Inapplicable']
-
-    const mockEvalData : EvaluationData = mockEvaluationData;
-    const mockTestsEvalData : TestEvaluationData = mockTestsEvaluationData;
+    // Filters
+    const [wcagLevelFilter, setWcagLevelFilter] = useState<string[]>([]);
+    const [statusFilter, setStatusFilter] = useState<string[]>([]);
 
     const toggleExpand = (url : string) => {
         setExpandedItems(prev => ({
@@ -42,13 +37,51 @@ function IssuesListWidget() {
         }));
     };
 
+    const filters = createListCollection({
+        items: [
+          { label: 'By webpage', value: 'By webpage' },
+          { label: 'By test', value: 'By test' },
+        ],
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            
+            switch (selectedFilter) {
+                case 'By webpage':
+                    { 
+                        setLoading(true);
+                        const data = await getCurrentIssuesByWebpage(props.monitoring_id);
+                        setIssuesByWebpage(data);
+                        setLoading(false);
+                        break; 
+                    }
+                case 'By test':
+                    {
+                        setLoading(true);
+                        const data = await getCurrentIssuesByTest(props.monitoring_id);
+
+                        console.log("Pre-process data")
+                        console.log(data)
+                        
+                        setIssuesByTest(data);
+                        setLoading(false);
+                        break;
+                    }
+                default:
+                    break;
+            }
+        }
+        fetchData();
+    }, [selectedFilter, props.monitoring_id]);
+
     return (
         <div className='issues-container'>
             <div className="header">
                 <div className='pills'>
                     <div className="title-pill"><h2>Current Accessibility Issues</h2></div>
                     <div className='filter-pills'>
-                        <Select.Root collection={collection}>
+                        <Select.Root collection={filters}>
                             <Select.Label className="sr-only">
                                 <strong>Current website</strong>
                             </Select.Label>
@@ -64,7 +97,7 @@ function IssuesListWidget() {
                                 <Select.Positioner>
                                     <Select.Content className="select-content">
                                         <Select.ItemGroup className="select-item-group">
-                                            {collection.items.map((item) => (
+                                            {filters.items.map((item) => (
                                                 <Select.Item key={item.value} item={item} className="select-item" onClick={() => {setSelectedFilter(item.value)}}>
                                                     <Select.ItemText>{item.label}</Select.ItemText>
                                                 </Select.Item>
@@ -96,107 +129,37 @@ function IssuesListWidget() {
                                 </div>
                             </div>
                         </div>
-                        
-
-                        <button className="dialog-trigger" onClick={() => setIsOpen(true)}>
-                            <Filter size={18} />
-                            <strong>Filters</strong>
-                        </button>
-                        <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>
-                            <Portal>
-                                <Dialog.Backdrop className="dialog-backdrop" />
-                                <Dialog.Positioner className="dialog-positioner">
-                                <Dialog.Content className="dialog-content">
-                                    <div className='dialog-header'>
-                                        <Dialog.Title className="dialog-title">Filters</Dialog.Title>
-                                        <Dialog.CloseTrigger className="dialog-close-trigger"><X size={18} /></Dialog.CloseTrigger>
-                                    </div>
-                                    
-                                    <div className='filters-wrapper'>
-                                        <div className='by-state'>
-                                            <RadioGroup.Root className="radio-group-1">
-                                                <RadioGroup.Label className="radio-group-label-1"><h3>State</h3></RadioGroup.Label>
-                                                <RadioGroup.Indicator />
-                                                {wcagLevels.map((level) => (
-                                                    <RadioGroup.Item 
-                                                        key={level} 
-                                                        value={level} 
-                                                        className="radio-group-item"
-                                                        data-state={selectedLevel === level ? "checked" : "unchecked"}
-                                                        onClick={() => setSelectedLevel(level)}
-                                                    >
-                                                        <RadioGroup.ItemText className="radio-group-item-text">{level}</RadioGroup.ItemText>
-                                                        <RadioGroup.ItemControl className="radio-group-item-control" />
-                                                        <RadioGroup.ItemHiddenInput 
-                                                            className="radio-group-item-hidden-input"
-                                                            checked={selectedLevel === level}
-                                                            onChange={() => setSelectedLevel(level)}
-                                                            name="input-1"
-                                                        />
-                                                    </RadioGroup.Item>
-                                                ))}
-                                            </RadioGroup.Root>
-                                        </div>
-                                        <div className='by-wcag-level'>
-                                            <RadioGroup.Root className="radio-group-2">
-                                                <RadioGroup.Label className="radio-group-label-2"><h3>WCAG Level</h3></RadioGroup.Label>
-                                                <RadioGroup.Indicator />
-                                                {states.map((state) => (
-                                                    <RadioGroup.Item 
-                                                        key={state} 
-                                                        value={state} 
-                                                        className="radio-group-item"
-                                                        data-state={selectedState === state ? "checked" : "unchecked"}
-                                                        onClick={() => setSelectedState(state)}
-                                                    >
-                                                        <RadioGroup.ItemText className="radio-group-item-text">{state}</RadioGroup.ItemText>
-                                                        <RadioGroup.ItemControl className="radio-group-item-control" />
-                                                        <RadioGroup.ItemHiddenInput 
-                                                            className="radio-group-item-hidden-input"
-                                                            checked={selectedState === state}
-                                                            onChange={() => setSelectedState(state)}
-                                                            name="input-2"
-                                                        />
-                                                    </RadioGroup.Item>
-                                                ))}
-                                            </RadioGroup.Root>
-                                        </div>
-                                    </div>
-                                    <div className='wrapper-dialog-buttons'>
-                                        <button className='dialog-button' onClick={() => setIsOpen(false)}>Apply</button>
-                                        <button className='dialog-button' onClick={() => setIsOpen(false)}>Clear</button>
-                                    </div>
-                                </Dialog.Content>
-                                </Dialog.Positioner>
-                            </Portal>
-                        </Dialog.Root>
+                        <Filters 
+                            wcagLevels={wcagLevelFilter}
+                            status={statusFilter}
+                            setStatusFilter={setStatusFilter}
+                            setWcagLevelFilter={setWcagLevelFilter}
+                        />
                     </div>
                 </div>
             </div>
             
             <div className="issues-list">
-            {selectedFilter === 'By webpage' ? (
-                Object.keys(mockEvalData).map((url) => (
-                    <IssuesWebsiteItem
-                    key={url}
-                    url={url}
-                    evalData={mockEvalData}
-                    expandedItems={expandedItems}
-                    toggleExpand={toggleExpand}
-                    />
-                ))
-            ) : selectedFilter === 'By test' ? (
-                (Object.keys(mockTestsEvalData) as Array<keyof typeof mockTestsEvalData>).flatMap(category => 
-                    Object.keys(mockTestsEvalData[category]).map(id => (
-                        <TestItem
-                            key={`${category}-${id}`}
-                            test={mockTestsEvalData[category][parseInt(id)]}
-                            className={category === 'passed' ? 'stat-success' : category === 'warnings' ? 'stat-warning' : category === 'failed' ? 'stat-fail' : 'stat-inapplicable'}
-                            icon={category === 'passed' ? CheckIcon : category === 'warnings' ? Warning2Icon : category === 'failed' ? FailIcon : InapplicableIcon}
+                {selectedFilter === 'By webpage' && !loading && issuesByWebpage ? (
+                    issuesByWebpage.map((webpage : WebpageIssueResponse) => (
+                        <IssuesWebsiteItem
+                            key={webpage.url}
+                            url={webpage.url}
+                            assertions={webpage.assertions}
+                            expandedItems={expandedItems}
+                            toggleExpand={toggleExpand}
                         />
                     ))
-                )
-            ) : null}
+                ) : selectedFilter === 'By test' && !loading && issuesByTest ? (
+                    Object.keys(issuesByTest).map((category) => {
+                        const categoryKey = category as keyof AssertionsGroupedByOutcomeResponse;
+                        return (
+                            <CategoryItem key={categoryKey} tests={issuesByTest[categoryKey]} category={categoryKey} />
+                        )
+                    })
+                ) : loading ? (
+                    <CircularLoader />
+                ) : null }
             </div>
         </div>
     );

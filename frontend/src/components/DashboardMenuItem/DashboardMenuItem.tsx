@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import './WebsiteDashboardMenuItem.css';
+import './DashboardMenuItem.css';
 
 interface WebsiteDashboardMenuItemProps {
     name: string;
@@ -7,7 +7,7 @@ interface WebsiteDashboardMenuItemProps {
     icon: React.ReactNode;
 }
 
-function WebsiteDashboardMenuItem(props: WebsiteDashboardMenuItemProps) {
+function DashboardMenuItem(props: WebsiteDashboardMenuItemProps) {
     return (
         <Link to={props.path}>
             {props.icon}
@@ -16,4 +16,4 @@ function WebsiteDashboardMenuItem(props: WebsiteDashboardMenuItemProps) {
     );
 }
 
-export default WebsiteDashboardMenuItem;
+export default DashboardMenuItem;

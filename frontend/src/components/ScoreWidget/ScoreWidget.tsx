@@ -3,9 +3,13 @@ import './ScoreWidget.css';
 
 import { Progress } from '@ark-ui/react/progress'
 
-function ScoreWidget() {
+interface ScoreWidgetProps {
+    accessibility_score: number;
+}
+
+function ScoreWidget(props: ScoreWidgetProps) {
     const [value, setValue] = useState(0);
-    const finalValue = 90;
+    const finalValue = props.accessibility_score * 100;
     
     useEffect(() => {
         const timeout = setTimeout(() => {

@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons';
 import TestItem from "../TestItem/TestItem";
-import { Test } from "../Types/Types.tsx";
+import { AssertionResponse } from "../Types/Types.tsx";
 
 interface CategoryItemProps {
-  tests: Test[];
+  tests: AssertionResponse[];
   category: 'passed' | 'warnings' | 'failed' | 'inapplicable';
 }
 

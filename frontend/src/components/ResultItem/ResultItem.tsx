@@ -1,20 +1,21 @@
 import { Eye, MapPin, Clipboard } from 'lucide-react';
 import './ResultItem.css';
-import { Result } from '../Types/Types.tsx';
+import { IssueElementResponse } from '../Types/Types.tsx';
 
 interface ResultItemProps {
-  result : Result;
+  result : IssueElementResponse;
+  description : string;
 }
 
-const ResultItem: React.FC<ResultItemProps> = ({ result }) => {
+const ResultItem: React.FC<ResultItemProps> = ({ result, description }) => {
   return (
     <div className="result-item">
       <div className='result-desc'>
-        <h3>{result.description}</h3> <span>{result.url ? `(${result.url})` : ''}</span>
+        <h3>{description}</h3> <span>{result.id ? `(${result.id})` : ''}</span>
       </div>
       <div className='result-content'>
         <div className='code-snippet'>
-          {result.code}
+          {result.html_code}
         </div>
         <div className='location-visualize-wrapper'>
           <button className='copy'>
