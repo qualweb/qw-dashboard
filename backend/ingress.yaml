@@ -10,17 +10,17 @@ spec:
   rules:
     - http:
         paths:
-        - path: /api/evaluate
+        - path: /api/evaluations
           pathType: Prefix
           backend:
             service:
               name: evaluations
               port:
                 number: 8081
-        - path: /api/crawl
+        - path: /api/issues
           pathType: Prefix
           backend:
             service:
-              name: evaluations
+              name: issues
               port:
-                number: 8081
+                number: 8082

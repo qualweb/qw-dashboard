@@ -88,6 +88,7 @@ message AddMonitoringRegistryRequest {
 
 message AddMonitoringRegistryResponse {
     int32 status_code = 1;
+    int32 monitoring_registry_id = 2;
 }
 
 message GetMonitoringRegistryRequest {
@@ -97,13 +98,16 @@ message GetMonitoringRegistryRequest {
 message GetMonitoringRegistryResponse {
     int32 status_code = 1;
     int32 id = 2;
-    string main_url = 3;
-    string domain_name = 4;
-    bool is_mobile = 5;
-    bool is_landscape = 6;
-    int32 display_width = 7;
-    int32 display_height = 8;
-    repeated string webpages = 9;
+    string accessibility_metric = 3;
+    string main_url = 4;
+    string domain_name = 5;
+    bool is_mobile = 6;
+    bool is_landscape = 7;
+    int32 display_width = 8;
+    int32 display_height = 9;
+    repeated string webpages = 10;
+    string latest_evaluation = 11;
+    float accessibility_score = 12;
 }
 
 message SetAccessibilityMetricRequest {
@@ -149,6 +153,69 @@ message SetAccessibilityMetricAllWebsitesResponse {
     int32 status_code = 1;
 }
 
+message GetLatestAssertionsByWebpageRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message GetLatestAssertionsByWebpageResponse {
+    int32 status_code = 1;
+    repeated WebpageResponse webpages = 2;
+}
+
+message WebpageResponse {
+    string url = 1;
+    repeated AssertionResponse assertions = 2;
+}
+
+message AssertionResponse {
+    int32 id = 1;
+    int32 passed = 2;
+    int32 warning = 3;
+    int32 failed = 4;
+    int32 inapplicable = 5;
+    string outcome = 6;
+    string description = 7;
+    AssertionMetadataResponse metadata = 8;
+    repeated IssueResponse issues = 9;
+}
+
+message AssertionMetadataResponse {
+    int32 id = 1;
+    string code = 2;
+    string name = 3;
+    string description = 4;
+    string url = 5;
+    string mapping = 6;
+    repeated string target_elements = 7;
+    repeated string target_attributes = 8;
+    repeated SuccessCriteria success_criteria = 9;
+    int32 success_criteria_quantity = 10;
+}
+
+message IssueResponse {
+    int32 id = 1;
+    int32 assertion_id = 2;
+    string verdict = 3;
+    string description = 4;
+    string result_code = 5;
+    repeated IssueElementResponse elements = 6;
+}
+
+message IssueElementResponse {
+    int32 id = 1;
+    string html_code = 2;
+    string pointer = 3;
+}
+
+message GetLatestAssertionsByTestRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message GetLatestAssertionsByTestResponse {
+    int32 status_code = 1;
+    repeated AssertionResponse assertions = 2;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -158,4 +225,6 @@ service Evaluations {
     rpc SetLatestEvaluation(SetLatestEvaluationRequest) returns (SetLatestEvaluationResponse);
     rpc AddWebpages(AddWebpagesRequest) returns (AddWebpagesResponse);
     rpc SetAccessibilityMetricAllWebsites(SetAccessibilityMetricAllWebsitesRequest) returns (SetAccessibilityMetricAllWebsitesResponse);
+    rpc GetLatestAssertionsByWebpage(GetLatestAssertionsByWebpageRequest) returns (GetLatestAssertionsByWebpageResponse);
+    rpc GetLatestAssertionsByTest(GetLatestAssertionsByTestRequest) returns (GetLatestAssertionsByTestResponse);
 }

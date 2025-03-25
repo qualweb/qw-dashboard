@@ -92,6 +92,50 @@ function deserialize_runtimePackage_CalculateAccessibilityScoreResponse(buffer_a
   return evaluations_pb.CalculateAccessibilityScoreResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_GetLatestAssertionsByTestRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetLatestAssertionsByTestRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetLatestAssertionsByTestRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetLatestAssertionsByTestRequest(buffer_arg) {
+  return evaluations_pb.GetLatestAssertionsByTestRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetLatestAssertionsByTestResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetLatestAssertionsByTestResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetLatestAssertionsByTestResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetLatestAssertionsByTestResponse(buffer_arg) {
+  return evaluations_pb.GetLatestAssertionsByTestResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetLatestAssertionsByWebpageRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetLatestAssertionsByWebpageRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetLatestAssertionsByWebpageRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetLatestAssertionsByWebpageRequest(buffer_arg) {
+  return evaluations_pb.GetLatestAssertionsByWebpageRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetLatestAssertionsByWebpageResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetLatestAssertionsByWebpageResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetLatestAssertionsByWebpageResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetLatestAssertionsByWebpageResponse(buffer_arg) {
+  return evaluations_pb.GetLatestAssertionsByWebpageResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetMonitoringRegistryRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetMonitoringRegistryRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetMonitoringRegistryRequest');
@@ -269,6 +313,28 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_SetAccessibilityMetricAllWebsitesRequest,
     responseSerialize: serialize_runtimePackage_SetAccessibilityMetricAllWebsitesResponse,
     responseDeserialize: deserialize_runtimePackage_SetAccessibilityMetricAllWebsitesResponse,
+  },
+  getLatestAssertionsByWebpage: {
+    path: '/runtimePackage.Evaluations/GetLatestAssertionsByWebpage',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetLatestAssertionsByWebpageRequest,
+    responseType: evaluations_pb.GetLatestAssertionsByWebpageResponse,
+    requestSerialize: serialize_runtimePackage_GetLatestAssertionsByWebpageRequest,
+    requestDeserialize: deserialize_runtimePackage_GetLatestAssertionsByWebpageRequest,
+    responseSerialize: serialize_runtimePackage_GetLatestAssertionsByWebpageResponse,
+    responseDeserialize: deserialize_runtimePackage_GetLatestAssertionsByWebpageResponse,
+  },
+  getLatestAssertionsByTest: {
+    path: '/runtimePackage.Evaluations/GetLatestAssertionsByTest',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetLatestAssertionsByTestRequest,
+    responseType: evaluations_pb.GetLatestAssertionsByTestResponse,
+    requestSerialize: serialize_runtimePackage_GetLatestAssertionsByTestRequest,
+    requestDeserialize: deserialize_runtimePackage_GetLatestAssertionsByTestRequest,
+    responseSerialize: serialize_runtimePackage_GetLatestAssertionsByTestResponse,
+    responseDeserialize: deserialize_runtimePackage_GetLatestAssertionsByTestResponse,
   },
 };
 

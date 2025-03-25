@@ -102,14 +102,14 @@ CREATE TABLE Assertion_Metadata_Success_Criteria (
     FOREIGN KEY (success_criteria_name, success_criteria_level) REFERENCES Success_Criteria(success_criteria_name, success_criteria_level) ON DELETE CASCADE
 );
 
--- Issues Database
-
 CREATE TABLE Issue (
     id                  SERIAL PRIMARY KEY,
     assertion_id        INTEGER NOT NULL,
     verdict             result_verdict NOT NULL,
     description         VARCHAR NOT NULL,
-    result_code         VARCHAR NOT NULL
+    result_code         VARCHAR NOT NULL,
+
+    FOREIGN KEY (assertion_id) REFERENCES Assertion(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Element (

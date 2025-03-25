@@ -30,10 +30,17 @@ import {
     AddWebpagesRequest,
     AddWebpagesResponse,
     SetAccessibilityMetricAllWebsitesResponse,
-    SetAccessibilityMetricAllWebsitesRequest
+    SetAccessibilityMetricAllWebsitesRequest,
+    AssertionMetadataResponse,
+    AssertionResponse,
+    GetLatestAssertionsByTestResponse,
+    GetLatestAssertionsByTestRequest,
+    GetLatestAssertionsByWebpageResponse,
+    GetLatestAssertionsByWebpageRequest
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
-import { PuppeteerCrawler, sleep } from 'crawlee';
+import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
+import { convertGetLatestAssertionsResponseToJSON, convertAssertionsList } from './convert';
 
 dotenv.config();
 
@@ -44,11 +51,17 @@ const { EvaluationsClient } = require('./protobuf_library/evaluations_grpc_pb.js
 
 const grpc = require('@grpc/grpc-js');
 const express = require('express');
+const cors = require('cors');
 const evaluate = require('./evaluate');
 const app = express();
 const port = 8081;
 
 app.use(express.json());
+app.use(cors(
+    {
+        origin: "http://localhost:5173",
+    }
+));
 
 const client = new EvaluationsClient(
     evaluations_database_ip + ':6000', 
@@ -60,7 +73,7 @@ const client = new EvaluationsClient(
 );
 
 // This endpoint executes the crawling of the URLs in the domain of the input URL
-app.post('/api/crawl', (req: Request, res: Response) => { 
+app.post('/api/evaluations/crawl', (req: Request, res: Response) => { 
     const main_url = req.body.url
     const domain_name = new URL(main_url).hostname;
     const is_mobile = req.body.is_mobile;
@@ -68,32 +81,47 @@ app.post('/api/crawl', (req: Request, res: Response) => {
     const display_width = req.body.display_width;
     const display_height = req.body.display_height;
 
+    console.log(main_url);
+
     const puppeteerOptions = {
         headless: true,
         args: ['--no-sandbox']
     };
 
-    async function run (urlToCrawl : string) {
+    async function run(urlToCrawl: string) {
         const urls: string[] = [];
-      
+        
+        const requestQueue = await RequestQueue.open();
+        
         const crawler = new PuppeteerCrawler({
-          async requestHandler({ request, page, enqueueLinks, log }) {
-              urls.push(request.url);
-      
-              await enqueueLinks({
-                  globs: [`http?(s)://${new URL(urlToCrawl).hostname}/**`],
-              });
-          },
-          maxRequestsPerCrawl: 10,
-          launchContext: {
-            launchOptions: puppeteerOptions,
-          },
+            requestQueue,
+            async requestHandler({ request, page, enqueueLinks, log }) {
+                urls.push(request.url);
+                
+                await enqueueLinks({
+                    globs: [`http?(s)://${new URL(urlToCrawl).hostname}/**`],
+                    requestQueue,
+                });
+            },
+            maxRequestsPerCrawl: 10,
+            launchContext: {
+                launchOptions: {
+                    ...puppeteerOptions,
+                    args: [...(puppeteerOptions.args || []), '--incognito'],
+                },
+            },
+            navigationTimeoutSecs: 60,
         });
-      
+        
         await crawler.addRequests([urlToCrawl]);
-      
-        await crawler.run();
-      
+        
+        try {
+            await crawler.run();
+        } finally {
+            await crawler.teardown();
+            await requestQueue.drop();
+        }
+        
         return urls;
     }
 
@@ -110,7 +138,7 @@ app.post('/api/crawl', (req: Request, res: Response) => {
                 monitoring_registry_request.setDisplayHeight(display_height);
                 monitoring_registry_request.setWebpagesList(urls);
 
-                const response = await new Promise((resolve, reject) => {
+                const response = await new Promise<AddMonitoringRegistryResponse>((resolve, reject) => {
                     client.addMonitoringRegistry(monitoring_registry_request, (err : Error, response : AddMonitoringRegistryResponse) => {
                         if (err) reject(err);
                         else resolve(response);
@@ -118,7 +146,13 @@ app.post('/api/crawl', (req: Request, res: Response) => {
                 });
 
                 console.log('Successfully added monitoring registry');
-                res.send(200);
+                res.send(
+                    {
+                        status: response.getStatusCode(),
+                        monitoring_registry_id: response.getMonitoringRegistryId()
+                    }
+                );
+                
             } catch (error) {
                 console.error('Error adding monitoring registry:', error);
                 res.send(500);
@@ -129,7 +163,7 @@ app.post('/api/crawl', (req: Request, res: Response) => {
         });
 });
 
-app.post('/api/set-accessibility-metric', async (req: Request, res: Response) => {
+app.post('/api/evaluations/set-accessibility-metric', async (req: Request, res: Response) => {
     const monitoring_registry_id = req.body.monitoring_registry_id  ;
     const accessibility_metric = req.body.accessibility_metric;
 
@@ -154,7 +188,7 @@ app.post('/api/set-accessibility-metric', async (req: Request, res: Response) =>
 });
 
 // This endpoint executes the evaluations
-app.post('/api/evaluate', async (req: Request, res: Response) => {
+app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
     const monitoring_registry_id = req.body.monitoring_registry_id;
 
     try {
@@ -288,7 +322,7 @@ app.post('/api/evaluate', async (req: Request, res: Response) => {
     }
 });
 
-app.post('/api/calculate-score', async (req: Request, res: Response) => {
+app.post('/api/evaluations/calculate-score', async (req: Request, res: Response) => {
     const monitoring_registry_id = req.body.monitoring_registry_id;
 
     try {
@@ -315,7 +349,7 @@ app.post('/api/calculate-score', async (req: Request, res: Response) => {
     res.send(200);
 });
 
-app.post('/api/add-webpage', async (req: Request, res: Response) => {
+app.post('/api/evaluations/add-webpages', async (req: Request, res: Response) => {
     const monitoring_registry_id = req.body.monitoring_registry_id;
     const urls = req.body.urls;
 
@@ -345,7 +379,7 @@ app.post('/api/add-webpage', async (req: Request, res: Response) => {
     }
 });
 
-app.post('/api/set-accessibility-metric-all-websites', async (req: Request, res: Response) => {
+app.post('/api/evaluations/set-accessibility-metric-all-websites', async (req: Request, res: Response) => {
     const accessibility_metric = req.body.accessibility_metric;
 
     try {
@@ -369,6 +403,96 @@ app.post('/api/set-accessibility-metric-all-websites', async (req: Request, res:
     }
     catch (error) {
         console.error('Error setting accessibility metric:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/evaluations/monitoring/:id', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.id;
+
+    try {
+        const getWebpagesRequest = new GetMonitoringRegistryRequest();
+        getWebpagesRequest.setMonitoringRegistryId(Number(monitoring_id));
+
+        const response = await new Promise<GetMonitoringRegistryResponse>((resolve, reject) => {
+            client.getMonitoringRegistry(getWebpagesRequest, (err: Error, callResponse: GetMonitoringRegistryResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            monitoring_registry_id: response.getId(),
+            accessibility_metric: response.getAccessibilityMetric(),
+            main_url: response.getMainUrl(),
+            domain_name: response.getDomainName(),
+            is_mobile: response.getIsMobile(),
+            is_landscape: response.getIsLandscape(),
+            display_width: response.getDisplayWidth(),
+            display_height: response.getDisplayHeight(),
+            webpages: response.getWebpagesList(),
+            latest_evaluation: response.getLatestEvaluation(),
+            accessibility_score: response.getAccessibilityScore()
+        });
+    } catch (error) {
+        console.error('Error fetching monitoring registry:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/evaluations/monitoring/:id/latest-assertions/by-webpage', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.id;
+
+    try {
+        const getLatestAssertionsByWebpageRequest = new GetLatestAssertionsByWebpageRequest();
+        getLatestAssertionsByWebpageRequest.setMonitoringRegistryId(Number(monitoring_id));
+
+        const response = await new Promise<GetLatestAssertionsByWebpageResponse>((resolve, reject) => {
+            client.getLatestAssertionsByWebpage(getLatestAssertionsByWebpageRequest, (err: Error, callResponse: GetLatestAssertionsByWebpageResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+        
+        res.send(convertGetLatestAssertionsResponseToJSON(response).webpages);
+    } catch (error) {
+        console.error('Error fetching latest assertions:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/evaluations/monitoring/:id/latest-assertions/by-test', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.id;
+
+    try {
+        const getLatestAssertionsByTestRequest = new GetLatestAssertionsByTestRequest();
+        getLatestAssertionsByTestRequest.setMonitoringRegistryId(Number(monitoring_id));
+
+        const response = await new Promise<GetLatestAssertionsByTestResponse>((resolve, reject) => {
+            client.getLatestAssertionsByTest(getLatestAssertionsByTestRequest, (err: Error, callResponse: GetLatestAssertionsByTestResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+        
+        res.send(convertAssertionsList(response.getAssertionsList()));
+    } catch (error) {
+        console.error('Error fetching latest assertions:', error);
         res.send(500);
     }
 });
