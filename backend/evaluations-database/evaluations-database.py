@@ -25,7 +25,8 @@ from protobuf_library.evaluations_pb2 import (
     WebpageResponse,
     IssueElementResponse,
     IssueResponse,
-    GetLatestAssertionsByTestResponse
+    GetLatestAssertionsByTestResponse,
+    GetCurrentWarningsResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -845,6 +846,168 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return GetLatestAssertionsByTestResponse(status_code=200, assertions=all_assertions)
+    
+    def GetCurrentWarnings(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                SELECT webpages FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_registry_id, ))
+            
+            webpages = cursor.fetchone()[0]
+
+            current_warnings = []
+
+            for webpage in webpages:
+                cursor.execute('''
+                    SELECT id 
+                    FROM Evaluation
+                    WHERE monitored_website_id = %s
+                    AND input_url = %s
+                    ORDER BY evaluation_date DESC
+                    LIMIT 1
+                ''', (request.monitoring_registry_id, webpage))
+
+                evaluation_id = cursor.fetchone()
+
+                if evaluation_id is None:
+                    return GetLatestAssertionsByTestResponse(status_code=404)
+                else:
+                    cursor.execute('''
+                        SELECT * FROM Module
+                        WHERE evaluation_id = %s
+                        AND module_type = 'act-rules'
+                    ''', (evaluation_id[0],))
+
+                    result = cursor.fetchone()
+
+                    if result is None:
+                        return GetLatestAssertionsByTestResponse(status_code=404)
+                    
+                    cursor.execute('''
+                        SELECT * FROM Assertion
+                        WHERE module_id = %s
+                        AND outcome = 'warning'
+                    ''', (result[0],))
+
+                    assertions = cursor.fetchall()
+
+                    # Get the success criteria and results for each assertion
+                    for assertion in assertions:
+                        cursor.execute('''
+                            SELECT * FROM Assertion_Metadata
+                            WHERE id = %s
+                        ''', (assertion[2],))
+
+                        assertion_metadata = cursor.fetchone()
+
+                        cursor.execute('''
+                            SELECT success_criteria_name, success_criteria_level
+                            FROM Assertion_Metadata_Success_Criteria
+                            WHERE assertion_metadata_id = %s
+                        ''', (assertion[2],))
+
+                        success_criteria = cursor.fetchall()
+
+                        success_criteria_response = []
+                        for success_criterion in success_criteria:
+                            cursor.execute('''
+                                SELECT * FROM Success_Criteria
+                                WHERE success_criteria_name = %s AND success_criteria_level = %s
+                            ''', (success_criterion[0], success_criterion[1]))
+
+                            result = cursor.fetchone()
+
+                            if result is not None:
+                                success_criteria_response.append(
+                                    SuccessCriteria(
+                                        name=result[1],
+                                        level=result[2],
+                                        principle=result[3],
+                                        url=result[4]
+                                    )
+                                )
+
+                        issues_response = list()
+
+                        cursor.execute('''
+                            SELECT * FROM Issue
+                            WHERE assertion_id = %s
+                        ''', (assertion[0],))
+
+                        issues = cursor.fetchall()
+
+                        for issue in issues:
+                            cursor.execute('''
+                                SELECT * FROM Element
+                                WHERE issue_id = %s
+                            ''', (issue[0],))
+
+                            elements = cursor.fetchall()
+
+                            elements_response = []
+                            for element in elements:
+                                elements_response.append(
+                                    IssueElementResponse(
+                                        id=element[0],
+                                        html_code=element[2],
+                                        pointer=element[3]
+                                    )
+                                )
+                            
+                            issues_response.append(
+                                IssueResponse(
+                                    id=issue[0],
+                                    verdict=issue[2],
+                                    description=issue[3],
+                                    result_code=issue[4],
+                                    elements=elements_response
+                                )
+                            )
+
+                        assertion_response = AssertionResponse(
+                            id=assertion[0],
+                            passed = assertion[3],
+                            warning = assertion[4],
+                            failed = assertion[5],
+                            inapplicable = assertion[6],
+                            outcome = assertion[7],
+                            description = assertion[8],
+                            metadata = AssertionMetadataResponse (
+                                id=assertion_metadata[0],
+                                code=assertion_metadata[1],
+                                name=assertion_metadata[3],
+                                description=assertion_metadata[4],
+                                url=assertion_metadata[5],
+                                mapping=assertion_metadata[6],
+                                target_elements=assertion_metadata[7],
+                                target_attributes=assertion_metadata[8],
+                                success_criteria=success_criteria_response,
+                                success_criteria_quantity=len(success_criteria_response)
+                            ),
+                            issues = issues_response
+                        )
+
+                        current_warnings.append(assertion_response)
+
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetCurrentWarningsResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetCurrentWarningsResponse(status_code=200, warnings=current_warnings)
     
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

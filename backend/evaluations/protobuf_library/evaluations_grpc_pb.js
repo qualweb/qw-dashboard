@@ -92,6 +92,28 @@ function deserialize_runtimePackage_CalculateAccessibilityScoreResponse(buffer_a
   return evaluations_pb.CalculateAccessibilityScoreResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_GetCurrentWarningsRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetCurrentWarningsRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetCurrentWarningsRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetCurrentWarningsRequest(buffer_arg) {
+  return evaluations_pb.GetCurrentWarningsRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetCurrentWarningsResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetCurrentWarningsResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetCurrentWarningsResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetCurrentWarningsResponse(buffer_arg) {
+  return evaluations_pb.GetCurrentWarningsResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetLatestAssertionsByTestRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetLatestAssertionsByTestRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetLatestAssertionsByTestRequest');
@@ -335,6 +357,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_GetLatestAssertionsByTestRequest,
     responseSerialize: serialize_runtimePackage_GetLatestAssertionsByTestResponse,
     responseDeserialize: deserialize_runtimePackage_GetLatestAssertionsByTestResponse,
+  },
+  getCurrentWarnings: {
+    path: '/runtimePackage.Evaluations/GetCurrentWarnings',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetCurrentWarningsRequest,
+    responseType: evaluations_pb.GetCurrentWarningsResponse,
+    requestSerialize: serialize_runtimePackage_GetCurrentWarningsRequest,
+    requestDeserialize: deserialize_runtimePackage_GetCurrentWarningsRequest,
+    responseSerialize: serialize_runtimePackage_GetCurrentWarningsResponse,
+    responseDeserialize: deserialize_runtimePackage_GetCurrentWarningsResponse,
   },
 };
 

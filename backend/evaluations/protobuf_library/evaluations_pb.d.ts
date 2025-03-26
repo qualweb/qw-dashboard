@@ -1023,3 +1023,49 @@ export namespace GetLatestAssertionsByTestResponse {
   }
 }
 
+export class GetCurrentWarningsRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetCurrentWarningsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetCurrentWarningsRequest): GetCurrentWarningsRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetCurrentWarningsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetCurrentWarningsRequest;
+  static deserializeBinaryFromReader(message: GetCurrentWarningsRequest, reader: jspb.BinaryReader): GetCurrentWarningsRequest;
+}
+
+export namespace GetCurrentWarningsRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+  }
+}
+
+export class GetCurrentWarningsResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearWarningsList(): void;
+  getWarningsList(): Array<AssertionResponse>;
+  setWarningsList(value: Array<AssertionResponse>): void;
+  addWarnings(value?: AssertionResponse, index?: number): AssertionResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetCurrentWarningsResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetCurrentWarningsResponse): GetCurrentWarningsResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetCurrentWarningsResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetCurrentWarningsResponse;
+  static deserializeBinaryFromReader(message: GetCurrentWarningsResponse, reader: jspb.BinaryReader): GetCurrentWarningsResponse;
+}
+
+export namespace GetCurrentWarningsResponse {
+  export type AsObject = {
+    statusCode: number,
+    warningsList: Array<AssertionResponse.AsObject>,
+  }
+}
+

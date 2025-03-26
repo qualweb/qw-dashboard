@@ -84,6 +84,11 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.GetLatestAssertionsByTestRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.GetLatestAssertionsByTestResponse.FromString,
                 _registered_method=True)
+        self.GetCurrentWarnings = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetCurrentWarnings',
+                request_serializer=evaluations__pb2.GetCurrentWarningsRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetCurrentWarningsResponse.FromString,
+                _registered_method=True)
 
 
 class EvaluationsServicer(object):
@@ -149,6 +154,12 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetCurrentWarnings(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -201,6 +212,11 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     servicer.GetLatestAssertionsByTest,
                     request_deserializer=evaluations__pb2.GetLatestAssertionsByTestRequest.FromString,
                     response_serializer=evaluations__pb2.GetLatestAssertionsByTestResponse.SerializeToString,
+            ),
+            'GetCurrentWarnings': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetCurrentWarnings,
+                    request_deserializer=evaluations__pb2.GetCurrentWarningsRequest.FromString,
+                    response_serializer=evaluations__pb2.GetCurrentWarningsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -473,6 +489,33 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/GetLatestAssertionsByTest',
             evaluations__pb2.GetLatestAssertionsByTestRequest.SerializeToString,
             evaluations__pb2.GetLatestAssertionsByTestResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetCurrentWarnings(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetCurrentWarnings',
+            evaluations__pb2.GetCurrentWarningsRequest.SerializeToString,
+            evaluations__pb2.GetCurrentWarningsResponse.FromString,
             options,
             channel_credentials,
             insecure,

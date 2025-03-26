@@ -1,4 +1,4 @@
-const EVALUATIONS_API_URL = 'http://localhost:8081/api/evaluations';
+const EVALUATIONS_API_URL = 'https://138c-194-117-22-71.ngrok-free.app/api/evaluations';
 
 export const runCrawler = async (
     url : string,

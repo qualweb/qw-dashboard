@@ -216,6 +216,15 @@ message GetLatestAssertionsByTestResponse {
     repeated AssertionResponse assertions = 2;
 }
 
+message GetCurrentWarningsRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message GetCurrentWarningsResponse {
+    int32 status_code = 1;
+    repeated AssertionResponse warnings = 2;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -227,4 +236,5 @@ service Evaluations {
     rpc SetAccessibilityMetricAllWebsites(SetAccessibilityMetricAllWebsitesRequest) returns (SetAccessibilityMetricAllWebsitesResponse);
     rpc GetLatestAssertionsByWebpage(GetLatestAssertionsByWebpageRequest) returns (GetLatestAssertionsByWebpageResponse);
     rpc GetLatestAssertionsByTest(GetLatestAssertionsByTestRequest) returns (GetLatestAssertionsByTestResponse);
+    rpc GetCurrentWarnings(GetCurrentWarningsRequest) returns (GetCurrentWarningsResponse);
 }
