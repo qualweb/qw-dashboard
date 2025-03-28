@@ -268,11 +268,11 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             websites = cursor.fetchall()
 
-            websites = list()
+            websites_response = list()
             for website in websites:
-                websites.append(website[0])
-
-            print(websites, file=sys.stderr, flush=True)
+                print(website, file=sys.stderr, flush=True)
+                print(website[0], file=sys.stderr, flush=True)
+                websites_response.append(website[0])
 
             cursor.close()
         except Exception as e:
@@ -287,7 +287,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
         
         return GetMonitoredWebsitesResponse(
             status_code=200,
-            websites=websites
+            websites=websites_response
         )
     
     def SetAccessibilityMetric(self, request, context):
