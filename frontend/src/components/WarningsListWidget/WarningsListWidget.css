@@ -1,0 +1,42 @@
+.current-warnings-widget {
+    background-color: var(--secondary-color);
+    border-radius: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 4rem;
+    gap: 2rem;
+}
+
+.current-warnings-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.current-warnings-header > h1 {
+    font-size: x-large;
+}
+
+.current-warnings-counter {
+    display: flex;
+    align-items: center;
+    background-color: var(--terciary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 3rem;
+    gap: 0.5rem;
+}
+
+.current-warnings-counter > svg {
+    width: 2rem;
+    color: rgb(238, 208, 39);
+}
+
+
+.current-warnings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+}

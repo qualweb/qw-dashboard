@@ -58,6 +58,7 @@ html, body {
     overflow-y: auto;
     margin-left: 21rem;
     height: 100vh;
+    padding: 3rem 2rem;
 }
 
 .main-content {
@@ -68,10 +69,7 @@ html, body {
     align-items: start;
     justify-items: start;
     width: fit-content;
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-    margin-left: 1.5rem;
-    margin-right: 1.5rem;
+    width: 100%;
 }
 
 .score-container, .progress {

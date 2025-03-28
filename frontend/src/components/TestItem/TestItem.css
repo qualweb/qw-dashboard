@@ -29,8 +29,10 @@
 .tests-right {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    justify-content: space-between;
+    gap: 0rem;
     border-radius: 2rem;
+    min-width: 11rem;
 }
 
 .wrapper-4 {
@@ -38,4 +40,9 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    gap: 2rem;
+}
+
+.stat-warning {
+    min-width: 2.5rem;
 }

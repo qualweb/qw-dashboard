@@ -106,3 +106,16 @@ export const getAccessibilityScore = async (
 
     return data.score;
 }
+
+export const getCurrentWarnings = async (
+    monitoring_id : string
+) => {
+    const warnings_response = await fetch(`${EVALUATIONS_API_URL}/monitoring/${monitoring_id}/current-warnings`);
+    const data = await warnings_response.json();
+
+    if (warnings_response.status !== 200) {
+        throw new Error('Failed to fetch current warnings.');
+    }
+
+    return data.warnings;
+}

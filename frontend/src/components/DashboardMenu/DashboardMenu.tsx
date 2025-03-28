@@ -73,7 +73,7 @@ function DashboardMenu (props: DashboardMenuProps) {
                         </Select.Root>
                     </li>
                     <li>
-                        <WebsiteDashboardMenuItem name="Current warnings" path="/dashboard/:monitoring_id/current-warnings" icon={WarningIcon} />
+                        <WebsiteDashboardMenuItem name="Current warnings" path={`/dashboard/${props.monitoring_id}/current-warnings`}  icon={WarningIcon} />
                     </li>
                     <li>
                         <WebsiteDashboardMenuItem name="Evaluation scheduler" path="/scheduler" icon={TimeIcon} />
