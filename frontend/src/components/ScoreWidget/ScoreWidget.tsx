@@ -2,27 +2,37 @@ import { useEffect, useState } from 'react';
 import './ScoreWidget.css';
 
 import { Progress } from '@ark-ui/react/progress'
+import { getAccessibilityScore } from '../../services/EvaluationService';
 
 interface ScoreWidgetProps {
-    accessibility_score: number;
+    monitoring_id: string;
 }
 
 function ScoreWidget(props: ScoreWidgetProps) {
     const [value, setValue] = useState(0);
-    const finalValue = props.accessibility_score * 100;
-    
+    const [accessibilityScore, setAccessibilityScore] = useState(0.0);
+
+    useEffect(() => {
+        const fetchAccessibilityScore = async () => {
+            const score = await getAccessibilityScore(props.monitoring_id);
+            setAccessibilityScore(score * 100);
+        }
+
+        fetchAccessibilityScore();
+    }, [props.monitoring_id]);
+
     useEffect(() => {
         const timeout = setTimeout(() => {
         const animationDuration = 1500;
         const interval = 20;
         const steps = animationDuration / interval;
-        const increment = finalValue / steps;
+        const increment = accessibilityScore / steps;
         let currentValue = 0;
         
         const timer = setInterval(() => {
             currentValue += increment;
-            if (currentValue >= finalValue) {
-            setValue(finalValue);
+            if (currentValue >= accessibilityScore) {
+            setValue(accessibilityScore);
             clearInterval(timer);
             } else {
             setValue(currentValue);
@@ -33,7 +43,7 @@ function ScoreWidget(props: ScoreWidgetProps) {
         }, 300);
         
         return () => clearTimeout(timeout);
-    }, []);
+    }, [accessibilityScore]);
 
     return (
         <div className="score-container">

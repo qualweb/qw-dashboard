@@ -1,4 +1,4 @@
-const EVALUATIONS_API_URL = 'https://138c-194-117-22-71.ngrok-free.app/api/evaluations';
+const EVALUATIONS_API_URL = 'http://10.10.6.132:8081/api/evaluations';
 
 export const runCrawler = async (
     url : string,
@@ -48,17 +48,17 @@ export const runEvaluation = async (
     }
 }
 
-export const getEvaluationsData = async (
-    monitoring_id : string
-) => {
-    const response = await fetch(`${EVALUATIONS_API_URL}/monitoring/${monitoring_id}`);
+export const getMonitoredWebsites = async () => {
+    const response = await fetch(`${EVALUATIONS_API_URL}/monitored-websites`);
     const data = await response.json();
+
+    console.log(data)
 
     if (response.status !== 200) {
         throw new Error('Failed to fetch evaluation data.');
     }
 
-    return data;
+    return data.websites;
 }
 
 export const getCurrentIssuesByWebpage = async (
@@ -89,4 +89,20 @@ export const getCurrentIssuesByTest = async (
     }
 
     return assertions_data;
+}
+
+export const getAccessibilityScore = async (
+    monitoring_id : string
+) => {
+    const score_response = await fetch(`${EVALUATIONS_API_URL}/monitoring/${monitoring_id}/score`);
+    const data = await score_response.json();
+
+    console.log(data)
+    console.log(data.score)
+
+    if (score_response.status !== 200) {
+        throw new Error('Failed to fetch accessibility score.');
+    }
+
+    return data.score;
 }

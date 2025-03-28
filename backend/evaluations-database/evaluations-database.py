@@ -12,7 +12,6 @@ import requests
 
 from protobuf_library.evaluations_pb2 import (
     AddEvaluationResponse,
-    GetMonitoringRegistryResponse,
     SetAccessibilityMetricResponse,
     CalculateAccessibilityScoreResponse,
     SetLatestEvaluationResponse,
@@ -26,7 +25,10 @@ from protobuf_library.evaluations_pb2 import (
     IssueElementResponse,
     IssueResponse,
     GetLatestAssertionsByTestResponse,
-    GetCurrentWarningsResponse
+    GetCurrentWarningsResponse,
+    GetMonitoredWebsitesResponse,
+    GetWebsiteScoreResponse,
+    GetMonitoringRegistryResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -222,7 +224,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
                         issue_id = cursor.fetchone()[0]
 
-                        elements = list()
                         for y in range(request.modules[i].assertions[k].metadata.results[g].elements_quantity):
 
                             cursor.execute('''
@@ -253,7 +254,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
         return AddEvaluationResponse(status_code=200)
     
-    def GetMonitoringRegistry(self, request, context):
+    def GetMonitoredWebsites(self, request, context):
         conn = None
 
         try:
@@ -262,38 +263,32 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
             cursor.execute('''
-                SELECT * FROM MonitoringRegistry
-                WHERE id = %s
-            ''', (request.monitoring_registry_id, ))
+                SELECT main_url FROM MonitoringRegistry
+            ''')
 
-            result = cursor.fetchone()
+            websites = cursor.fetchall()
+
+            websites = list()
+            for website in websites:
+                websites.append(website[0])
+
+            print(websites, file=sys.stderr, flush=True)
+
             cursor.close()
-
-            print(result, file=sys.stderr, flush=True)
-
-            return GetMonitoringRegistryResponse(
-                status_code=200,
-                id=result[0],
-                accessibility_metric=result[1],
-                main_url=result[2],
-                domain_name=result[3],
-                is_mobile=result[4],
-                is_landscape=result[5],
-                display_width=result[6],
-                display_height=result[7],
-                webpages=result[8],
-                latest_evaluation=str(result[9]),
-                accessibility_score=result[10]
-            )
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
             if conn:
                 conn.rollback()
 
-            return GetMonitoringRegistryResponse(status_code=500)
+            return GetMonitoredWebsitesResponse(status_code=500)
         finally:
             if conn:
                 connection_pool.putconn(conn)
+        
+        return GetMonitoredWebsitesResponse(
+            status_code=200,
+            websites=websites
+        )
     
     def SetAccessibilityMetric(self, request, context):
         conn = None
@@ -1009,6 +1004,77 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
         return GetCurrentWarningsResponse(status_code=200, warnings=current_warnings)
     
+    def GetWebsiteScore(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                SELECT score FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_registry_id, ))
+
+            score = cursor.fetchone()[0]
+
+            print(score, file=sys.stderr, flush=True)
+
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetWebsiteScoreResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetWebsiteScoreResponse(status_code=200, score=score)
+    
+    def GetMonitoringRegistry(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                SELECT * FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_registry_id, ))
+
+            result = cursor.fetchone()
+            cursor.close()
+
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetMonitoringRegistryResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+        
+        return GetMonitoringRegistryResponse(
+            status_code=200,
+            id=result[0],
+            accessibility_metric=result[1],
+            main_url=result[2],
+            domain_name=result[3],
+            is_mobile=result[4],
+            is_landscape=result[5],
+            display_width=result[6],
+            display_height=result[7],
+            webpages=result[8],
+            latest_evaluation=str(result[9]),
+            accessibility_score=result[10]
+        )
+        
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]
     server = grpc.server(

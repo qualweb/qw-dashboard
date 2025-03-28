@@ -73,7 +73,7 @@ var app = express();
 var port = 8081;
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "*",
 }));
 var client = new EvaluationsClient(evaluations_database_ip + ':6000', grpc.credentials.createInsecure(), {
     "grpc.max_receive_message_length": 100 * 1024 * 1024,
@@ -491,51 +491,37 @@ app.post('/api/evaluations/set-accessibility-metric-all-websites', function (req
         }
     });
 }); });
-app.get('/api/evaluations/monitoring/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getWebpagesRequest_2, response, error_8;
+app.get('/api/evaluations/monitored-websites', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var getWebpagesRequest_2, response, error_8;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                monitoring_id = req.params.id;
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 3, , 4]);
-                getWebpagesRequest_2 = new evaluations_pb_1.GetMonitoringRegistryRequest();
-                getWebpagesRequest_2.setMonitoringRegistryId(Number(monitoring_id));
+                _a.trys.push([0, 2, , 3]);
+                getWebpagesRequest_2 = new evaluations_pb_1.GetMonitoredWebsitesRequest();
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        client.getMonitoringRegistry(getWebpagesRequest_2, function (err, callResponse) {
+                        client.getMonitoredWebsites(getWebpagesRequest_2, function (err, callResponse) {
                             if (err)
                                 reject(err);
                             else
                                 resolve(callResponse);
                         });
                     })];
-            case 2:
+            case 1:
                 response = _a.sent();
                 if (response.getStatusCode() !== 200) {
                     res.send(response.getStatusCode());
                     return [2 /*return*/];
                 }
                 res.status(200).json({
-                    monitoring_registry_id: response.getId(),
-                    accessibility_metric: response.getAccessibilityMetric(),
-                    main_url: response.getMainUrl(),
-                    domain_name: response.getDomainName(),
-                    is_mobile: response.getIsMobile(),
-                    is_landscape: response.getIsLandscape(),
-                    display_width: response.getDisplayWidth(),
-                    display_height: response.getDisplayHeight(),
-                    webpages: response.getWebpagesList(),
-                    latest_evaluation: response.getLatestEvaluation(),
-                    accessibility_score: response.getAccessibilityScore()
+                    websites: response.getWebsitesList()
                 });
-                return [3 /*break*/, 4];
-            case 3:
+                return [3 /*break*/, 3];
+            case 2:
                 error_8 = _a.sent();
                 console.error('Error fetching monitoring registry:', error_8);
                 res.send(500);
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
         }
     });
 }); });
@@ -641,6 +627,45 @@ app.get('/api/evaluations/monitoring/:id/current-warnings', function (req, res) 
             case 3:
                 error_11 = _a.sent();
                 console.error('Error fetching current warnings:', error_11);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/api/evaluations/monitoring/:id/score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, getScoreRequest_1, response, error_12;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_id = req.params.id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                getScoreRequest_1 = new evaluations_pb_1.GetWebsiteScoreRequest();
+                getScoreRequest_1.setMonitoringRegistryId(Number(monitoring_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getWebsiteScore(getScoreRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                console.log("score" + response.getScore());
+                res.status(200).json({
+                    score: response.getScore()
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_12 = _a.sent();
+                console.error('Error fetching score:', error_12);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];

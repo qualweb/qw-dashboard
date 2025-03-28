@@ -91,23 +91,12 @@ message AddMonitoringRegistryResponse {
     int32 monitoring_registry_id = 2;
 }
 
-message GetMonitoringRegistryRequest {
-    int32 monitoring_registry_id = 1;
+message GetMonitoredWebsitesRequest {
 }
 
-message GetMonitoringRegistryResponse {
+message GetMonitoredWebsitesResponse {
     int32 status_code = 1;
-    int32 id = 2;
-    string accessibility_metric = 3;
-    string main_url = 4;
-    string domain_name = 5;
-    bool is_mobile = 6;
-    bool is_landscape = 7;
-    int32 display_width = 8;
-    int32 display_height = 9;
-    repeated string webpages = 10;
-    string latest_evaluation = 11;
-    float accessibility_score = 12;
+    repeated string websites = 2;
 }
 
 message SetAccessibilityMetricRequest {
@@ -225,10 +214,38 @@ message GetCurrentWarningsResponse {
     repeated AssertionResponse warnings = 2;
 }
 
+message GetWebsiteScoreRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message GetWebsiteScoreResponse {
+    int32 status_code = 1;
+    float score = 2;
+}
+
+message GetMonitoringRegistryRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message GetMonitoringRegistryResponse {
+    int32 status_code = 1;
+    int32 id = 2;
+    string accessibility_metric = 3;
+    string main_url = 4;
+    string domain_name = 5;
+    bool is_mobile = 6;
+    bool is_landscape = 7;
+    int32 display_width = 8;
+    int32 display_height = 9;
+    repeated string webpages = 10;
+    string latest_evaluation = 11;
+    float accessibility_score = 12;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
-    rpc GetMonitoringRegistry(GetMonitoringRegistryRequest) returns (GetMonitoringRegistryResponse);
+    rpc GetMonitoredWebsites(GetMonitoredWebsitesRequest) returns (GetMonitoredWebsitesResponse);
     rpc SetAccessibilityMetric(SetAccessibilityMetricRequest) returns (SetAccessibilityMetricResponse);
     rpc CalculateAccessibilityScore(CalculateAccessibilityScoreRequest) returns (CalculateAccessibilityScoreResponse);
     rpc SetLatestEvaluation(SetLatestEvaluationRequest) returns (SetLatestEvaluationResponse);
@@ -237,4 +254,6 @@ service Evaluations {
     rpc GetLatestAssertionsByWebpage(GetLatestAssertionsByWebpageRequest) returns (GetLatestAssertionsByWebpageResponse);
     rpc GetLatestAssertionsByTest(GetLatestAssertionsByTestRequest) returns (GetLatestAssertionsByTestResponse);
     rpc GetCurrentWarnings(GetCurrentWarningsRequest) returns (GetCurrentWarningsResponse);
+    rpc GetWebsiteScore(GetWebsiteScoreRequest) returns (GetWebsiteScoreResponse);
+    rpc GetMonitoringRegistry(GetMonitoringRegistryRequest) returns (GetMonitoringRegistryResponse);
 }

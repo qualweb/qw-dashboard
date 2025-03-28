@@ -11,16 +11,8 @@ import { Request, Response, NextFunction } from 'express';
 import { 
     AddEvaluationRequest, 
     AddEvaluationResponse, 
-    Module,
-    Assertion,
-    AssertionMetadata,
-    SuccessCriteria,
-    Result,
-    Element,
     AddMonitoringRegistryRequest,
-    GetMonitoringRegistryRequest,
     AddMonitoringRegistryResponse,
-    GetMonitoringRegistryResponse,
     SetAccessibilityMetricRequest,
     SetAccessibilityMetricResponse,
     CalculateAccessibilityScoreRequest,
@@ -31,14 +23,18 @@ import {
     AddWebpagesResponse,
     SetAccessibilityMetricAllWebsitesResponse,
     SetAccessibilityMetricAllWebsitesRequest,
-    AssertionMetadataResponse,
-    AssertionResponse,
     GetLatestAssertionsByTestResponse,
     GetLatestAssertionsByTestRequest,
     GetLatestAssertionsByWebpageResponse,
     GetLatestAssertionsByWebpageRequest,
     GetCurrentWarningsRequest,
-    GetCurrentWarningsResponse
+    GetCurrentWarningsResponse,
+    GetMonitoredWebsitesRequest,
+    GetMonitoredWebsitesResponse,
+    GetWebsiteScoreRequest,
+    GetWebsiteScoreResponse,
+    GetMonitoringRegistryRequest,
+    GetMonitoringRegistryResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
@@ -62,7 +58,7 @@ const port = 8081;
 app.use(express.json());
 app.use(cors(
     {
-        origin: "http://localhost:5173",
+        origin: "*",
     }
 ));
 
@@ -410,15 +406,12 @@ app.post('/api/evaluations/set-accessibility-metric-all-websites', async (req: R
     }
 });
 
-app.get('/api/evaluations/monitoring/:id', async (req: Request, res: Response) => {
-    const monitoring_id = req.params.id;
-
+app.get('/api/evaluations/monitored-websites', async (req: Request, res: Response) => {
     try {
-        const getWebpagesRequest = new GetMonitoringRegistryRequest();
-        getWebpagesRequest.setMonitoringRegistryId(Number(monitoring_id));
+        const getWebpagesRequest = new GetMonitoredWebsitesRequest();
 
-        const response = await new Promise<GetMonitoringRegistryResponse>((resolve, reject) => {
-            client.getMonitoringRegistry(getWebpagesRequest, (err: Error, callResponse: GetMonitoringRegistryResponse) => {
+        const response = await new Promise<GetMonitoredWebsitesResponse>((resolve, reject) => {
+            client.getMonitoredWebsites(getWebpagesRequest, (err: Error, callResponse: GetMonitoredWebsitesResponse) => {
                 if (err) reject(err);
                 else resolve(callResponse);
             });
@@ -430,17 +423,7 @@ app.get('/api/evaluations/monitoring/:id', async (req: Request, res: Response) =
         }
 
         res.status(200).json({
-            monitoring_registry_id: response.getId(),
-            accessibility_metric: response.getAccessibilityMetric(),
-            main_url: response.getMainUrl(),
-            domain_name: response.getDomainName(),
-            is_mobile: response.getIsMobile(),
-            is_landscape: response.getIsLandscape(),
-            display_width: response.getDisplayWidth(),
-            display_height: response.getDisplayHeight(),
-            webpages: response.getWebpagesList(),
-            latest_evaluation: response.getLatestEvaluation(),
-            accessibility_score: response.getAccessibilityScore()
+            websites: response.getWebsitesList()
         });
     } catch (error) {
         console.error('Error fetching monitoring registry:', error);
@@ -522,6 +505,36 @@ app.get('/api/evaluations/monitoring/:id/current-warnings', async (req: Request,
         res.send(convertAssertionsList(response.getWarningsList()));
     } catch (error) {
         console.error('Error fetching current warnings:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/evaluations/monitoring/:id/score', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.id;
+
+    try {
+        const getScoreRequest = new GetWebsiteScoreRequest();
+        getScoreRequest.setMonitoringRegistryId(Number(monitoring_id));
+
+        const response = await new Promise<GetWebsiteScoreResponse>((resolve, reject) => {
+            client.getWebsiteScore(getScoreRequest, (err: Error, callResponse: GetWebsiteScoreResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        console.log("score" + response.getScore())
+
+        res.status(200).json({
+            score: response.getScore()
+        });
+    } catch (error) {
+        console.error('Error fetching score:', error);
         res.send(500);
     }
 });
