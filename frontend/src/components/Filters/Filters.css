@@ -47,8 +47,6 @@
 }
   
 .dialog-title {
-    font-size: 1.5rem;
-    font-weight: bold;
     padding-left: 1.5rem;
 }
   
@@ -63,7 +61,6 @@
     border: none;
     border-radius: 2rem;
     padding: 1rem;
-    font-size: var(--h1-font-size);
     cursor: pointer;
     transition: background-color 0.2s;
     display: flex;
@@ -95,7 +92,6 @@
     font-weight: 600;
     color: white;
     margin-bottom: 0.8rem;
-    font-size: 1rem;
 }
 
 .filters-wrapper {

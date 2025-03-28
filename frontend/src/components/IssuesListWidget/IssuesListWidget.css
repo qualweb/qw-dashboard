@@ -22,7 +22,6 @@
     padding: 1rem 1.5rem;
     display: flex;
     align-items: center;
-    font-size: var(--h3-font-size);
 }
 
 .title-pill h2 {
@@ -138,11 +137,6 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
-}
-
-.select-value {
-    padding-left: 0.5rem;
-    font-size: var(--h2-font-size) !important;
 }
 
 .circle {

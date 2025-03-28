@@ -1,4 +1,4 @@
-import { HistoryIcon, ManualIcon, SignOutIcon, TimeIcon, UserIcon, WarningIcon } from '../../assets/Icons';
+import { DashboardIcon, HistoryIcon, ManualIcon, SignOutIcon, TimeIcon, UserIcon, WarningIcon } from '../../assets/Icons';
 import WebsiteDashboardMenuItem from '../DashboardMenuItem/DashboardMenuItem';
 import './DashboardMenu.css';
 
@@ -73,29 +73,44 @@ function DashboardMenu (props: DashboardMenuProps) {
                         </Select.Root>
                     </li>
                     <li>
-                        <WebsiteDashboardMenuItem name="Current warnings" path={`/dashboard/${props.monitoring_id}/current-warnings`}  icon={WarningIcon} />
+                        <div className='list-item'>
+                            <WebsiteDashboardMenuItem name="Dashboard" path={`/dashboard/${props.monitoring_id}`}  icon={DashboardIcon} />
+                        </div>
                     </li>
                     <li>
-                        <WebsiteDashboardMenuItem name="Evaluation scheduler" path="/scheduler" icon={TimeIcon} />
+                        <div className='list-item'>
+                            <WebsiteDashboardMenuItem name="Current warnings" path={`/dashboard/${props.monitoring_id}/current-warnings`}  icon={WarningIcon} />
+                        </div>
                     </li>
                     <li>
-                        <WebsiteDashboardMenuItem name="Manual evaluation" path="/manual" icon={ManualIcon} />
+                        <div className='list-item'>
+                            <WebsiteDashboardMenuItem name="Evaluation scheduler" path="/scheduler" icon={TimeIcon} />
+                        </div>
                     </li>
                     <li>
-                        <WebsiteDashboardMenuItem name="Evaluation history" path="/history" icon={HistoryIcon} />
+                        <div className='list-item'>
+                            <WebsiteDashboardMenuItem name="Manual evaluation" path="/manual" icon={ManualIcon} />
+                        </div>
                     </li>
                     <li>
-                        <Menu.Root>
-                            <Menu.Trigger>
-                                {UserIcon}
-                                {current_username}
-                            </Menu.Trigger>
-                            <Menu.Positioner>
-                                <Menu.Content>
-                                    <Menu.Item value="signout">{SignOutIcon}Sign out</Menu.Item>
-                                </Menu.Content>
-                            </Menu.Positioner>
-                        </Menu.Root>
+                        <div className='list-item'>
+                            <WebsiteDashboardMenuItem name="Evaluation history" path="/history" icon={HistoryIcon} />
+                        </div>
+                    </li>
+                    <li>
+                        <div className='list-item'>
+                            <Menu.Root>
+                                <Menu.Trigger>
+                                    {UserIcon}
+                                    {current_username}
+                                </Menu.Trigger>
+                                <Menu.Positioner>
+                                    <Menu.Content>
+                                        <Menu.Item value="signout">{SignOutIcon}Sign out</Menu.Item>
+                                    </Menu.Content>
+                                </Menu.Positioner>
+                            </Menu.Root>
+                        </div>
                     </li>
                 </ul>
             </nav>
