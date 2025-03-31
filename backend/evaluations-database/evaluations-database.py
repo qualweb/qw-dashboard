@@ -28,7 +28,8 @@ from protobuf_library.evaluations_pb2 import (
     GetCurrentWarningsResponse,
     GetMonitoredWebsitesResponse,
     GetWebsiteScoreResponse,
-    GetMonitoringRegistryResponse
+    GetMonitoringRegistryResponse,
+    GetIssuesStatsResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -1073,6 +1074,72 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             webpages=result[8],
             latest_evaluation=str(result[9]),
             accessibility_score=result[10]
+        )
+    
+    def GetIssuesStats(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                SELECT webpages FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_registry_id, ))
+            
+            webpages = cursor.fetchone()[0]
+
+            issues_stats = {
+                "passed": 0,
+                "warnings": 0,
+                "failed": 0,
+                "inapplicable": 0
+            }
+
+            for webpage in webpages:
+                cursor.execute('''
+                    SELECT id 
+                    FROM Evaluation
+                    WHERE monitored_website_id = %s
+                    AND input_url = %s
+                    ORDER BY evaluation_date DESC
+                    LIMIT 1
+                ''', (request.monitoring_registry_id, webpage))
+
+                evaluation_id = cursor.fetchone()
+
+                if evaluation_id is not None:
+                    cursor.execute('''
+                        SELECT passed, warning, failed, inapplicable 
+                        FROM Evaluation WHERE id = %s
+                    ''', (evaluation_id[0],))
+
+                    result = cursor.fetchone()
+
+                    issues_stats["passed"] += result[0]
+                    issues_stats["warnings"] += result[1]
+                    issues_stats["failed"] += result[2]
+                    issues_stats["inapplicable"] += result[3]
+
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetIssuesStatsResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetIssuesStatsResponse(
+            status_code=200, 
+            passed = issues_stats["passed"],
+            warnings = issues_stats["warnings"],
+            failed = issues_stats["failed"],
+            inapplicable = issues_stats["inapplicable"]
         )
         
 def serve():

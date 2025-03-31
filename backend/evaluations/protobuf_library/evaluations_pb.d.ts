@@ -1155,3 +1155,59 @@ export namespace GetMonitoringRegistryResponse {
   }
 }
 
+export class GetIssuesStatsRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetIssuesStatsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetIssuesStatsRequest): GetIssuesStatsRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetIssuesStatsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetIssuesStatsRequest;
+  static deserializeBinaryFromReader(message: GetIssuesStatsRequest, reader: jspb.BinaryReader): GetIssuesStatsRequest;
+}
+
+export namespace GetIssuesStatsRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+  }
+}
+
+export class GetIssuesStatsResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  getPassed(): number;
+  setPassed(value: number): void;
+
+  getWarnings(): number;
+  setWarnings(value: number): void;
+
+  getFailed(): number;
+  setFailed(value: number): void;
+
+  getInapplicable(): number;
+  setInapplicable(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetIssuesStatsResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetIssuesStatsResponse): GetIssuesStatsResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetIssuesStatsResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetIssuesStatsResponse;
+  static deserializeBinaryFromReader(message: GetIssuesStatsResponse, reader: jspb.BinaryReader): GetIssuesStatsResponse;
+}
+
+export namespace GetIssuesStatsResponse {
+  export type AsObject = {
+    statusCode: number,
+    passed: number,
+    warnings: number,
+    failed: number,
+    inapplicable: number,
+  }
+}
+

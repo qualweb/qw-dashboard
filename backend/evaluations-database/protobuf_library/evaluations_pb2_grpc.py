@@ -99,6 +99,11 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.GetMonitoringRegistryRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.GetMonitoringRegistryResponse.FromString,
                 _registered_method=True)
+        self.GetIssuesStats = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetIssuesStats',
+                request_serializer=evaluations__pb2.GetIssuesStatsRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetIssuesStatsResponse.FromString,
+                _registered_method=True)
 
 
 class EvaluationsServicer(object):
@@ -182,6 +187,12 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetIssuesStats(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -249,6 +260,11 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     servicer.GetMonitoringRegistry,
                     request_deserializer=evaluations__pb2.GetMonitoringRegistryRequest.FromString,
                     response_serializer=evaluations__pb2.GetMonitoringRegistryResponse.SerializeToString,
+            ),
+            'GetIssuesStats': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetIssuesStats,
+                    request_deserializer=evaluations__pb2.GetIssuesStatsRequest.FromString,
+                    response_serializer=evaluations__pb2.GetIssuesStatsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -602,6 +618,33 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/GetMonitoringRegistry',
             evaluations__pb2.GetMonitoringRegistryRequest.SerializeToString,
             evaluations__pb2.GetMonitoringRegistryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetIssuesStats(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetIssuesStats',
+            evaluations__pb2.GetIssuesStatsRequest.SerializeToString,
+            evaluations__pb2.GetIssuesStatsResponse.FromString,
             options,
             channel_credentials,
             insecure,

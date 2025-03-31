@@ -114,6 +114,28 @@ function deserialize_runtimePackage_GetCurrentWarningsResponse(buffer_arg) {
   return evaluations_pb.GetCurrentWarningsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_GetIssuesStatsRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetIssuesStatsRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetIssuesStatsRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetIssuesStatsRequest(buffer_arg) {
+  return evaluations_pb.GetIssuesStatsRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetIssuesStatsResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetIssuesStatsResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetIssuesStatsResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetIssuesStatsResponse(buffer_arg) {
+  return evaluations_pb.GetIssuesStatsResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetLatestAssertionsByTestRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetLatestAssertionsByTestRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetLatestAssertionsByTestRequest');
@@ -434,6 +456,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_GetMonitoringRegistryRequest,
     responseSerialize: serialize_runtimePackage_GetMonitoringRegistryResponse,
     responseDeserialize: deserialize_runtimePackage_GetMonitoringRegistryResponse,
+  },
+  getIssuesStats: {
+    path: '/runtimePackage.Evaluations/GetIssuesStats',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetIssuesStatsRequest,
+    responseType: evaluations_pb.GetIssuesStatsResponse,
+    requestSerialize: serialize_runtimePackage_GetIssuesStatsRequest,
+    requestDeserialize: deserialize_runtimePackage_GetIssuesStatsRequest,
+    responseSerialize: serialize_runtimePackage_GetIssuesStatsResponse,
+    responseDeserialize: deserialize_runtimePackage_GetIssuesStatsResponse,
   },
 };
 

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons'
 import IssuesWebsiteItem from '../IssuesWebsiteItem/IssuesWebsiteItem';
 import { AssertionsGroupedByOutcomeResponse, WebpageIssueResponse } from '../Types/Types.tsx';
-import { getCurrentIssuesByTest, getCurrentIssuesByWebpage } from '../../services/EvaluationService.tsx';
+import { getCurrentIssuesByTest, getCurrentIssuesByWebpage, getIssuesStats } from '../../services/EvaluationService.tsx';
 import CircularLoader from '../CircularLoader/CircularLoader.tsx';
 import CategoryItem from '../CategoryItem/CategoryItem.tsx';
 import Filters from '../Filters/Filters.tsx';
@@ -26,6 +26,7 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
     const [loading, setLoading] = useState(false);
     const [issuesByWebpage, setIssuesByWebpage] = useState([]);
     const [issuesByTest, setIssuesByTest] = useState(null);
+    const [issuesStats, setIssuesStats] = useState(null);
 
     // Filters
     const [wcagLevelFilters, setWcagLevelFilters] = useState<string[]>([]);
@@ -73,6 +74,15 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
         fetchData();
     }, [selectedFilter, props.monitoring_id]);
 
+    useEffect(() => {
+        const fetchIssuesStats = async () => {
+            const data = await getIssuesStats(props.monitoring_id);
+            setIssuesStats(data);
+        }
+        fetchIssuesStats();
+    }, [props.monitoring_id]);
+
+
     return (
         <div className='issues-container'>
             <div className="header">
@@ -107,26 +117,28 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                             <Select.HiddenSelect />
                         </Select.Root>
                         
-                        <div className="stats-pill">
-                            <div className="stat-success">
-                                <span><strong>53</strong></span>
-                                {CheckIcon}
-                            </div>
-                            <div className="stat-warning">
-                                <span><strong>2</strong></span>
-                                {Warning2Icon}
-                            </div>
-                            <div className="stat-fail">
-                                <span><strong>4</strong></span>
-                                {FailIcon}
-                            </div>
-                            <div className="stat-inapplicable">
-                                <span><strong>4</strong></span>
-                                <div className='circle'>
-                                    {InapplicableIcon}
+                        {issuesStats &&
+                            <div className="stats-pill">
+                                <div className="stat-success">
+                                    <span><strong>{issuesStats["passed"]}</strong></span>
+                                    {CheckIcon}
+                                </div>
+                                <div className="stat-warning">
+                                    <span><strong>{issuesStats["warnings"]}</strong></span>
+                                    {Warning2Icon}
+                                </div>
+                                <div className="stat-fail">
+                                    <span><strong>{issuesStats["failed"]}</strong></span>
+                                    {FailIcon}
+                                </div>
+                                <div className="stat-inapplicable">
+                                    <span><strong>{issuesStats["inapplicable"]}</strong></span>
+                                    <div className='circle'>
+                                        {InapplicableIcon}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        }
                         <Filters 
                             wcagLevels={wcagLevelFilters}
                             status={statusFilters}

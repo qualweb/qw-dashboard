@@ -672,6 +672,47 @@ app.get('/api/evaluations/monitoring/:id/score', function (req, res) { return __
         }
     });
 }); });
+app.get('/api/evaluations/monitoring/:id/issues-stats', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, getIssuesStatsRequest_1, response, error_13;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_id = req.params.id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                getIssuesStatsRequest_1 = new evaluations_pb_1.GetIssuesStatsRequest();
+                getIssuesStatsRequest_1.setMonitoringRegistryId(Number(monitoring_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getIssuesStats(getIssuesStatsRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    passed: response.getPassed(),
+                    warnings: response.getWarnings(),
+                    failed: response.getFailed(),
+                    inapplicable: response.getInapplicable()
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_13 = _a.sent();
+                console.error('Error fetching score:', error_13);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 app.listen(port, function () {
     console.log("Server is running on http://localhost:".concat(port));
 });

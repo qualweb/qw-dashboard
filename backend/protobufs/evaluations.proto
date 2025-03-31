@@ -242,6 +242,18 @@ message GetMonitoringRegistryResponse {
     float accessibility_score = 12;
 }
 
+message GetIssuesStatsRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message GetIssuesStatsResponse {
+    int32 status_code = 1;
+    int32 passed = 2;
+    int32 warnings = 3;
+    int32 failed = 4;
+    int32 inapplicable = 5;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -256,4 +268,5 @@ service Evaluations {
     rpc GetCurrentWarnings(GetCurrentWarningsRequest) returns (GetCurrentWarningsResponse);
     rpc GetWebsiteScore(GetWebsiteScoreRequest) returns (GetWebsiteScoreResponse);
     rpc GetMonitoringRegistry(GetMonitoringRegistryRequest) returns (GetMonitoringRegistryResponse);
+    rpc GetIssuesStats(GetIssuesStatsRequest) returns (GetIssuesStatsResponse);
 }

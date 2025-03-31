@@ -119,3 +119,18 @@ export const getCurrentWarnings = async (
 
     return data.warnings;
 }
+
+export const getIssuesStats = async (
+    monitoring_id : string
+) => {
+    const stats_response = await fetch(`${EVALUATIONS_API_URL}/monitoring/${monitoring_id}/issues-stats`);
+    const data = await stats_response.json();
+
+    if (stats_response.status !== 200) {
+        throw new Error('Failed to fetch issues stats.');
+    }
+
+    console.log(data)
+
+    return data;
+}

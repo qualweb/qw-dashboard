@@ -34,7 +34,9 @@ import {
     GetWebsiteScoreRequest,
     GetWebsiteScoreResponse,
     GetMonitoringRegistryRequest,
-    GetMonitoringRegistryResponse
+    GetMonitoringRegistryResponse,
+    GetIssuesStatsRequest,
+    GetIssuesStatsResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
@@ -532,6 +534,37 @@ app.get('/api/evaluations/monitoring/:id/score', async (req: Request, res: Respo
 
         res.status(200).json({
             score: response.getScore()
+        });
+    } catch (error) {
+        console.error('Error fetching score:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/evaluations/monitoring/:id/issues-stats', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.id;
+
+    try {
+        const getIssuesStatsRequest = new GetIssuesStatsRequest();
+        getIssuesStatsRequest.setMonitoringRegistryId(Number(monitoring_id));
+
+        const response = await new Promise<GetIssuesStatsResponse>((resolve, reject) => {
+            client.getIssuesStats(getIssuesStatsRequest, (err: Error, callResponse: GetIssuesStatsResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            passed: response.getPassed(),
+            warnings: response.getWarnings(),
+            failed: response.getFailed(),
+            inapplicable: response.getInapplicable()
         });
     } catch (error) {
         console.error('Error fetching score:', error);
