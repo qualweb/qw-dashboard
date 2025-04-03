@@ -1,14 +1,15 @@
 import { EvaluationReport, ModuleType, QualwebReport, Assertion as QualwebAssertion, SuccessCriteria as QualwebSuccessCriteria, TestResult, EvaluationElement } from "@qualweb/core";
 import { Assertion, AssertionMetadata, Module, Result, SuccessCriteria, Element } from "./protobuf_library/evaluations_pb";
+import puppeteer, { ElementHandle, Page } from 'puppeteer';
 
-export default function getModules(report : QualwebReport) : Module[] {
+export default async function getModules(report : QualwebReport, page : Page) : Promise<Module[]> {
     var modules : Module[] = [];
     const modules_names : ModuleType[] = [ModuleType.WCAG_TECHNIQUES, ModuleType.ACT_RULES, ModuleType.BEST_PRACTICES];
     const assertions_quantity : number[] = [35, 77, 29];
 
     var i = 0;
 
-    modules_names.forEach((module : ModuleType) => {
+    for(const module of modules_names) {
         var new_module = new Module();
 
         if (report.modules[module] !== undefined) {
@@ -20,7 +21,7 @@ export default function getModules(report : QualwebReport) : Module[] {
             new_module.setFailed(currentModule.metadata.failed);
             new_module.setInapplicable(currentModule.metadata.inapplicable);
 
-            const assertions = getAssertions(currentModule, assertions_quantity[i])
+            const assertions = await getAssertions(currentModule, assertions_quantity[i], page)
             new_module.setAssertionsList(assertions[0]);
             new_module.setAssertionsQuantity(assertions[1]);
 
@@ -30,12 +31,12 @@ export default function getModules(report : QualwebReport) : Module[] {
         else {
             console.error("Module not found!");
         }
-    });
+    }
 
     return modules;
 }
 
-function getAssertions(module : EvaluationReport, assertions_quantity : number) : [Assertion[], number] {
+async function getAssertions(module : EvaluationReport, assertions_quantity : number, page : Page) : Promise<[Assertion[], number]> {
     var assertions : Assertion[] = [];
     var rule_prefix = '';
     var counter = 0;
@@ -65,7 +66,7 @@ function getAssertions(module : EvaluationReport, assertions_quantity : number) 
             new_assertion.setInapplicable(assertion.metadata.inapplicable);
             new_assertion.setOutcome(assertion.metadata.outcome);
             new_assertion.setDescription(assertion.metadata.description);
-            new_assertion.setMetadata(getMetadata(assertion));
+            new_assertion.setMetadata(await getMetadata(assertion, page));
 
             assertions.push(new_assertion);
             counter++;
@@ -75,7 +76,7 @@ function getAssertions(module : EvaluationReport, assertions_quantity : number) 
     return [assertions, counter]
 }
 
-function getMetadata(assertion : QualwebAssertion) : AssertionMetadata {
+async function getMetadata(assertion : QualwebAssertion, page : Page) : Promise<AssertionMetadata> {
     var assertion_metadata = new AssertionMetadata();
 
     assertion_metadata.setCode(assertion.code);
@@ -105,7 +106,7 @@ function getMetadata(assertion : QualwebAssertion) : AssertionMetadata {
     assertion_metadata.setSuccessCriteriaList(getSuccessCriteriaList(assertion));
     assertion_metadata.setSuccessCriteriaQuantity(assertion.metadata['success-criteria'].length);
 
-    const results = getResults(assertion)
+    const results = await getResults(assertion, page)
     assertion_metadata.setResultsList(results[0]);
     assertion_metadata.setResultsQuantity(results[1]);
 
@@ -129,11 +130,11 @@ function getSuccessCriteriaList(assertion : QualwebAssertion) : SuccessCriteria[
     return success_criteria_list;
 }
 
-function getResults(assertion : QualwebAssertion) : [Result[], number] {
+async function getResults(assertion : QualwebAssertion, page : Page) : Promise<[Result[], number]> {
     var results : Result[] = [];
     var results_counter : number = 0;
 
-    assertion.results.forEach((result : TestResult) => {
+    for(const result of assertion.results) {
         var new_result = new Result();
 
         var elements : Element[] = [];
@@ -142,18 +143,44 @@ function getResults(assertion : QualwebAssertion) : [Result[], number] {
         new_result.setVerdict(result.verdict);
         new_result.setDescription(result.description);
     
-        result.elements.forEach((element : EvaluationElement) => {
+        for(const element of result.elements) {
             var new_element = new Element();
             
             if (element.htmlCode !== undefined)
                 new_element.setHtmlCode(element.htmlCode);
 
-            if (element.pointer !== undefined)
+            if (element.pointer !== undefined) {
                 new_element.setPointer(element.pointer);
+
+                const getElementPosDim = async (pointer : string) => {
+                    const element = await page.waitForSelector(pointer);
+
+                    if (!element) {
+                        console.error(`Element not found for pointer: ${pointer}`);
+                        return;
+                    }
+
+                    const bounding_box = await element.boundingBox();
+                    
+                    if (!bounding_box) {
+                        console.error(`Bounding box not found for pointer: ${pointer}`);
+                        return;
+                    }
+
+                    console.log(bounding_box);
+
+                    new_element.setX(bounding_box.x);
+                    new_element.setY(bounding_box.y);
+                    new_element.setWidth(bounding_box.width);
+                    new_element.setHeight(bounding_box.height);
+                }
+
+                await getElementPosDim(element.pointer);
+            }
 
             elements.push(new_element);
             elements_counter++;
-        });
+        }
 
         new_result.setResultCode(result.resultCode);
 
@@ -162,7 +189,37 @@ function getResults(assertion : QualwebAssertion) : [Result[], number] {
         
         results.push(new_result);
         results_counter++;
-    });
+    }
 
     return  [results, results_counter];
+}
+
+export async function takeWebpageScreenshot(webpage_url: string, width: number, height: number) {
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox']
+    });
+
+    try {
+        const page = await browser.newPage();
+
+        await page.goto(webpage_url, { waitUntil: 'domcontentloaded' });
+        
+        await page.setViewport({
+            width: width,
+            height: height,
+            deviceScaleFactor: 1,
+        });
+        
+        const screenshot = await page.screenshot({ 
+            fullPage: true 
+        });
+        
+        return screenshot;
+    } catch (error) {
+        console.error('Error taking screenshot:', error);
+        return null;
+    } finally {
+        await browser.close();
+    }
 }

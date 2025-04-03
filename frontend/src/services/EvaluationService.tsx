@@ -1,5 +1,7 @@
 const EVALUATIONS_API_URL = 'http://10.10.6.132:8081/api/evaluations';
 
+// const EVALUATIONS_API_URL = 'http://localhost:8081/api/evaluations';
+
 export const runCrawler = async (
     url : string,
     is_mobile : boolean = false,

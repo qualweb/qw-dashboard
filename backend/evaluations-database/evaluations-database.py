@@ -92,24 +92,25 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
-            issues = list()
-
             cursor.execute('''
                 INSERT INTO Evaluation (
                     qualweb_version, monitored_website_id, input_url,
                     complete_url,
-                    dom, title, element_count, passed, warning, failed, inapplicable
+                    dom, title, element_count, passed, warning, failed, inapplicable, screenshot
                 ) VALUES (
                     %s, %s, %s,
                     %s,
-                    %s, %s, %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s, %s, %s, %s
                 ) RETURNING id
             ''', (
                 str(request.qualweb_version), str(request.monitored_website_id), str(request.input_url), 
                 str(request.complete_url),
                 str(request.dom), str(request.title), str(request.element_count), 
-                str(int(request.passed)), str(int(request.warning)), str(int(request.failed)), str(int(request.inapplicable))
+                str(int(request.passed)), str(int(request.warning)), str(int(request.failed)), str(int(request.inapplicable)),
+                request.screenshot
             ))
+
+            print("Hello", file=sys.stderr, flush=True)
 
             evaluation_id = cursor.fetchone()[0]
 
@@ -229,14 +230,18 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
                             cursor.execute('''
                                 INSERT INTO Element (
-                                    issue_id, html_code, pointer
+                                    issue_id, html_code, pointer, x, y, width, height
                                 ) VALUES (
-                                    %s, %s, %s
+                                    %s, %s, %s, %s, %s, %s, %s
                                 )
                             ''', (
                                 issue_id, 
                                 request.modules[i].assertions[k].metadata.results[g].elements[y].html_code, 
-                                request.modules[i].assertions[k].metadata.results[g].elements[y].pointer
+                                request.modules[i].assertions[k].metadata.results[g].elements[y].pointer,
+                                request.modules[i].assertions[k].metadata.results[g].elements[y].x,
+                                request.modules[i].assertions[k].metadata.results[g].elements[y].y,
+                                request.modules[i].assertions[k].metadata.results[g].elements[y].width,
+                                request.modules[i].assertions[k].metadata.results[g].elements[y].height
                             ))
 
             conn.commit()
@@ -601,7 +606,11 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                                     IssueElementResponse(
                                         id=element[0],
                                         html_code=element[2],
-                                        pointer=element[3]
+                                        pointer=element[3],
+                                        x=element[4],
+                                        y=element[5],
+                                        width=element[6],
+                                        height=element[7]
                                     )
                                 )
                             

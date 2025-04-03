@@ -1,13 +1,4 @@
-import { 
-    QualwebReport, 
-    ModuleType, 
-    EvaluationReport, 
-    Assertion as QualwebAssertion, 
-    SuccessCriteria as QualwebSuccessCriteria, 
-    TestResult, 
-    EvaluationElement
-} from '@qualweb/core';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { 
     AddEvaluationRequest, 
     AddEvaluationResponse, 
@@ -41,7 +32,9 @@ import {
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
 import { convertGetLatestAssertionsResponseToJSON, convertAssertionsList } from './convert';
-import getModules from './process_evals';
+import getModules, { takeWebpageScreenshot } from './process_evals';
+import { Browser, Page } from 'puppeteer';
+import puppeteer from 'puppeteer';
 
 dotenv.config();
 
@@ -209,6 +202,9 @@ app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
         }
 
         const urls = response.getWebpagesList();
+
+        const screen_width = response.getDisplayWidth();
+        const screen_height = response.getDisplayHeight();
         
         type ReportMap = { [url: string]: any };
         const reports: ReportMap = {};
@@ -216,8 +212,8 @@ app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
         for (const url of urls) {
             const report = await evaluate(
                 url,
-                response.getDisplayWidth(),
-                response.getDisplayHeight(),
+                screen_width,
+                screen_height,
                 response.getIsMobile(),
                 response.getIsLandscape()
             );
@@ -250,6 +246,24 @@ app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
 
         const processPromises = validReports.map(async ({ url, report }) => {
             try {
+
+                const browser : Browser = await puppeteer.launch({
+                    headless: true,
+                    args: ['--no-sandbox']
+                });
+                
+                const page : Page = await browser.newPage();
+
+                await page.setViewport({
+                    width: screen_width,
+                    height: screen_height,
+                    deviceScaleFactor: 1,
+                });
+                
+                await page.goto(url, { waitUntil: 'domcontentloaded' });
+
+                const screenshot = await takeWebpageScreenshot(url, screen_width, screen_height);
+
                 const evaluations_request = new AddEvaluationRequest();
                 evaluations_request.setQualwebVersion(report.system.version);
                 evaluations_request.setInputUrl(report.system.url?.inputUrl ?? "");
@@ -261,9 +275,13 @@ app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
                 evaluations_request.setWarning(report.metadata.warning);
                 evaluations_request.setFailed(report.metadata.failed);
                 evaluations_request.setInapplicable(report.metadata.inapplicable);
-                evaluations_request.setModulesList(getModules(report));
+                evaluations_request.setModulesList(await getModules(report, page));
                 evaluations_request.setModulesQuantity(2);
                 evaluations_request.setMonitoredWebsiteId(monitoring_registry_id);
+
+                if (screenshot) {
+                    evaluations_request.setScreenshot(screenshot);
+                }
 
                 const response = await new Promise<AddEvaluationResponse>((resolve, reject) => {
                     client.addEvaluation(evaluations_request, (err: Error, response: AddEvaluationResponse) => {

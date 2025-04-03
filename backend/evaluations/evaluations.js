@@ -61,6 +61,7 @@ var dotenv = require("dotenv");
 var crawlee_1 = require("crawlee");
 var convert_1 = require("./convert");
 var process_evals_1 = require("./process_evals");
+var puppeteer_1 = require("puppeteer");
 dotenv.config();
 // Access environment variables
 var evaluations_database_ip = process.env.EVALUATIONS_DATABASE_HOST;
@@ -231,7 +232,7 @@ app.post('/api/evaluations/set-accessibility-metric', function (req, res) { retu
 }); });
 // This endpoint executes the evaluations
 app.post('/api/evaluations/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_registry_id, getWebpagesRequest_1, response, urls, reports_1, _i, urls_1, url, report, validReports, processPromises, results, successful, failed, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
+    var monitoring_registry_id, getWebpagesRequest_1, response, urls, screen_width_1, screen_height_1, reports_1, _i, urls_1, url, report, validReports, processPromises, results, successful, failed, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -256,13 +257,15 @@ app.post('/api/evaluations/evaluate', function (req, res) { return __awaiter(voi
                     return [2 /*return*/];
                 }
                 urls = response.getWebpagesList();
+                screen_width_1 = response.getDisplayWidth();
+                screen_height_1 = response.getDisplayHeight();
                 reports_1 = {};
                 _i = 0, urls_1 = urls;
                 _a.label = 3;
             case 3:
                 if (!(_i < urls_1.length)) return [3 /*break*/, 7];
                 url = urls_1[_i];
-                return [4 /*yield*/, evaluate(url, response.getDisplayWidth(), response.getDisplayHeight(), response.getIsMobile(), response.getIsLandscape())];
+                return [4 /*yield*/, evaluate(url, screen_width_1, screen_height_1, response.getIsMobile(), response.getIsLandscape())];
             case 4:
                 report = _a.sent();
                 reports_1[url] = report[url];
@@ -292,27 +295,55 @@ app.post('/api/evaluations/evaluate', function (req, res) { return __awaiter(voi
                     });
                 }
                 processPromises = validReports.map(function (_a) { return __awaiter(void 0, [_a], void 0, function (_b) {
-                    var evaluations_request_1, response_1, error_4;
-                    var _c, _d, _e, _f, _g, _h;
+                    var browser_1, page, screenshot, evaluations_request_1, _c, _d, response_1, error_4;
+                    var _e, _f, _g, _h, _j, _k;
                     var url = _b.url, report = _b.report;
-                    return __generator(this, function (_j) {
-                        switch (_j.label) {
+                    return __generator(this, function (_l) {
+                        switch (_l.label) {
                             case 0:
-                                _j.trys.push([0, 2, , 3]);
+                                _l.trys.push([0, 8, , 9]);
+                                return [4 /*yield*/, puppeteer_1.default.launch({
+                                        headless: true,
+                                        args: ['--no-sandbox']
+                                    })];
+                            case 1:
+                                browser_1 = _l.sent();
+                                return [4 /*yield*/, browser_1.newPage()];
+                            case 2:
+                                page = _l.sent();
+                                return [4 /*yield*/, page.setViewport({
+                                        width: screen_width_1,
+                                        height: screen_height_1,
+                                        deviceScaleFactor: 1,
+                                    })];
+                            case 3:
+                                _l.sent();
+                                return [4 /*yield*/, page.goto(url, { waitUntil: 'domcontentloaded' })];
+                            case 4:
+                                _l.sent();
+                                return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(url, screen_width_1, screen_height_1)];
+                            case 5:
+                                screenshot = _l.sent();
                                 evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
                                 evaluations_request_1.setQualwebVersion(report.system.version);
-                                evaluations_request_1.setInputUrl((_d = (_c = report.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "");
-                                evaluations_request_1.setCompleteUrl((_f = (_e = report.system.url) === null || _e === void 0 ? void 0 : _e.completeUrl) !== null && _f !== void 0 ? _f : "");
+                                evaluations_request_1.setInputUrl((_f = (_e = report.system.url) === null || _e === void 0 ? void 0 : _e.inputUrl) !== null && _f !== void 0 ? _f : "");
+                                evaluations_request_1.setCompleteUrl((_h = (_g = report.system.url) === null || _g === void 0 ? void 0 : _g.completeUrl) !== null && _h !== void 0 ? _h : "");
                                 evaluations_request_1.setDom(report.system.page.dom.html);
-                                evaluations_request_1.setTitle((_g = report.system.page.dom.title) !== null && _g !== void 0 ? _g : "");
-                                evaluations_request_1.setElementCount((_h = report.system.page.dom.elementCount) !== null && _h !== void 0 ? _h : 0);
+                                evaluations_request_1.setTitle((_j = report.system.page.dom.title) !== null && _j !== void 0 ? _j : "");
+                                evaluations_request_1.setElementCount((_k = report.system.page.dom.elementCount) !== null && _k !== void 0 ? _k : 0);
                                 evaluations_request_1.setPassed(report.metadata.passed);
                                 evaluations_request_1.setWarning(report.metadata.warning);
                                 evaluations_request_1.setFailed(report.metadata.failed);
                                 evaluations_request_1.setInapplicable(report.metadata.inapplicable);
-                                evaluations_request_1.setModulesList((0, process_evals_1.default)(report));
+                                _d = (_c = evaluations_request_1).setModulesList;
+                                return [4 /*yield*/, (0, process_evals_1.default)(report, page)];
+                            case 6:
+                                _d.apply(_c, [_l.sent()]);
                                 evaluations_request_1.setModulesQuantity(2);
                                 evaluations_request_1.setMonitoredWebsiteId(monitoring_registry_id);
+                                if (screenshot) {
+                                    evaluations_request_1.setScreenshot(screenshot);
+                                }
                                 return [4 /*yield*/, new Promise(function (resolve, reject) {
                                         client.addEvaluation(evaluations_request_1, function (err, response) {
                                             if (err)
@@ -321,15 +352,15 @@ app.post('/api/evaluations/evaluate', function (req, res) { return __awaiter(voi
                                                 resolve(response);
                                         });
                                     })];
-                            case 1:
-                                response_1 = _j.sent();
+                            case 7:
+                                response_1 = _l.sent();
                                 console.log("Successfully added evaluation for URL ".concat(url));
                                 return [2 /*return*/, { url: url, success: true, statusCode: response_1.getStatusCode() }];
-                            case 2:
-                                error_4 = _j.sent();
+                            case 8:
+                                error_4 = _l.sent();
                                 console.error("Error adding evaluation for URL ".concat(url, ":"), error_4);
                                 return [2 /*return*/, { url: url, success: false, error: error_4 }];
-                            case 3: return [2 /*return*/];
+                            case 9: return [2 /*return*/];
                         }
                     });
                 }); });

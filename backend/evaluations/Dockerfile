@@ -16,6 +16,8 @@ COPY package*.json ./
 
 WORKDIR /evaluations
 
+RUN npm config set registry https://registry.npmmirror.com/
+
 RUN npm install
 
 EXPOSE 8081

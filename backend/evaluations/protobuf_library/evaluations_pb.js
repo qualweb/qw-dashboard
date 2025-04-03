@@ -912,7 +912,11 @@ proto.runtimePackage.Element.prototype.toObject = function(opt_includeInstance) 
 proto.runtimePackage.Element.toObject = function(includeInstance, msg) {
   var f, obj = {
 htmlCode: jspb.Message.getFieldWithDefault(msg, 1, ""),
-pointer: jspb.Message.getFieldWithDefault(msg, 2, "")
+pointer: jspb.Message.getFieldWithDefault(msg, 2, ""),
+x: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
+y: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
+width: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
+height: jspb.Message.getFloatingPointFieldWithDefault(msg, 6, 0.0)
   };
 
   if (includeInstance) {
@@ -957,6 +961,22 @@ proto.runtimePackage.Element.deserializeBinaryFromReader = function(msg, reader)
       var value = /** @type {string} */ (reader.readString());
       msg.setPointer(value);
       break;
+    case 3:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setX(value);
+      break;
+    case 4:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setY(value);
+      break;
+    case 5:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setWidth(value);
+      break;
+    case 6:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setHeight(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1000,6 +1020,34 @@ proto.runtimePackage.Element.serializeBinaryToWriter = function(message, writer)
       f
     );
   }
+  f = message.getX();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      3,
+      f
+    );
+  }
+  f = message.getY();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      4,
+      f
+    );
+  }
+  f = message.getWidth();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      5,
+      f
+    );
+  }
+  f = message.getHeight();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      6,
+      f
+    );
+  }
 };
 
 
@@ -1036,6 +1084,78 @@ proto.runtimePackage.Element.prototype.getPointer = function() {
  */
 proto.runtimePackage.Element.prototype.setPointer = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional float x = 3;
+ * @return {number}
+ */
+proto.runtimePackage.Element.prototype.getX = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 3, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.Element} returns this
+ */
+proto.runtimePackage.Element.prototype.setX = function(value) {
+  return jspb.Message.setProto3FloatField(this, 3, value);
+};
+
+
+/**
+ * optional float y = 4;
+ * @return {number}
+ */
+proto.runtimePackage.Element.prototype.getY = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 4, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.Element} returns this
+ */
+proto.runtimePackage.Element.prototype.setY = function(value) {
+  return jspb.Message.setProto3FloatField(this, 4, value);
+};
+
+
+/**
+ * optional float width = 5;
+ * @return {number}
+ */
+proto.runtimePackage.Element.prototype.getWidth = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 5, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.Element} returns this
+ */
+proto.runtimePackage.Element.prototype.setWidth = function(value) {
+  return jspb.Message.setProto3FloatField(this, 5, value);
+};
+
+
+/**
+ * optional float height = 6;
+ * @return {number}
+ */
+proto.runtimePackage.Element.prototype.getHeight = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 6, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.Element} returns this
+ */
+proto.runtimePackage.Element.prototype.setHeight = function(value) {
+  return jspb.Message.setProto3FloatField(this, 6, value);
 };
 
 
@@ -2737,7 +2857,7 @@ proto.runtimePackage.Module.prototype.setAssertionsQuantity = function(value) {
  * @private {!Array<number>}
  * @const
  */
-proto.runtimePackage.AddEvaluationRequest.repeatedFields_ = [18];
+proto.runtimePackage.AddEvaluationRequest.repeatedFields_ = [11];
 
 
 
@@ -2772,18 +2892,19 @@ proto.runtimePackage.AddEvaluationRequest.toObject = function(includeInstance, m
   var f, obj = {
 qualwebVersion: jspb.Message.getFieldWithDefault(msg, 1, ""),
 inputUrl: jspb.Message.getFieldWithDefault(msg, 2, ""),
-completeUrl: jspb.Message.getFieldWithDefault(msg, 6, ""),
-dom: jspb.Message.getFieldWithDefault(msg, 11, ""),
-title: jspb.Message.getFieldWithDefault(msg, 12, ""),
-elementCount: jspb.Message.getFieldWithDefault(msg, 13, 0),
-passed: jspb.Message.getFieldWithDefault(msg, 14, 0),
-warning: jspb.Message.getFieldWithDefault(msg, 15, 0),
-failed: jspb.Message.getFieldWithDefault(msg, 16, 0),
-inapplicable: jspb.Message.getFieldWithDefault(msg, 17, 0),
+completeUrl: jspb.Message.getFieldWithDefault(msg, 3, ""),
+dom: jspb.Message.getFieldWithDefault(msg, 4, ""),
+title: jspb.Message.getFieldWithDefault(msg, 5, ""),
+elementCount: jspb.Message.getFieldWithDefault(msg, 6, 0),
+passed: jspb.Message.getFieldWithDefault(msg, 7, 0),
+warning: jspb.Message.getFieldWithDefault(msg, 8, 0),
+failed: jspb.Message.getFieldWithDefault(msg, 9, 0),
+inapplicable: jspb.Message.getFieldWithDefault(msg, 10, 0),
 modulesList: jspb.Message.toObjectList(msg.getModulesList(),
     proto.runtimePackage.Module.toObject, includeInstance),
-modulesQuantity: jspb.Message.getFieldWithDefault(msg, 19, 0),
-monitoredWebsiteId: jspb.Message.getFieldWithDefault(msg, 20, 0)
+modulesQuantity: jspb.Message.getFieldWithDefault(msg, 12, 0),
+monitoredWebsiteId: jspb.Message.getFieldWithDefault(msg, 13, 0),
+screenshot: msg.getScreenshot_asB64()
   };
 
   if (includeInstance) {
@@ -2828,50 +2949,54 @@ proto.runtimePackage.AddEvaluationRequest.deserializeBinaryFromReader = function
       var value = /** @type {string} */ (reader.readString());
       msg.setInputUrl(value);
       break;
-    case 6:
+    case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setCompleteUrl(value);
       break;
-    case 11:
+    case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setDom(value);
       break;
-    case 12:
+    case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setTitle(value);
       break;
-    case 13:
+    case 6:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setElementCount(value);
       break;
-    case 14:
+    case 7:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setPassed(value);
       break;
-    case 15:
+    case 8:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setWarning(value);
       break;
-    case 16:
+    case 9:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setFailed(value);
       break;
-    case 17:
+    case 10:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setInapplicable(value);
       break;
-    case 18:
+    case 11:
       var value = new proto.runtimePackage.Module;
       reader.readMessage(value,proto.runtimePackage.Module.deserializeBinaryFromReader);
       msg.addModules(value);
       break;
-    case 19:
+    case 12:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setModulesQuantity(value);
       break;
-    case 20:
+    case 13:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setMonitoredWebsiteId(value);
+      break;
+    case 14:
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setScreenshot(value);
       break;
     default:
       reader.skipField();
@@ -2919,63 +3044,63 @@ proto.runtimePackage.AddEvaluationRequest.serializeBinaryToWriter = function(mes
   f = message.getCompleteUrl();
   if (f.length > 0) {
     writer.writeString(
-      6,
+      3,
       f
     );
   }
   f = message.getDom();
   if (f.length > 0) {
     writer.writeString(
-      11,
+      4,
       f
     );
   }
   f = message.getTitle();
   if (f.length > 0) {
     writer.writeString(
-      12,
+      5,
       f
     );
   }
   f = message.getElementCount();
   if (f !== 0) {
     writer.writeInt32(
-      13,
+      6,
       f
     );
   }
   f = message.getPassed();
   if (f !== 0) {
     writer.writeInt32(
-      14,
+      7,
       f
     );
   }
   f = message.getWarning();
   if (f !== 0) {
     writer.writeInt32(
-      15,
+      8,
       f
     );
   }
   f = message.getFailed();
   if (f !== 0) {
     writer.writeInt32(
-      16,
+      9,
       f
     );
   }
   f = message.getInapplicable();
   if (f !== 0) {
     writer.writeInt32(
-      17,
+      10,
       f
     );
   }
   f = message.getModulesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      18,
+      11,
       f,
       proto.runtimePackage.Module.serializeBinaryToWriter
     );
@@ -2983,14 +3108,21 @@ proto.runtimePackage.AddEvaluationRequest.serializeBinaryToWriter = function(mes
   f = message.getModulesQuantity();
   if (f !== 0) {
     writer.writeInt32(
-      19,
+      12,
       f
     );
   }
   f = message.getMonitoredWebsiteId();
   if (f !== 0) {
     writer.writeInt32(
-      20,
+      13,
+      f
+    );
+  }
+  f = message.getScreenshot_asU8();
+  if (f.length > 0) {
+    writer.writeBytes(
+      14,
       f
     );
   }
@@ -3034,11 +3166,11 @@ proto.runtimePackage.AddEvaluationRequest.prototype.setInputUrl = function(value
 
 
 /**
- * optional string complete_url = 6;
+ * optional string complete_url = 3;
  * @return {string}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getCompleteUrl = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
@@ -3047,16 +3179,16 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getCompleteUrl = function() 
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setCompleteUrl = function(value) {
-  return jspb.Message.setProto3StringField(this, 6, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional string dom = 11;
+ * optional string dom = 4;
  * @return {string}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getDom = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
@@ -3065,16 +3197,16 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getDom = function() {
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setDom = function(value) {
-  return jspb.Message.setProto3StringField(this, 11, value);
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional string title = 12;
+ * optional string title = 5;
  * @return {string}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getTitle = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
@@ -3083,16 +3215,16 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getTitle = function() {
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setTitle = function(value) {
-  return jspb.Message.setProto3StringField(this, 12, value);
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
 /**
- * optional int32 element_count = 13;
+ * optional int32 element_count = 6;
  * @return {number}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getElementCount = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 13, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
 };
 
 
@@ -3101,16 +3233,16 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getElementCount = function()
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setElementCount = function(value) {
-  return jspb.Message.setProto3IntField(this, 13, value);
+  return jspb.Message.setProto3IntField(this, 6, value);
 };
 
 
 /**
- * optional int32 passed = 14;
+ * optional int32 passed = 7;
  * @return {number}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getPassed = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 14, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
 };
 
 
@@ -3119,16 +3251,16 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getPassed = function() {
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setPassed = function(value) {
-  return jspb.Message.setProto3IntField(this, 14, value);
+  return jspb.Message.setProto3IntField(this, 7, value);
 };
 
 
 /**
- * optional int32 warning = 15;
+ * optional int32 warning = 8;
  * @return {number}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getWarning = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 15, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
 };
 
 
@@ -3137,16 +3269,16 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getWarning = function() {
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setWarning = function(value) {
-  return jspb.Message.setProto3IntField(this, 15, value);
+  return jspb.Message.setProto3IntField(this, 8, value);
 };
 
 
 /**
- * optional int32 failed = 16;
+ * optional int32 failed = 9;
  * @return {number}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getFailed = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 16, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
 };
 
 
@@ -3155,16 +3287,16 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getFailed = function() {
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setFailed = function(value) {
-  return jspb.Message.setProto3IntField(this, 16, value);
+  return jspb.Message.setProto3IntField(this, 9, value);
 };
 
 
 /**
- * optional int32 inapplicable = 17;
+ * optional int32 inapplicable = 10;
  * @return {number}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getInapplicable = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 17, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 10, 0));
 };
 
 
@@ -3173,17 +3305,17 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getInapplicable = function()
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setInapplicable = function(value) {
-  return jspb.Message.setProto3IntField(this, 17, value);
+  return jspb.Message.setProto3IntField(this, 10, value);
 };
 
 
 /**
- * repeated Module modules = 18;
+ * repeated Module modules = 11;
  * @return {!Array<!proto.runtimePackage.Module>}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getModulesList = function() {
   return /** @type{!Array<!proto.runtimePackage.Module>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.runtimePackage.Module, 18));
+    jspb.Message.getRepeatedWrapperField(this, proto.runtimePackage.Module, 11));
 };
 
 
@@ -3192,7 +3324,7 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getModulesList = function() 
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
 */
 proto.runtimePackage.AddEvaluationRequest.prototype.setModulesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 18, value);
+  return jspb.Message.setRepeatedWrapperField(this, 11, value);
 };
 
 
@@ -3202,7 +3334,7 @@ proto.runtimePackage.AddEvaluationRequest.prototype.setModulesList = function(va
  * @return {!proto.runtimePackage.Module}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.addModules = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 18, opt_value, proto.runtimePackage.Module, opt_index);
+  return jspb.Message.addToRepeatedWrapperField(this, 11, opt_value, proto.runtimePackage.Module, opt_index);
 };
 
 
@@ -3216,11 +3348,11 @@ proto.runtimePackage.AddEvaluationRequest.prototype.clearModulesList = function(
 
 
 /**
- * optional int32 modules_quantity = 19;
+ * optional int32 modules_quantity = 12;
  * @return {number}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getModulesQuantity = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 19, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 12, 0));
 };
 
 
@@ -3229,16 +3361,16 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getModulesQuantity = functio
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setModulesQuantity = function(value) {
-  return jspb.Message.setProto3IntField(this, 19, value);
+  return jspb.Message.setProto3IntField(this, 12, value);
 };
 
 
 /**
- * optional int32 monitored_website_id = 20;
+ * optional int32 monitored_website_id = 13;
  * @return {number}
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.getMonitoredWebsiteId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 20, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 13, 0));
 };
 
 
@@ -3247,7 +3379,49 @@ proto.runtimePackage.AddEvaluationRequest.prototype.getMonitoredWebsiteId = func
  * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
  */
 proto.runtimePackage.AddEvaluationRequest.prototype.setMonitoredWebsiteId = function(value) {
-  return jspb.Message.setProto3IntField(this, 20, value);
+  return jspb.Message.setProto3IntField(this, 13, value);
+};
+
+
+/**
+ * optional bytes screenshot = 14;
+ * @return {!(string|Uint8Array)}
+ */
+proto.runtimePackage.AddEvaluationRequest.prototype.getScreenshot = function() {
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 14, ""));
+};
+
+
+/**
+ * optional bytes screenshot = 14;
+ * This is a type-conversion wrapper around `getScreenshot()`
+ * @return {string}
+ */
+proto.runtimePackage.AddEvaluationRequest.prototype.getScreenshot_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getScreenshot()));
+};
+
+
+/**
+ * optional bytes screenshot = 14;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getScreenshot()`
+ * @return {!Uint8Array}
+ */
+proto.runtimePackage.AddEvaluationRequest.prototype.getScreenshot_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getScreenshot()));
+};
+
+
+/**
+ * @param {!(string|Uint8Array)} value
+ * @return {!proto.runtimePackage.AddEvaluationRequest} returns this
+ */
+proto.runtimePackage.AddEvaluationRequest.prototype.setScreenshot = function(value) {
+  return jspb.Message.setProto3BytesField(this, 14, value);
 };
 
 
@@ -7323,7 +7497,11 @@ proto.runtimePackage.IssueElementResponse.toObject = function(includeInstance, m
   var f, obj = {
 id: jspb.Message.getFieldWithDefault(msg, 1, 0),
 htmlCode: jspb.Message.getFieldWithDefault(msg, 2, ""),
-pointer: jspb.Message.getFieldWithDefault(msg, 3, "")
+pointer: jspb.Message.getFieldWithDefault(msg, 3, ""),
+x: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
+y: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
+width: jspb.Message.getFloatingPointFieldWithDefault(msg, 6, 0.0),
+height: jspb.Message.getFloatingPointFieldWithDefault(msg, 7, 0.0)
   };
 
   if (includeInstance) {
@@ -7372,6 +7550,22 @@ proto.runtimePackage.IssueElementResponse.deserializeBinaryFromReader = function
       var value = /** @type {string} */ (reader.readString());
       msg.setPointer(value);
       break;
+    case 4:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setX(value);
+      break;
+    case 5:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setY(value);
+      break;
+    case 6:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setWidth(value);
+      break;
+    case 7:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setHeight(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -7419,6 +7613,34 @@ proto.runtimePackage.IssueElementResponse.serializeBinaryToWriter = function(mes
   if (f.length > 0) {
     writer.writeString(
       3,
+      f
+    );
+  }
+  f = message.getX();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      4,
+      f
+    );
+  }
+  f = message.getY();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      5,
+      f
+    );
+  }
+  f = message.getWidth();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      6,
+      f
+    );
+  }
+  f = message.getHeight();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      7,
       f
     );
   }
@@ -7476,6 +7698,78 @@ proto.runtimePackage.IssueElementResponse.prototype.getPointer = function() {
  */
 proto.runtimePackage.IssueElementResponse.prototype.setPointer = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional float x = 4;
+ * @return {number}
+ */
+proto.runtimePackage.IssueElementResponse.prototype.getX = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 4, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.IssueElementResponse} returns this
+ */
+proto.runtimePackage.IssueElementResponse.prototype.setX = function(value) {
+  return jspb.Message.setProto3FloatField(this, 4, value);
+};
+
+
+/**
+ * optional float y = 5;
+ * @return {number}
+ */
+proto.runtimePackage.IssueElementResponse.prototype.getY = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 5, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.IssueElementResponse} returns this
+ */
+proto.runtimePackage.IssueElementResponse.prototype.setY = function(value) {
+  return jspb.Message.setProto3FloatField(this, 5, value);
+};
+
+
+/**
+ * optional float width = 6;
+ * @return {number}
+ */
+proto.runtimePackage.IssueElementResponse.prototype.getWidth = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 6, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.IssueElementResponse} returns this
+ */
+proto.runtimePackage.IssueElementResponse.prototype.setWidth = function(value) {
+  return jspb.Message.setProto3FloatField(this, 6, value);
+};
+
+
+/**
+ * optional float height = 7;
+ * @return {number}
+ */
+proto.runtimePackage.IssueElementResponse.prototype.getHeight = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 7, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.IssueElementResponse} returns this
+ */
+proto.runtimePackage.IssueElementResponse.prototype.setHeight = function(value) {
+  return jspb.Message.setProto3FloatField(this, 7, value);
 };
 
 

@@ -10,6 +10,18 @@ export class Element extends jspb.Message {
   getPointer(): string;
   setPointer(value: string): void;
 
+  getX(): number;
+  setX(value: number): void;
+
+  getY(): number;
+  setY(value: number): void;
+
+  getWidth(): number;
+  setWidth(value: number): void;
+
+  getHeight(): number;
+  setHeight(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Element.AsObject;
   static toObject(includeInstance: boolean, msg: Element): Element.AsObject;
@@ -24,6 +36,10 @@ export namespace Element {
   export type AsObject = {
     htmlCode: string,
     pointer: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
   }
 }
 
@@ -299,6 +315,11 @@ export class AddEvaluationRequest extends jspb.Message {
   getMonitoredWebsiteId(): number;
   setMonitoredWebsiteId(value: number): void;
 
+  getScreenshot(): Uint8Array | string;
+  getScreenshot_asU8(): Uint8Array;
+  getScreenshot_asB64(): string;
+  setScreenshot(value: Uint8Array | string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AddEvaluationRequest.AsObject;
   static toObject(includeInstance: boolean, msg: AddEvaluationRequest): AddEvaluationRequest.AsObject;
@@ -324,6 +345,7 @@ export namespace AddEvaluationRequest {
     modulesList: Array<Module.AsObject>,
     modulesQuantity: number,
     monitoredWebsiteId: number,
+    screenshot: Uint8Array | string,
   }
 }
 
@@ -915,6 +937,18 @@ export class IssueElementResponse extends jspb.Message {
   getPointer(): string;
   setPointer(value: string): void;
 
+  getX(): number;
+  setX(value: number): void;
+
+  getY(): number;
+  setY(value: number): void;
+
+  getWidth(): number;
+  setWidth(value: number): void;
+
+  getHeight(): number;
+  setHeight(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): IssueElementResponse.AsObject;
   static toObject(includeInstance: boolean, msg: IssueElementResponse): IssueElementResponse.AsObject;
@@ -930,6 +964,10 @@ export namespace IssueElementResponse {
     id: number,
     htmlCode: string,
     pointer: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
   }
 }
 

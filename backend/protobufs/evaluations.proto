@@ -5,6 +5,10 @@ package runtimePackage;
 message Element {
     string html_code = 1;
     string pointer = 2;
+    float x = 3;
+    float y = 4;
+    float width = 5;
+    float height = 6;
 }
 
 message Result {
@@ -59,17 +63,18 @@ message Module {
 message AddEvaluationRequest {
     string qualweb_version = 1;
     string input_url = 2;
-    string complete_url = 6;
-    string dom = 11;
-    string title = 12;
-    int32 element_count = 13;
-    int32 passed = 14;
-    int32 warning = 15;
-    int32 failed = 16;
-    int32 inapplicable = 17;
-    repeated Module modules = 18;
-    int32 modules_quantity = 19;
-    int32 monitored_website_id = 20;
+    string complete_url = 3;
+    string dom = 4;
+    string title = 5;
+    int32 element_count = 6;
+    int32 passed = 7;
+    int32 warning = 8;
+    int32 failed = 9;
+    int32 inapplicable = 10;
+    repeated Module modules = 11;
+    int32 modules_quantity = 12;
+    int32 monitored_website_id = 13;
+    bytes screenshot = 14;
 }
 
 message AddEvaluationResponse {
@@ -194,6 +199,10 @@ message IssueElementResponse {
     int32 id = 1;
     string html_code = 2;
     string pointer = 3;
+    float x = 4;
+    float y = 5;
+    float width = 6;
+    float height = 7;
 }
 
 message GetLatestAssertionsByTestRequest {

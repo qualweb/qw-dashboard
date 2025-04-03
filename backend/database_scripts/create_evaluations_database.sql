@@ -37,6 +37,7 @@ CREATE TABLE Evaluation (
     failed                  INTEGER NOT NULL,
     inapplicable            INTEGER NOT NULL,
     score                   FLOAT,
+    screenshot              BYTEA,
 
     FOREIGN KEY (monitored_website_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE
 );
@@ -114,9 +115,13 @@ CREATE TABLE Issue (
 
 CREATE TABLE Element (
     id                  SERIAL PRIMARY KEY,
-    issue_id           INTEGER NOT NULL,
+    issue_id            INTEGER NOT NULL,
     html_code           VARCHAR NOT NULL,
     pointer             VARCHAR NOT NULL,
+    x                   FLOAT NOT NULL,
+    y                   FLOAT NOT NULL,
+    width               FLOAT NOT NULL,
+    height              FLOAT NOT NULL,
 
     FOREIGN KEY (issue_id) REFERENCES Issue(id) ON DELETE CASCADE
 );

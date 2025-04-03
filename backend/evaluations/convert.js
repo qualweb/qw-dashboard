@@ -93,7 +93,11 @@ function convertElementsToJson(elements) {
     return elements.map(function (element) { return ({
         id: element.getId(),
         html_code: element.getHtmlCode(),
-        pointer: element.getPointer()
+        pointer: element.getPointer(),
+        x: element.getX(),
+        y: element.getY(),
+        width: element.getWidth(),
+        height: element.getHeight()
     }); });
 }
 function convertAssertionToJson(assertion) {
