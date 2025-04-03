@@ -45,19 +45,18 @@ html, body {
 }
 
 .website-dashboard {
-    width: 100vw;
     display: flex;
-    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
 }
 
 .wrapper {
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    flex-grow: 1;
     overflow-y: auto;
     margin-left: 21rem;
-    height: 100vh;
     padding: 3rem 2rem;
 }
 
