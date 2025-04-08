@@ -8,6 +8,8 @@ import Element from '../Element/Element.tsx';
 interface ResultProps {
   id: string;
   description: string;
+  evaluation_id: string;
+  webpage_url: string;
 }
 
 function Result(props: ResultProps) {
@@ -26,7 +28,7 @@ function Result(props: ResultProps) {
   return (
     <div className="result-item">
       <div className='result-desc'>
-        <h3>{props.description}</h3> <span>{props.id ? `(${props.id})` : ''}</span>
+        <h3>{props.description}</h3> <span>{props.webpage_url ? `(${props.webpage_url})` : ''}</span>
       </div>
       {element && 
         <Element 
@@ -34,6 +36,7 @@ function Result(props: ResultProps) {
           id={String(element.id)} 
           html_code={element.htmlCode} 
           pointer= {element.pointer} 
+          evaluation_id={props.evaluation_id}
         />
       }
     </div>

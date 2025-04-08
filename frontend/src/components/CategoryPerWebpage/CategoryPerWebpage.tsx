@@ -81,6 +81,8 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
                   rule= {assertion.rule}
                   icon={icon}
                   className={className}
+                  evaluation_id={String(assertion.evaluation_id)}
+                  webpage_url={assertion.webpage_url}
                 />
               ))}
             </div>

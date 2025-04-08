@@ -4,8 +4,8 @@ import { useState } from "react";
 import CategoryPerWebpage from "../CategoryPerWebpage/CategoryPerWebpage.tsx";
 
 interface IssueItemProps {
-  webpage_url: string;
   evaluation_id: string;
+  webpage_url: string;
   statusFilters: string[];
   wcagLevelFilters: string[];
 }
@@ -46,9 +46,9 @@ function IssuesWebsiteItem(props: IssueItemProps) {
               props.statusFilters.map((category) => {
                 return <CategoryPerWebpage 
                   key={category}
-                  evaluation_id={props.evaluation_id} 
+                  evaluation_id={props.evaluation_id}
                   outcome={category} 
-                  wcagLevelFilters={props.wcagLevelFilters} 
+                  wcagLevelFilters={props.wcagLevelFilters}
                 />;
             })}
             {props.statusFilters.length === 0 &&

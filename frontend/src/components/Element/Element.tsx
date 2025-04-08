@@ -1,11 +1,13 @@
+import Visualize from '../Visualize/Visualize';
 import './Element.css'
 
-import {MapPin, Clipboard, Eye } from 'lucide-react';
+import {MapPin, Clipboard } from 'lucide-react';
 
 interface ElementProps {
     id : string;
     html_code : string;
     pointer : string;
+    evaluation_id : string;
 }
 
 function Element(props: ElementProps) {
@@ -21,9 +23,7 @@ function Element(props: ElementProps) {
             <button className='location'>
               <MapPin />
             </button>
-            <button className='visualize'>
-              <Eye />
-            </button>
+            <Visualize evaluation_id={props.evaluation_id} />
           </div>
         </div>
     );

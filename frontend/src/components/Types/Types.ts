@@ -108,7 +108,9 @@ export interface GetLatestACTAssertionsResponse {
 export interface GetLatestACTAssertion {
     id: string | number;
     name: string;
-    rule: string
+    rule: string;
+    evaluation_id: string | number;
+    webpage_url: string;
 }
 
 export interface GetAssertionResultsResponse {

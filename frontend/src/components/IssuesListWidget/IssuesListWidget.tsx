@@ -159,7 +159,7 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                         statusFilters.map((category) => {
                             return <CategoryWebsite 
                                 key={category}
-                                evaluation_ids={lastestEvaluations} 
+                                evaluation_ids={latestEvalIds} 
                                 outcome={category} 
                                 wcagLevelFilters={wcagLevelFilters} 
                             />;
@@ -169,7 +169,7 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                         categories.map((category) => {
                             return <CategoryWebsite 
                                 key={category}
-                                evaluation_ids={latestEvalIds} 
+                                evaluation_ids={latestEvalIds}
                                 outcome={category} 
                                 wcagLevelFilters={wcagLevelFilters} 
                             />;

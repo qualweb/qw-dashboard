@@ -11,6 +11,8 @@ interface AssertionProps {
     rule: string;
     icon: JSX.Element;
     className: string;
+    evaluation_id: string;
+    webpage_url: string;
 }
 
 function Assertion(props: AssertionProps) {
@@ -59,6 +61,8 @@ function Assertion(props: AssertionProps) {
                                 key={result.id}
                                 id={String(result.id)}
                                 description={result.description}
+                                evaluation_id={props.evaluation_id}
+                                webpage_url={props.webpage_url}
                             />
                         ))}
                     </div>
