@@ -82,6 +82,10 @@ export interface Element {
     html_code: string;
     id: number;
     pointer: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
 
 export interface Issue {
@@ -97,28 +101,23 @@ export interface Results {
     issues: Issue[];
 }
 
-export interface WebpageIssueResponse {
-    url: string;
-    assertions: AssertionsGroupedByOutcomeResponse;
+export interface GetLatestACTAssertionsResponse {
+    assertions: GetLatestACTAssertion[];
 }
-  
-export interface AssertionsGroupedByOutcomeResponse {
-    passed: AssertionResponse[];
-    warnings: AssertionResponse[];
-    failed: AssertionResponse[];
-    inapplicable: AssertionResponse[];
-  }
-  
-export interface AssertionResponse {
+
+export interface GetLatestACTAssertion {
     id: string | number;
-    passed: boolean;
-    warning: boolean;
-    failed: boolean;
-    inapplicable: boolean;
-    outcome: string;
+    name: string;
+    rule: string
+}
+
+export interface GetAssertionResultsResponse {
+    results: AssertionResult[];
+}
+
+export interface AssertionResult {
+    id: string | number;
     description: string;
-    metadata: AssertionMetadataResponse | null;
-    issues: Issue[] | null;
 }
   
 export interface AssertionMetadataResponse {
@@ -152,5 +151,20 @@ export interface IssueResponse {
 export interface IssueElementResponse {
     id: string | number;
     html_code: string;
+    pointer: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export interface EvaluationIdURL {
+    evaluation_id: number;
+    url: string;
+}
+
+export interface ResultElement {
+    id: string | number;
+    htmlCode: string;
     pointer: string;
 }

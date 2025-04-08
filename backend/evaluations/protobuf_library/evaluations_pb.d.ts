@@ -767,62 +767,6 @@ export namespace WebpageResponse {
   }
 }
 
-export class AssertionResponse extends jspb.Message {
-  getId(): number;
-  setId(value: number): void;
-
-  getPassed(): number;
-  setPassed(value: number): void;
-
-  getWarning(): number;
-  setWarning(value: number): void;
-
-  getFailed(): number;
-  setFailed(value: number): void;
-
-  getInapplicable(): number;
-  setInapplicable(value: number): void;
-
-  getOutcome(): string;
-  setOutcome(value: string): void;
-
-  getDescription(): string;
-  setDescription(value: string): void;
-
-  hasMetadata(): boolean;
-  clearMetadata(): void;
-  getMetadata(): AssertionMetadataResponse | undefined;
-  setMetadata(value?: AssertionMetadataResponse): void;
-
-  clearIssuesList(): void;
-  getIssuesList(): Array<IssueResponse>;
-  setIssuesList(value: Array<IssueResponse>): void;
-  addIssues(value?: IssueResponse, index?: number): IssueResponse;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): AssertionResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: AssertionResponse): AssertionResponse.AsObject;
-  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: AssertionResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): AssertionResponse;
-  static deserializeBinaryFromReader(message: AssertionResponse, reader: jspb.BinaryReader): AssertionResponse;
-}
-
-export namespace AssertionResponse {
-  export type AsObject = {
-    id: number,
-    passed: number,
-    warning: number,
-    failed: number,
-    inapplicable: number,
-    outcome: string,
-    description: string,
-    metadata?: AssertionMetadataResponse.AsObject,
-    issuesList: Array<IssueResponse.AsObject>,
-  }
-}
-
 export class AssertionMetadataResponse extends jspb.Message {
   getId(): number;
   setId(value: number): void;
@@ -949,6 +893,12 @@ export class IssueElementResponse extends jspb.Message {
   getHeight(): number;
   setHeight(value: number): void;
 
+  getEvaluationId(): number;
+  setEvaluationId(value: number): void;
+
+  getWebpageUrl(): string;
+  setWebpageUrl(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): IssueElementResponse.AsObject;
   static toObject(includeInstance: boolean, msg: IssueElementResponse): IssueElementResponse.AsObject;
@@ -968,6 +918,8 @@ export namespace IssueElementResponse {
     y: number,
     width: number,
     height: number,
+    evaluationId: number,
+    webpageUrl: string,
   }
 }
 
@@ -1246,6 +1198,354 @@ export namespace GetIssuesStatsResponse {
     warnings: number,
     failed: number,
     inapplicable: number,
+  }
+}
+
+export class GetWebpageScreenshotRequest extends jspb.Message {
+  getEvaluationId(): number;
+  setEvaluationId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetWebpageScreenshotRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetWebpageScreenshotRequest): GetWebpageScreenshotRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetWebpageScreenshotRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetWebpageScreenshotRequest;
+  static deserializeBinaryFromReader(message: GetWebpageScreenshotRequest, reader: jspb.BinaryReader): GetWebpageScreenshotRequest;
+}
+
+export namespace GetWebpageScreenshotRequest {
+  export type AsObject = {
+    evaluationId: number,
+  }
+}
+
+export class GetWebpageScreenshotResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  getScreenshot(): Uint8Array | string;
+  getScreenshot_asU8(): Uint8Array;
+  getScreenshot_asB64(): string;
+  setScreenshot(value: Uint8Array | string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetWebpageScreenshotResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetWebpageScreenshotResponse): GetWebpageScreenshotResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetWebpageScreenshotResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetWebpageScreenshotResponse;
+  static deserializeBinaryFromReader(message: GetWebpageScreenshotResponse, reader: jspb.BinaryReader): GetWebpageScreenshotResponse;
+}
+
+export namespace GetWebpageScreenshotResponse {
+  export type AsObject = {
+    statusCode: number,
+    screenshot: Uint8Array | string,
+  }
+}
+
+export class GetLatestEvaluationsRequest extends jspb.Message {
+  getMonitoringId(): number;
+  setMonitoringId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetLatestEvaluationsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetLatestEvaluationsRequest): GetLatestEvaluationsRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetLatestEvaluationsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetLatestEvaluationsRequest;
+  static deserializeBinaryFromReader(message: GetLatestEvaluationsRequest, reader: jspb.BinaryReader): GetLatestEvaluationsRequest;
+}
+
+export namespace GetLatestEvaluationsRequest {
+  export type AsObject = {
+    monitoringId: number,
+  }
+}
+
+export class GetLatestEvaluationsResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearEvaluationsList(): void;
+  getEvaluationsList(): Array<EvaluationIdUrl>;
+  setEvaluationsList(value: Array<EvaluationIdUrl>): void;
+  addEvaluations(value?: EvaluationIdUrl, index?: number): EvaluationIdUrl;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetLatestEvaluationsResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetLatestEvaluationsResponse): GetLatestEvaluationsResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetLatestEvaluationsResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetLatestEvaluationsResponse;
+  static deserializeBinaryFromReader(message: GetLatestEvaluationsResponse, reader: jspb.BinaryReader): GetLatestEvaluationsResponse;
+}
+
+export namespace GetLatestEvaluationsResponse {
+  export type AsObject = {
+    statusCode: number,
+    evaluationsList: Array<EvaluationIdUrl.AsObject>,
+  }
+}
+
+export class EvaluationIdUrl extends jspb.Message {
+  getEvaluationId(): number;
+  setEvaluationId(value: number): void;
+
+  getEvaluationUrl(): string;
+  setEvaluationUrl(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): EvaluationIdUrl.AsObject;
+  static toObject(includeInstance: boolean, msg: EvaluationIdUrl): EvaluationIdUrl.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: EvaluationIdUrl, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EvaluationIdUrl;
+  static deserializeBinaryFromReader(message: EvaluationIdUrl, reader: jspb.BinaryReader): EvaluationIdUrl;
+}
+
+export namespace EvaluationIdUrl {
+  export type AsObject = {
+    evaluationId: number,
+    evaluationUrl: string,
+  }
+}
+
+export class GetLatestACTAssertionsRequest extends jspb.Message {
+  getEvaluationId(): number;
+  setEvaluationId(value: number): void;
+
+  clearWcaglevelfiltersList(): void;
+  getWcaglevelfiltersList(): Array<string>;
+  setWcaglevelfiltersList(value: Array<string>): void;
+  addWcaglevelfilters(value: string, index?: number): string;
+
+  getOutcome(): string;
+  setOutcome(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetLatestACTAssertionsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetLatestACTAssertionsRequest): GetLatestACTAssertionsRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetLatestACTAssertionsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetLatestACTAssertionsRequest;
+  static deserializeBinaryFromReader(message: GetLatestACTAssertionsRequest, reader: jspb.BinaryReader): GetLatestACTAssertionsRequest;
+}
+
+export namespace GetLatestACTAssertionsRequest {
+  export type AsObject = {
+    evaluationId: number,
+    wcaglevelfiltersList: Array<string>,
+    outcome: string,
+  }
+}
+
+export class GetLatestACTAssertionsResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearAssertionsList(): void;
+  getAssertionsList(): Array<AssertionResponse>;
+  setAssertionsList(value: Array<AssertionResponse>): void;
+  addAssertions(value?: AssertionResponse, index?: number): AssertionResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetLatestACTAssertionsResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetLatestACTAssertionsResponse): GetLatestACTAssertionsResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetLatestACTAssertionsResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetLatestACTAssertionsResponse;
+  static deserializeBinaryFromReader(message: GetLatestACTAssertionsResponse, reader: jspb.BinaryReader): GetLatestACTAssertionsResponse;
+}
+
+export namespace GetLatestACTAssertionsResponse {
+  export type AsObject = {
+    statusCode: number,
+    assertionsList: Array<AssertionResponse.AsObject>,
+  }
+}
+
+export class AssertionResponse extends jspb.Message {
+  getAssertionId(): number;
+  setAssertionId(value: number): void;
+
+  getAssertionName(): string;
+  setAssertionName(value: string): void;
+
+  getAssertionRule(): string;
+  setAssertionRule(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AssertionResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: AssertionResponse): AssertionResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: AssertionResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AssertionResponse;
+  static deserializeBinaryFromReader(message: AssertionResponse, reader: jspb.BinaryReader): AssertionResponse;
+}
+
+export namespace AssertionResponse {
+  export type AsObject = {
+    assertionId: number,
+    assertionName: string,
+    assertionRule: string,
+  }
+}
+
+export class GetAssertionResultsRequest extends jspb.Message {
+  getAssertionId(): number;
+  setAssertionId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetAssertionResultsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetAssertionResultsRequest): GetAssertionResultsRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetAssertionResultsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetAssertionResultsRequest;
+  static deserializeBinaryFromReader(message: GetAssertionResultsRequest, reader: jspb.BinaryReader): GetAssertionResultsRequest;
+}
+
+export namespace GetAssertionResultsRequest {
+  export type AsObject = {
+    assertionId: number,
+  }
+}
+
+export class GetAssertionResultsResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearResultsList(): void;
+  getResultsList(): Array<ResultResponse>;
+  setResultsList(value: Array<ResultResponse>): void;
+  addResults(value?: ResultResponse, index?: number): ResultResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetAssertionResultsResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetAssertionResultsResponse): GetAssertionResultsResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetAssertionResultsResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetAssertionResultsResponse;
+  static deserializeBinaryFromReader(message: GetAssertionResultsResponse, reader: jspb.BinaryReader): GetAssertionResultsResponse;
+}
+
+export namespace GetAssertionResultsResponse {
+  export type AsObject = {
+    statusCode: number,
+    resultsList: Array<ResultResponse.AsObject>,
+  }
+}
+
+export class ResultResponse extends jspb.Message {
+  getId(): number;
+  setId(value: number): void;
+
+  getDescription(): string;
+  setDescription(value: string): void;
+
+  getVerdict(): string;
+  setVerdict(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ResultResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ResultResponse): ResultResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ResultResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ResultResponse;
+  static deserializeBinaryFromReader(message: ResultResponse, reader: jspb.BinaryReader): ResultResponse;
+}
+
+export namespace ResultResponse {
+  export type AsObject = {
+    id: number,
+    description: string,
+    verdict: string,
+  }
+}
+
+export class GetResultElementsRequest extends jspb.Message {
+  getIssueId(): number;
+  setIssueId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetResultElementsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetResultElementsRequest): GetResultElementsRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetResultElementsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetResultElementsRequest;
+  static deserializeBinaryFromReader(message: GetResultElementsRequest, reader: jspb.BinaryReader): GetResultElementsRequest;
+}
+
+export namespace GetResultElementsRequest {
+  export type AsObject = {
+    issueId: number,
+  }
+}
+
+export class GetResultElementsResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  hasElement(): boolean;
+  clearElement(): void;
+  getElement(): ElementResponse | undefined;
+  setElement(value?: ElementResponse): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetResultElementsResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetResultElementsResponse): GetResultElementsResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetResultElementsResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetResultElementsResponse;
+  static deserializeBinaryFromReader(message: GetResultElementsResponse, reader: jspb.BinaryReader): GetResultElementsResponse;
+}
+
+export namespace GetResultElementsResponse {
+  export type AsObject = {
+    statusCode: number,
+    element?: ElementResponse.AsObject,
+  }
+}
+
+export class ElementResponse extends jspb.Message {
+  getId(): number;
+  setId(value: number): void;
+
+  getHtmlCode(): string;
+  setHtmlCode(value: string): void;
+
+  getPointer(): string;
+  setPointer(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ElementResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ElementResponse): ElementResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ElementResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ElementResponse;
+  static deserializeBinaryFromReader(message: ElementResponse, reader: jspb.BinaryReader): ElementResponse;
+}
+
+export namespace ElementResponse {
+  export type AsObject = {
+    id: number,
+    htmlCode: string,
+    pointer: string,
   }
 }
 

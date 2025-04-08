@@ -29,7 +29,15 @@ from protobuf_library.evaluations_pb2 import (
     GetMonitoredWebsitesResponse,
     GetWebsiteScoreResponse,
     GetMonitoringRegistryResponse,
-    GetIssuesStatsResponse
+    GetIssuesStatsResponse,
+    GetWebpageScreenshotResponse,
+    EvaluationIdUrl,
+    GetLatestEvaluationsResponse,
+    GetLatestACTAssertionsResponse,
+    ResultResponse,
+    GetAssertionResultsResponse,
+    ElementResponse,
+    GetResultElementsResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -497,361 +505,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
         return SetAccessibilityMetricAllWebsitesResponse(status_code=200)
 
-    def GetLatestAssertionsByWebpage(self, request, context):
-        conn = None
-
-        try:
-            conn = connection_pool.getconn()
-            cursor = conn.cursor()
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-
-            cursor.execute('''
-                SELECT webpages FROM MonitoringRegistry
-                WHERE id = %s
-            ''', (request.monitoring_registry_id, ))
-            
-            webpages = cursor.fetchone()[0]
-
-            webpages_response = []
-            for webpage in webpages:
-                cursor.execute('''
-                    SELECT id 
-                    FROM Evaluation
-                    WHERE monitored_website_id = %s
-                    AND input_url = %s
-                    ORDER BY evaluation_date DESC
-                    LIMIT 1
-                ''', (request.monitoring_registry_id, webpage))
-
-                evaluation_id = cursor.fetchone()
-
-                if evaluation_id is None:
-                    return GetLatestAssertionsByWebpageResponse(status_code=404)
-                else:
-                    cursor.execute('''
-                        SELECT * FROM Module
-                        WHERE evaluation_id = %s
-                        AND module_type = 'act-rules'
-                    ''', (evaluation_id[0],))
-
-                    result = cursor.fetchone()
-
-                    if result is None:
-                        return GetLatestAssertionsByWebpageResponse(status_code=404)
-                    
-                    cursor.execute('''
-                        SELECT * FROM Assertion
-                        WHERE module_id = %s
-                    ''', (result[0],))
-
-                    assertions = cursor.fetchall()
-
-                    # Get the success criteria and results for each assertion
-                    assertions_response = list()
-                    for assertion in assertions:
-                        cursor.execute('''
-                            SELECT * FROM Assertion_Metadata
-                            WHERE id = %s
-                        ''', (assertion[2],))
-
-                        assertion_metadata = cursor.fetchone()
-
-                        cursor.execute('''
-                            SELECT success_criteria_name, success_criteria_level
-                            FROM Assertion_Metadata_Success_Criteria
-                            WHERE assertion_metadata_id = %s
-                        ''', (assertion[2],))
-
-                        success_criteria = cursor.fetchall()
-
-                        success_criteria_response = []
-                        for success_criterion in success_criteria:
-                            cursor.execute('''
-                                SELECT * FROM Success_Criteria
-                                WHERE success_criteria_name = %s AND success_criteria_level = %s
-                            ''', (success_criterion[0], success_criterion[1]))
-
-                            result = cursor.fetchone()
-
-                            if result is not None:
-                                success_criteria_response.append(
-                                    SuccessCriteria(
-                                        name=result[1],
-                                        level=result[2],
-                                        principle=result[3],
-                                        url=result[4]
-                                    )
-                                )
-
-                        issues_response = list()
-
-                        cursor.execute('''
-                            SELECT * FROM Issue
-                            WHERE assertion_id = %s
-                        ''', (assertion[0],))
-
-                        issues = cursor.fetchall()
-
-                        for issue in issues:
-                            cursor.execute('''
-                                SELECT * FROM Element
-                                WHERE issue_id = %s
-                            ''', (issue[0],))
-
-                            elements = cursor.fetchall()
-
-                            elements_response = []
-                            for element in elements:
-                                elements_response.append(
-                                    IssueElementResponse(
-                                        id=element[0],
-                                        html_code=element[2],
-                                        pointer=element[3],
-                                        x=element[4],
-                                        y=element[5],
-                                        width=element[6],
-                                        height=element[7]
-                                    )
-                                )
-                            
-                            issues_response.append(
-                                IssueResponse(
-                                    id=issue[0],
-                                    verdict=issue[2],
-                                    description=issue[3],
-                                    result_code=issue[4],
-                                    elements=elements_response
-                                )
-                            )
-
-                        assertions_response.append(AssertionResponse(
-                            id=assertion[0],
-                            passed = assertion[3],
-                            warning = assertion[4],
-                            failed = assertion[5],
-                            inapplicable = assertion[6],
-                            outcome = assertion[7],
-                            description = assertion[8],
-                            metadata = AssertionMetadataResponse (
-                                id=assertion_metadata[0],
-                                code=assertion_metadata[1],
-                                name=assertion_metadata[3],
-                                description=assertion_metadata[4],
-                                url=assertion_metadata[5],
-                                mapping=assertion_metadata[6],
-                                target_elements=assertion_metadata[7],
-                                target_attributes=assertion_metadata[8],
-                                success_criteria=success_criteria_response,
-                                success_criteria_quantity=len(success_criteria_response)
-                            ),
-                            issues = issues_response
-                        ))
-                    
-                webpages_response.append(WebpageResponse(
-                    url=webpage,
-                    assertions=assertions_response
-                ))
-
-        except Exception as e:
-            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
-            if conn:
-                conn.rollback()
-
-            return GetLatestAssertionsByWebpageResponse(status_code=500)
-        finally:
-            if conn:
-                connection_pool.putconn(conn)
-        
-        return GetLatestAssertionsByWebpageResponse(status_code=200, webpages=webpages_response)
-    
-    def GetLatestAssertionsByTest(self, request, context):
-        conn = None
-
-        try:
-            conn = connection_pool.getconn()
-            cursor = conn.cursor()
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-
-            cursor.execute('''
-                SELECT webpages FROM MonitoringRegistry
-                WHERE id = %s
-            ''', (request.monitoring_registry_id, ))
-            
-            webpages = cursor.fetchone()[0]
-
-            assertions_by_outcome = {
-                'passed': [],
-                'warning': [],
-                'failed': [],
-                'inapplicable': []
-            }
-
-            for webpage in webpages:
-                cursor.execute('''
-                    SELECT id 
-                    FROM Evaluation
-                    WHERE monitored_website_id = %s
-                    AND input_url = %s
-                    ORDER BY evaluation_date DESC
-                    LIMIT 1
-                ''', (request.monitoring_registry_id, webpage))
-
-                evaluation_id = cursor.fetchone()
-
-                if evaluation_id is None:
-                    return GetLatestAssertionsByTestResponse(status_code=404)
-                else:
-                    cursor.execute('''
-                        SELECT * FROM Module
-                        WHERE evaluation_id = %s
-                        AND module_type = 'act-rules'
-                    ''', (evaluation_id[0],))
-
-                    result = cursor.fetchone()
-
-                    if result is None:
-                        return GetLatestAssertionsByTestResponse(status_code=404)
-                    
-                    cursor.execute('''
-                        SELECT * FROM Assertion
-                        WHERE module_id = %s
-                    ''', (result[0],))
-
-                    assertions = cursor.fetchall()
-
-                    # Get the success criteria and results for each assertion
-                    for assertion in assertions:
-                        cursor.execute('''
-                            SELECT * FROM Assertion_Metadata
-                            WHERE id = %s
-                        ''', (assertion[2],))
-
-                        assertion_metadata = cursor.fetchone()
-
-                        cursor.execute('''
-                            SELECT success_criteria_name, success_criteria_level
-                            FROM Assertion_Metadata_Success_Criteria
-                            WHERE assertion_metadata_id = %s
-                        ''', (assertion[2],))
-
-                        success_criteria = cursor.fetchall()
-
-                        success_criteria_response = []
-                        for success_criterion in success_criteria:
-                            cursor.execute('''
-                                SELECT * FROM Success_Criteria
-                                WHERE success_criteria_name = %s AND success_criteria_level = %s
-                            ''', (success_criterion[0], success_criterion[1]))
-
-                            result = cursor.fetchone()
-
-                            if result is not None:
-                                success_criteria_response.append(
-                                    SuccessCriteria(
-                                        name=result[1],
-                                        level=result[2],
-                                        principle=result[3],
-                                        url=result[4]
-                                    )
-                                )
-
-                        issues_response = list()
-
-                        cursor.execute('''
-                            SELECT * FROM Issue
-                            WHERE assertion_id = %s
-                        ''', (assertion[0],))
-
-                        issues = cursor.fetchall()
-
-                        for issue in issues:
-                            cursor.execute('''
-                                SELECT * FROM Element
-                                WHERE issue_id = %s
-                            ''', (issue[0],))
-
-                            elements = cursor.fetchall()
-
-                            elements_response = []
-                            for element in elements:
-                                elements_response.append(
-                                    IssueElementResponse(
-                                        id=element[0],
-                                        html_code=element[2],
-                                        pointer=element[3]
-                                    )
-                                )
-                            
-                            issues_response.append(
-                                IssueResponse(
-                                    id=issue[0],
-                                    verdict=issue[2],
-                                    description=issue[3],
-                                    result_code=issue[4],
-                                    elements=elements_response
-                                )
-                            )
-
-                        assertion_response = AssertionResponse(
-                            id=assertion[0],
-                            passed = assertion[3],
-                            warning = assertion[4],
-                            failed = assertion[5],
-                            inapplicable = assertion[6],
-                            outcome = assertion[7],
-                            description = assertion[8],
-                            metadata = AssertionMetadataResponse (
-                                id=assertion_metadata[0],
-                                code=assertion_metadata[1],
-                                name=assertion_metadata[3],
-                                description=assertion_metadata[4],
-                                url=assertion_metadata[5],
-                                mapping=assertion_metadata[6],
-                                target_elements=assertion_metadata[7],
-                                target_attributes=assertion_metadata[8],
-                                success_criteria=success_criteria_response,
-                                success_criteria_quantity=len(success_criteria_response)
-                            ),
-                            issues = issues_response
-                        )
-
-                        if assertion_response.outcome == 'passed':
-                            assertions_by_outcome['passed'].append(assertion_response)
-                        elif assertion_response.outcome == 'warning':
-                            assertions_by_outcome['warning'].append(assertion_response)
-                        elif assertion_response.outcome == 'failed':
-                            assertions_by_outcome['failed'].append(assertion_response)
-                        else:
-                            assertions_by_outcome['inapplicable'].append(assertion_response)
-
-            all_assertions = []
-
-            for elem in assertions_by_outcome["passed"]:
-                all_assertions.append(elem)
-
-            for elem in assertions_by_outcome["warning"]:
-                all_assertions.append(elem)
-
-            for elem in assertions_by_outcome["failed"]:
-                all_assertions.append(elem)
-
-            for elem in assertions_by_outcome["inapplicable"]:
-                all_assertions.append(elem)
-
-            cursor.close()
-                    
-        except Exception as e:
-            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
-            if conn:
-                conn.rollback()
-
-            return GetLatestAssertionsByTestResponse(status_code=500)
-        finally:
-            if conn:
-                connection_pool.putconn(conn)
-
-        return GetLatestAssertionsByTestResponse(status_code=200, assertions=all_assertions)
-    
     def GetCurrentWarnings(self, request, context):
         conn = None
 
@@ -962,7 +615,13 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                                     IssueElementResponse(
                                         id=element[0],
                                         html_code=element[2],
-                                        pointer=element[3]
+                                        pointer=element[3],
+                                        x=element[4],
+                                        y=element[5],
+                                        width=element[6],
+                                        height=element[7],
+                                        evaluation_id=evaluation_id,
+                                        webpage_url=webpage
                                     )
                                 )
                             
@@ -1121,8 +780,10 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
                 if evaluation_id is not None:
                     cursor.execute('''
-                        SELECT passed, warning, failed, inapplicable 
-                        FROM Evaluation WHERE id = %s
+                        SELECT passed, warning, failed, inapplicable
+                        FROM Module
+                        WHERE evaluation_id = %s
+                        AND module_type = 'act-rules'
                     ''', (evaluation_id[0],))
 
                     result = cursor.fetchone()
@@ -1151,6 +812,225 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             inapplicable = issues_stats["inapplicable"]
         )
         
+    def GetWebpageScreenshot(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT screenshot FROM Evaluation
+                WHERE id = %s
+            ''', (request.evaluation_id,))
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetWebpageScreenshotResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetWebpageScreenshotResponse(status_code=200, screenshot=cursor.fetchone()[0])
+
+    def GetLatestEvaluations(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT webpages FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_id, ))
+            
+            webpages = cursor.fetchone()[0]
+
+            response = []
+            for webpage in webpages:
+                cursor.execute('''
+                    SELECT id 
+                    FROM Evaluation
+                    WHERE monitored_website_id = %s
+                    AND input_url = %s
+                    ORDER BY evaluation_date DESC
+                    LIMIT 1
+                ''', (request.monitoring_id, webpage))
+
+                evaluation_id = cursor.fetchone()
+
+                response.append(
+                    EvaluationIdUrl(
+                        evaluation_id=evaluation_id[0],
+                        evaluation_url=webpage
+                    )
+                )
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetLatestEvaluationsResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetLatestEvaluationsResponse(status_code=200, evaluations=response)
+    
+    def GetLatestACTAssertions(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            # Get ACT module with evaluation id
+            cursor.execute('''
+                SELECT id FROM Module
+                WHERE evaluation_id = %s
+                AND module_type = 'act-rules'
+            ''', (request.evaluation_id, ))
+
+            module_id = cursor.fetchone()[0]
+
+            # Get the assertions that have a given outcome and that their assertion metadata is connected to success criteria in a given list
+            cursor.execute('''
+                SELECT * FROM Assertion
+                WHERE module_id = %s
+                AND outcome = %s
+            ''', (module_id, request.outcome))
+
+            assertions = cursor.fetchall()
+            assertions_response = []
+
+            for assertion in assertions:
+                assertion_id = assertion[0]
+                assertion_metadata_id = assertion[2]
+
+                wcagFilters = list(request.wcagLevelFilters)
+                
+                # Check if this assertion's metadata is related to any success criteria in the wcagFilters
+                cursor.execute('''
+                    SELECT COUNT(*) FROM Assertion_Metadata_Success_Criteria
+                    WHERE assertion_metadata_id = %s
+                    AND success_criteria_level = ANY(%s::success_criteria_level[])
+                ''', (assertion_metadata_id, list(request.wcagLevelFilters)))
+                
+                count = cursor.fetchone()[0]
+
+                cursor.execute('''
+                    SELECT code, assertion_name FROM Assertion_Metadata
+                    WHERE id = %s
+                ''', (assertion_metadata_id, ))
+                
+                assertion_metadata = cursor.fetchone()
+                
+                # If this assertion is related to any of the requested WCAG levels, add its ID to the result
+                if len(wcagFilters) > 0 and count > 0:
+                    assertions_response.append(
+                        AssertionResponse(
+                            assertion_id=assertion_id,
+                            assertion_name=assertion_metadata[1],
+                            assertion_rule=assertion_metadata[0]
+                        )
+                    )
+                elif len(wcagFilters) == 0:
+                    assertions_response.append(
+                        AssertionResponse(
+                            assertion_id=assertion_id,
+                            assertion_name=assertion_metadata[1],
+                            assertion_rule=assertion_metadata[0]
+                        )
+                    )
+
+            cursor.close()
+            
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetLatestACTAssertionsResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetLatestACTAssertionsResponse(status_code=200, assertions=assertions_response)
+    
+    def GetAssertionResults(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT * FROM Issue
+                WHERE assertion_id = %s
+            ''', (request.assertion_id, ))
+
+            results = cursor.fetchall()
+
+            response = []
+            for result in results:
+                response.append(
+                    ResultResponse(
+                        id=result[0],
+                        description=result[3],
+                        verdict=result[2]
+                    )
+                )
+
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetAssertionResultsResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+        
+        return GetAssertionResultsResponse(status_code=200, results=response)
+    
+    def GetResultElement(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT id, html_code, pointer FROM Element
+                WHERE issue_id = %s
+            ''', (request.issue_id, ))
+
+            element = cursor.fetchone()
+
+            element_response = ElementResponse(
+                id=element[0],
+                html_code=element[1],
+                pointer=element[2]
+            )
+
+            cursor.close()
+
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetResultElementsResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+        
+        return GetResultElementsResponse(status_code=200, element=element_response)
+
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]
     server = grpc.server(

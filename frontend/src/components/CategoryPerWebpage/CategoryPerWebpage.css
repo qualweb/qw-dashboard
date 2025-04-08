@@ -9,6 +9,7 @@
     background-color: var(--secondary-color);
     border-radius: 3rem;
     padding: 2rem 2rem;
+    flex-direction: column;
 }
 
 .category-left {
@@ -91,10 +92,4 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-}
-
-.category-header {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }

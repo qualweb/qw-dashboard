@@ -556,80 +556,8 @@ app.get('/api/evaluations/monitored-websites', function (req, res) { return __aw
         }
     });
 }); });
-app.get('/api/evaluations/monitoring/:id/latest-assertions/by-webpage', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getLatestAssertionsByWebpageRequest_1, response, error_9;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                monitoring_id = req.params.id;
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 3, , 4]);
-                getLatestAssertionsByWebpageRequest_1 = new evaluations_pb_1.GetLatestAssertionsByWebpageRequest();
-                getLatestAssertionsByWebpageRequest_1.setMonitoringRegistryId(Number(monitoring_id));
-                return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        client.getLatestAssertionsByWebpage(getLatestAssertionsByWebpageRequest_1, function (err, callResponse) {
-                            if (err)
-                                reject(err);
-                            else
-                                resolve(callResponse);
-                        });
-                    })];
-            case 2:
-                response = _a.sent();
-                if (response.getStatusCode() !== 200) {
-                    res.send(response.getStatusCode());
-                    return [2 /*return*/];
-                }
-                res.send((0, convert_1.convertGetLatestAssertionsResponseToJSON)(response).webpages);
-                return [3 /*break*/, 4];
-            case 3:
-                error_9 = _a.sent();
-                console.error('Error fetching latest assertions:', error_9);
-                res.send(500);
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
-        }
-    });
-}); });
-app.get('/api/evaluations/monitoring/:id/latest-assertions/by-test', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getLatestAssertionsByTestRequest_1, response, error_10;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                monitoring_id = req.params.id;
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 3, , 4]);
-                getLatestAssertionsByTestRequest_1 = new evaluations_pb_1.GetLatestAssertionsByTestRequest();
-                getLatestAssertionsByTestRequest_1.setMonitoringRegistryId(Number(monitoring_id));
-                return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        client.getLatestAssertionsByTest(getLatestAssertionsByTestRequest_1, function (err, callResponse) {
-                            if (err)
-                                reject(err);
-                            else
-                                resolve(callResponse);
-                        });
-                    })];
-            case 2:
-                response = _a.sent();
-                if (response.getStatusCode() !== 200) {
-                    res.send(response.getStatusCode());
-                    return [2 /*return*/];
-                }
-                res.send((0, convert_1.convertAssertionsList)(response.getAssertionsList()));
-                return [3 /*break*/, 4];
-            case 3:
-                error_10 = _a.sent();
-                console.error('Error fetching latest assertions:', error_10);
-                res.send(500);
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
-        }
-    });
-}); });
 app.get('/api/evaluations/monitoring/:id/current-warnings', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getCurrentWarningsRequest_1, response, error_11;
+    var monitoring_id, getCurrentWarningsRequest_1, response, error_9;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -653,11 +581,11 @@ app.get('/api/evaluations/monitoring/:id/current-warnings', function (req, res) 
                     res.send(response.getStatusCode());
                     return [2 /*return*/];
                 }
-                res.send((0, convert_1.convertAssertionsList)(response.getWarningsList()));
+                res.send(response.getWarningsList());
                 return [3 /*break*/, 4];
             case 3:
-                error_11 = _a.sent();
-                console.error('Error fetching current warnings:', error_11);
+                error_9 = _a.sent();
+                console.error('Error fetching current warnings:', error_9);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -665,7 +593,7 @@ app.get('/api/evaluations/monitoring/:id/current-warnings', function (req, res) 
     });
 }); });
 app.get('/api/evaluations/monitoring/:id/score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getScoreRequest_1, response, error_12;
+    var monitoring_id, getScoreRequest_1, response, error_10;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -695,8 +623,8 @@ app.get('/api/evaluations/monitoring/:id/score', function (req, res) { return __
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_12 = _a.sent();
-                console.error('Error fetching score:', error_12);
+                error_10 = _a.sent();
+                console.error('Error fetching score:', error_10);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -704,7 +632,7 @@ app.get('/api/evaluations/monitoring/:id/score', function (req, res) { return __
     });
 }); });
 app.get('/api/evaluations/monitoring/:id/issues-stats', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getIssuesStatsRequest_1, response, error_13;
+    var monitoring_id, getIssuesStatsRequest_1, response, error_11;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -736,8 +664,210 @@ app.get('/api/evaluations/monitoring/:id/issues-stats', function (req, res) { re
                 });
                 return [3 /*break*/, 4];
             case 3:
+                error_11 = _a.sent();
+                console.error('Error fetching score:', error_11);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/api/evaluations/evaluations/:id/webpage-screenshot', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var evaluation_id, getWebpageScreenshotRequest_1, response, screenshot, error_12;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                evaluation_id = req.params.id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                getWebpageScreenshotRequest_1 = new evaluations_pb_1.GetWebpageScreenshotRequest();
+                getWebpageScreenshotRequest_1.setEvaluationId(Number(evaluation_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getWebpageScreenshot(getWebpageScreenshotRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                screenshot = response.getScreenshot();
+                if (!screenshot) {
+                    res.send(404);
+                    return [2 /*return*/];
+                }
+                res.set('Content-Type', 'image/png');
+                res.send(screenshot);
+                return [3 /*break*/, 4];
+            case 3:
+                error_12 = _a.sent();
+                console.error('Error fetching screenshot:', error_12);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/api/evaluations/monitoring/:monitoring_id/latest-evaluations', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, getLatestEvaluationsRequest_1, response, error_13;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_id = req.params.monitoring_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                getLatestEvaluationsRequest_1 = new evaluations_pb_1.GetLatestEvaluationsRequest();
+                getLatestEvaluationsRequest_1.setMonitoringId(Number(monitoring_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getLatestEvaluations(getLatestEvaluationsRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    evaluations: (0, convert_1.convertLatestEvals)(response.getEvaluationsList())
+                });
+                return [3 /*break*/, 4];
+            case 3:
                 error_13 = _a.sent();
-                console.error('Error fetching score:', error_13);
+                console.error('Error fetching latest evaluations:', error_13);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/api/monitoring/evaluations/:evaluation_id/latest-act-assertions', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var evaluation_id, wcagLevelFilters, outcome, wcagLevels, getLatestACTAssertionsRequest_1, reponse, error_14;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                evaluation_id = req.params.evaluation_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                wcagLevelFilters = req.query.wcagLevelFilters;
+                outcome = req.query.outcome;
+                wcagLevels = [];
+                if (typeof wcagLevelFilters === 'string' && wcagLevelFilters.trim() !== '') {
+                    wcagLevels = wcagLevelFilters.split(',');
+                }
+                getLatestACTAssertionsRequest_1 = new evaluations_pb_1.GetLatestACTAssertionsRequest();
+                getLatestACTAssertionsRequest_1.setEvaluationId(Number(evaluation_id));
+                getLatestACTAssertionsRequest_1.setWcaglevelfiltersList(wcagLevels);
+                getLatestACTAssertionsRequest_1.setOutcome(outcome);
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getLatestACTAssertions(getLatestACTAssertionsRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                reponse = _a.sent();
+                if (reponse.getStatusCode() !== 200) {
+                    res.send(reponse.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    assertions: (0, convert_1.convertLatestACTAssertions)(reponse.getAssertionsList())
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_14 = _a.sent();
+                console.error('Error fetching latest assertions:', error_14);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/api/monitoring/assertions/:assertion_id/results', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var assertion_id, getAssertionResultsRequest_1, response, error_15;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                assertion_id = req.params.assertion_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                getAssertionResultsRequest_1 = new evaluations_pb_1.GetAssertionResultsRequest();
+                getAssertionResultsRequest_1.setAssertionId(Number(assertion_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getAssertionResults(getAssertionResultsRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    results: (0, convert_1.convertAssertionResults)(response.getResultsList())
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_15 = _a.sent();
+                console.error('Error fetching results:', error_15);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/api/monitoring/issues/:issue_id/elements', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var issue_id, getResultElementsRequest_1, response, error_16;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                issue_id = req.params.issue_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                getResultElementsRequest_1 = new evaluations_pb_1.GetResultElementsRequest();
+                getResultElementsRequest_1.setIssueId(Number(issue_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getResultElement(getResultElementsRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    element: (0, convert_1.convertResultElement)(response.getElement())
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_16 = _a.sent();
+                console.error('Error fetching elements:', error_16);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];

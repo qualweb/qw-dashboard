@@ -1,56 +1,67 @@
 import "./IssuesWebsiteItem.css";
 import { Globe, ChevronDown } from 'lucide-react';
-import { AssertionsGroupedByOutcomeResponse } from "../Types/Types.tsx";
-import CategoryItem from "../CategoryItem/CategoryItem.tsx";
-import { getCategory } from "../utils/utils.ts";
+import { useState } from "react";
+import CategoryPerWebpage from "../CategoryPerWebpage/CategoryPerWebpage.tsx";
 
 interface IssueItemProps {
-  url: string;
-  assertions: AssertionsGroupedByOutcomeResponse;
-  expandedItems: {
-    [url: string]: boolean;
-  };
-  toggleExpand: (url: string) => void;
+  webpage_url: string;
+  evaluation_id: string;
   statusFilters: string[];
   wcagLevelFilters: string[];
 }
 
-const IssuesWebsiteItem: React.FC<IssueItemProps> = ({ url, assertions, expandedItems, toggleExpand, statusFilters, wcagLevelFilters }) => {
+function IssuesWebsiteItem(props: IssueItemProps) {
+  const [expanded, setExpanded] = useState(false);
+
+  const categories = ["passed", "warning", "failed", "inapplicable"];
+
   return (
-    <div className="issue-item-container" key={url}>
+    <div className="issue-item-container" key={props.webpage_url}>
       <div className="issue-item">
         <div className='issue-main-info-wrapper'>
           <div className="issue-left">
             <div className="globe-icon">
               <Globe size={24} />
             </div>
-            <h3 className="issue-url">{url}</h3>
+            <h3 className="issue-url">{props.webpage_url}</h3>
           </div>
           <button
             className="issue-right"
-            onClick={() => toggleExpand(url)}
+            onClick={() => setExpanded(!expanded)}
             style={{ cursor: 'pointer' }}
           >
             <strong><span>More info</span></strong>
             <ChevronDown
               size={20}
               style={{
-                transform: expandedItems[url] ? 'rotate(180deg)' : 'rotate(0deg)',
+                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'transform 0.3s ease'
               }}
             />
           </button>
         </div>
-        {expandedItems[url] && (
+        {expanded &&
           <div className="expanded-content">
-          {Object.keys(assertions).map((category) => {
-            if (statusFilters.length === 0 || statusFilters.includes(getCategory(category))) {
-              const categoryKey = category as keyof AssertionsGroupedByOutcomeResponse;
-              return <CategoryItem key={categoryKey} tests={assertions[categoryKey]} category={categoryKey} wcagLevelFilters={wcagLevelFilters} />;
-            }
-          })}
-        </div>
-        )}
+            {props.statusFilters.length !== 0 &&
+              props.statusFilters.map((category) => {
+                return <CategoryPerWebpage 
+                  key={category}
+                  evaluation_id={props.evaluation_id} 
+                  outcome={category} 
+                  wcagLevelFilters={props.wcagLevelFilters} 
+                />;
+            })}
+            {props.statusFilters.length === 0 &&
+              categories.map((category) => {
+                return <CategoryPerWebpage 
+                  key={category}
+                  evaluation_id={props.evaluation_id} 
+                  outcome={category} 
+                  wcagLevelFilters={props.wcagLevelFilters} 
+                />;
+            })}
+          </div>
+        }
       </div>
     </div>
   );

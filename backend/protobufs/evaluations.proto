@@ -161,18 +161,6 @@ message WebpageResponse {
     repeated AssertionResponse assertions = 2;
 }
 
-message AssertionResponse {
-    int32 id = 1;
-    int32 passed = 2;
-    int32 warning = 3;
-    int32 failed = 4;
-    int32 inapplicable = 5;
-    string outcome = 6;
-    string description = 7;
-    AssertionMetadataResponse metadata = 8;
-    repeated IssueResponse issues = 9;
-}
-
 message AssertionMetadataResponse {
     int32 id = 1;
     string code = 2;
@@ -203,6 +191,8 @@ message IssueElementResponse {
     float y = 5;
     float width = 6;
     float height = 7;
+    int32 evaluation_id = 8;
+    string webpage_url = 9;
 }
 
 message GetLatestAssertionsByTestRequest {
@@ -263,6 +253,76 @@ message GetIssuesStatsResponse {
     int32 inapplicable = 5;
 }
 
+message GetWebpageScreenshotRequest {
+    int32 evaluation_id = 1;
+}
+
+message GetWebpageScreenshotResponse {
+    int32 status_code = 1;
+    bytes screenshot = 2;
+}
+
+message GetLatestEvaluationsRequest {
+    int32 monitoring_id = 1;
+}
+
+message GetLatestEvaluationsResponse {
+    int32 status_code = 1;
+    repeated EvaluationIdUrl evaluations = 2;
+}
+
+message EvaluationIdUrl {
+    int32 evaluation_id = 1;
+    string evaluation_url = 2;
+}
+
+message GetLatestACTAssertionsRequest {
+    int32 evaluation_id = 1;
+    repeated string wcagLevelFilters = 2;
+    string outcome = 3;
+}
+
+message GetLatestACTAssertionsResponse {
+    int32 status_code = 1;
+    repeated AssertionResponse assertions = 2;
+}
+
+message AssertionResponse {
+    int32 assertion_id = 1;
+    string assertion_name = 2;
+    string assertion_rule = 3;
+}
+
+message GetAssertionResultsRequest {
+    int32 assertion_id = 1;
+}
+
+message GetAssertionResultsResponse {
+    int32 status_code = 1;
+    repeated ResultResponse results = 2;
+}
+
+message ResultResponse {
+    int32 id = 1;
+    string description = 2;
+    string verdict = 3;
+}
+
+message GetResultElementsRequest {
+    int32 issue_id = 1;
+}
+
+message GetResultElementsResponse{
+    int32 status_code = 1;
+    ElementResponse element = 2;
+}
+
+message ElementResponse {
+    int32 id = 1;
+    string html_code = 2;
+    string pointer = 3;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -278,4 +338,9 @@ service Evaluations {
     rpc GetWebsiteScore(GetWebsiteScoreRequest) returns (GetWebsiteScoreResponse);
     rpc GetMonitoringRegistry(GetMonitoringRegistryRequest) returns (GetMonitoringRegistryResponse);
     rpc GetIssuesStats(GetIssuesStatsRequest) returns (GetIssuesStatsResponse);
+    rpc GetWebpageScreenshot(GetWebpageScreenshotRequest) returns (GetWebpageScreenshotResponse);
+    rpc GetLatestEvaluations(GetLatestEvaluationsRequest) returns (GetLatestEvaluationsResponse);
+    rpc GetLatestACTAssertions(GetLatestACTAssertionsRequest) returns (GetLatestACTAssertionsResponse);
+    rpc GetAssertionResults (GetAssertionResultsRequest) returns (GetAssertionResultsResponse);
+    rpc GetResultElement (GetResultElementsRequest) returns (GetResultElementsResponse);
 }

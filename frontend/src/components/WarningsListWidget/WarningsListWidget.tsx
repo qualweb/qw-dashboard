@@ -1,25 +1,28 @@
 import { useEffect, useState } from "react";
 import "./WarningsListWidget.css"
-import { getCurrentWarnings } from "../../services/EvaluationService";
-import { Warning2Icon } from "../../assets/Icons";
-import TestItem from "../TestItem/TestItem";
-import { AssertionResponse } from "../Types/Types";
+import { getLatestEvaluations } from "../../services/EvaluationService";
+import CategoryWebsite from "../CatergoryWebsite/CategoryWebsite";
 
 interface CurrentWarningsWidgetProps {
     monitoring_id: string;
 }
 
 function CurrentWarningsWidget(props: CurrentWarningsWidgetProps) {
-    const [warnings, setWarnings] = useState<AssertionResponse[]>([]);
-    
+    const [latestEvalIds, setLatestEvalIds] = useState<string[]>([]);
 
     useEffect(() => {
-        const fetchCurrentWarnings = async () => {
-            const response = await getCurrentWarnings(props.monitoring_id);
-            setWarnings(response);
+        const fetchLatestEvals = async () => {
+            const latest_evals = await getLatestEvaluations(props.monitoring_id);
+
+            const ids : string[] = []
+
+            for (let i = 0; i < latest_evals.length; i++) {
+                ids[i] = latest_evals[i].id;
+            }
+            setLatestEvalIds(ids);
         }
 
-        fetchCurrentWarnings();
+        fetchLatestEvals();
     }, [props.monitoring_id]);
     
     
@@ -27,20 +30,18 @@ function CurrentWarningsWidget(props: CurrentWarningsWidgetProps) {
         <div className="current-warnings-widget">
             <div className="current-warnings-header">
                 <h1>Current Warnings</h1>
-                <div className="current-warnings-counter">
-                    <span><strong>{warnings.length}</strong></span>
-                    { Warning2Icon }
-                </div>
             </div>
             <div className="current-warnings-list">
-                {warnings.map((test) => (
-                    <TestItem 
-                        key={test.id}
-                        test={test}
-                        className={"stat-warning"}
-                        icon={Warning2Icon}
+            {latestEvalIds ? (
+                <>
+                    <CategoryWebsite 
+                        key={"warnings"}
+                        evaluation_ids={latestEvalIds} 
+                        outcome={"warning"} 
+                        wcagLevelFilters={[]} 
                     />
-                ))}
+                </>
+            ) : null}
             </div>
         </div>
     );

@@ -1,40 +1,43 @@
-import './TestItem.css';
-import React, { useState } from 'react';
+import './Result.css';
+import { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import ResultItem from '../ResultItem/ResultItem';
-import { AssertionResponse } from '../Types/Types.tsx';
+import ResultItem from '../Result/Result.tsx';
 
-interface TestItemProps {
-    test: AssertionResponse;
-    className: string;
-    icon: React.ReactNode;
+interface ResultProps {
+    id: string;
 }
 
-const TestItem: React.FC<TestItemProps> = ({ test, className, icon }) => {
+function Result(props: ResultProps) {
     const [expanded, setExpanded] = useState(false);
+    const [assertion, setAssertion] = useState<AssertionResponse>([]);
+    
 
-    const toggleExpand = () => {
-        setExpanded(prev => !prev);
-    };
+    useEffect(() => {
+        const fetchAssertion = async () => {
+            const data = await getLatestACTAssertions(props.evaluation_id, props.wcagLevelFilters, props.outcome);
+            setAssertions(data);
+        }
+        fetchAssertion();
+    }, [props.evaluation_id, props.wcagLevelFilters, props.outcome]);
 
     return (
-        <div className="tests-item" key={test.id}>
+        <div className="tests-item" key={props.id}>
             <div className="tests-header">
                 <div className='wrapper-4'>
                     <div className="tests-left">
-                        <div className={className} style={{width: '2rem'}}>
-                            {icon}
+                        <div className={props.className} style={{width: '2rem'}}>
+                            {props.icon}
                         </div>
                         <div className="tests-title">
-                            <h3>{test.metadata?.description}</h3>
+                            <h3>{props.test.metadata?.description}</h3>
                         </div>
                     </div>
                     <button 
                         className="tests-right" 
-                        onClick={toggleExpand}
+                        onClick={() => setExpanded(!expanded)}
                         style={{ cursor: 'pointer' }}
                     >
-                        <strong><span>{test.metadata?.code}</span></strong>
+                        <strong><span>{props.test.metadata?.code}</span></strong>
                         <ChevronDown 
                             size={20} 
                             style={{
@@ -46,7 +49,7 @@ const TestItem: React.FC<TestItemProps> = ({ test, className, icon }) => {
                 </div>
                 {expanded && (
                     <div className='expanded-results'>
-                        {test.issues && test.issues.map((issue) => (
+                        {props.test.issues && props.test.issues.map((issue) => (
                             issue.elements.map((element) => (
                                 <ResultItem 
                                     key={element.id}
@@ -62,4 +65,4 @@ const TestItem: React.FC<TestItemProps> = ({ test, className, icon }) => {
     );
 };
 
-export default TestItem;
+export default Result;

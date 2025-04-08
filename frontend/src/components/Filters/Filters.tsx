@@ -15,7 +15,7 @@ interface FiltersProps {
 
 function Filters(props: FiltersProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const states = ["Passed", "Failed", "Warnings", "Inapplicable"];
+    const states = ["passed", "warning", "failed", "inapplicable"];
     const wcagLevels = ["A", "AA", "AAA"];
 
     const [wcagLevelFilter, setWcagLevelFilter] = useState<string[]>([]);
@@ -85,7 +85,7 @@ function Filters(props: FiltersProps) {
                                                     <CheckIcon />
                                                 </Checkbox.Indicator>
                                             </Checkbox.Control>
-                                            <Checkbox.Label>{state}</Checkbox.Label>
+                                            <Checkbox.Label>{state.charAt(0).toUpperCase() + state.slice(1)}</Checkbox.Label>
                                             <Checkbox.HiddenInput />
                                         </Checkbox.Root>
                                     ))}

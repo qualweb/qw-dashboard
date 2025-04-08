@@ -104,6 +104,31 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.GetIssuesStatsRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.GetIssuesStatsResponse.FromString,
                 _registered_method=True)
+        self.GetWebpageScreenshot = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetWebpageScreenshot',
+                request_serializer=evaluations__pb2.GetWebpageScreenshotRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetWebpageScreenshotResponse.FromString,
+                _registered_method=True)
+        self.GetLatestEvaluations = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetLatestEvaluations',
+                request_serializer=evaluations__pb2.GetLatestEvaluationsRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetLatestEvaluationsResponse.FromString,
+                _registered_method=True)
+        self.GetLatestACTAssertions = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetLatestACTAssertions',
+                request_serializer=evaluations__pb2.GetLatestACTAssertionsRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetLatestACTAssertionsResponse.FromString,
+                _registered_method=True)
+        self.GetAssertionResults = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetAssertionResults',
+                request_serializer=evaluations__pb2.GetAssertionResultsRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetAssertionResultsResponse.FromString,
+                _registered_method=True)
+        self.GetResultElement = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetResultElement',
+                request_serializer=evaluations__pb2.GetResultElementsRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetResultElementsResponse.FromString,
+                _registered_method=True)
 
 
 class EvaluationsServicer(object):
@@ -193,6 +218,36 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetWebpageScreenshot(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetLatestEvaluations(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetLatestACTAssertions(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAssertionResults(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetResultElement(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -265,6 +320,31 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     servicer.GetIssuesStats,
                     request_deserializer=evaluations__pb2.GetIssuesStatsRequest.FromString,
                     response_serializer=evaluations__pb2.GetIssuesStatsResponse.SerializeToString,
+            ),
+            'GetWebpageScreenshot': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetWebpageScreenshot,
+                    request_deserializer=evaluations__pb2.GetWebpageScreenshotRequest.FromString,
+                    response_serializer=evaluations__pb2.GetWebpageScreenshotResponse.SerializeToString,
+            ),
+            'GetLatestEvaluations': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetLatestEvaluations,
+                    request_deserializer=evaluations__pb2.GetLatestEvaluationsRequest.FromString,
+                    response_serializer=evaluations__pb2.GetLatestEvaluationsResponse.SerializeToString,
+            ),
+            'GetLatestACTAssertions': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetLatestACTAssertions,
+                    request_deserializer=evaluations__pb2.GetLatestACTAssertionsRequest.FromString,
+                    response_serializer=evaluations__pb2.GetLatestACTAssertionsResponse.SerializeToString,
+            ),
+            'GetAssertionResults': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAssertionResults,
+                    request_deserializer=evaluations__pb2.GetAssertionResultsRequest.FromString,
+                    response_serializer=evaluations__pb2.GetAssertionResultsResponse.SerializeToString,
+            ),
+            'GetResultElement': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetResultElement,
+                    request_deserializer=evaluations__pb2.GetResultElementsRequest.FromString,
+                    response_serializer=evaluations__pb2.GetResultElementsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -645,6 +725,141 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/GetIssuesStats',
             evaluations__pb2.GetIssuesStatsRequest.SerializeToString,
             evaluations__pb2.GetIssuesStatsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetWebpageScreenshot(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetWebpageScreenshot',
+            evaluations__pb2.GetWebpageScreenshotRequest.SerializeToString,
+            evaluations__pb2.GetWebpageScreenshotResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetLatestEvaluations(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetLatestEvaluations',
+            evaluations__pb2.GetLatestEvaluationsRequest.SerializeToString,
+            evaluations__pb2.GetLatestEvaluationsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetLatestACTAssertions(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetLatestACTAssertions',
+            evaluations__pb2.GetLatestACTAssertionsRequest.SerializeToString,
+            evaluations__pb2.GetLatestACTAssertionsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAssertionResults(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetAssertionResults',
+            evaluations__pb2.GetAssertionResultsRequest.SerializeToString,
+            evaluations__pb2.GetAssertionResultsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetResultElement(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetResultElement',
+            evaluations__pb2.GetResultElementsRequest.SerializeToString,
+            evaluations__pb2.GetResultElementsResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -27,11 +27,21 @@ import {
     GetMonitoringRegistryRequest,
     GetMonitoringRegistryResponse,
     GetIssuesStatsRequest,
-    GetIssuesStatsResponse
+    GetIssuesStatsResponse,
+    GetWebpageScreenshotRequest,
+    GetWebpageScreenshotResponse,
+    GetLatestEvaluationsRequest,
+    GetLatestEvaluationsResponse,
+    GetLatestACTAssertionsRequest,
+    GetLatestACTAssertionsResponse,
+    GetAssertionResultsRequest,
+    GetAssertionResultsResponse,
+    GetResultElementsRequest,
+    GetResultElementsResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
-import { convertGetLatestAssertionsResponseToJSON, convertAssertionsList } from './convert';
+import { convertAssertionResults, convertLatestACTAssertions, convertLatestEvals, convertResultElement } from './convert';
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
@@ -451,58 +461,6 @@ app.get('/api/evaluations/monitored-websites', async (req: Request, res: Respons
     }
 });
 
-app.get('/api/evaluations/monitoring/:id/latest-assertions/by-webpage', async (req: Request, res: Response) => {
-    const monitoring_id = req.params.id;
-
-    try {
-        const getLatestAssertionsByWebpageRequest = new GetLatestAssertionsByWebpageRequest();
-        getLatestAssertionsByWebpageRequest.setMonitoringRegistryId(Number(monitoring_id));
-
-        const response = await new Promise<GetLatestAssertionsByWebpageResponse>((resolve, reject) => {
-            client.getLatestAssertionsByWebpage(getLatestAssertionsByWebpageRequest, (err: Error, callResponse: GetLatestAssertionsByWebpageResponse) => {
-                if (err) reject(err);
-                else resolve(callResponse);
-            });
-        });
-
-        if (response.getStatusCode() !== 200) {
-            res.send(response.getStatusCode());
-            return;
-        }
-        
-        res.send(convertGetLatestAssertionsResponseToJSON(response).webpages);
-    } catch (error) {
-        console.error('Error fetching latest assertions:', error);
-        res.send(500);
-    }
-});
-
-app.get('/api/evaluations/monitoring/:id/latest-assertions/by-test', async (req: Request, res: Response) => {
-    const monitoring_id = req.params.id;
-
-    try {
-        const getLatestAssertionsByTestRequest = new GetLatestAssertionsByTestRequest();
-        getLatestAssertionsByTestRequest.setMonitoringRegistryId(Number(monitoring_id));
-
-        const response = await new Promise<GetLatestAssertionsByTestResponse>((resolve, reject) => {
-            client.getLatestAssertionsByTest(getLatestAssertionsByTestRequest, (err: Error, callResponse: GetLatestAssertionsByTestResponse) => {
-                if (err) reject(err);
-                else resolve(callResponse);
-            });
-        });
-
-        if (response.getStatusCode() !== 200) {
-            res.send(response.getStatusCode());
-            return;
-        }
-        
-        res.send(convertAssertionsList(response.getAssertionsList()));
-    } catch (error) {
-        console.error('Error fetching latest assertions:', error);
-        res.send(500);
-    }
-});
-
 app.get('/api/evaluations/monitoring/:id/current-warnings', async (req: Request, res: Response) => {
     const monitoring_id = req.params.id;
 
@@ -522,7 +480,7 @@ app.get('/api/evaluations/monitoring/:id/current-warnings', async (req: Request,
             return;
         }
         
-        res.send(convertAssertionsList(response.getWarningsList()));
+        res.send(response.getWarningsList());
     } catch (error) {
         console.error('Error fetching current warnings:', error);
         res.send(500);
@@ -587,6 +545,164 @@ app.get('/api/evaluations/monitoring/:id/issues-stats', async (req: Request, res
     } catch (error) {
         console.error('Error fetching score:', error);
         res.send(500);
+    }
+});
+
+app.get('/api/evaluations/evaluations/:id/webpage-screenshot', async (req: Request, res: Response) => {
+    const evaluation_id = req.params.id;
+    
+    try {
+        const getWebpageScreenshotRequest = new GetWebpageScreenshotRequest();
+        getWebpageScreenshotRequest.setEvaluationId(Number(evaluation_id));
+
+        const response = await new Promise<GetWebpageScreenshotResponse>((resolve, reject) => {
+            client.getWebpageScreenshot(getWebpageScreenshotRequest, (err: Error, callResponse: GetWebpageScreenshotResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        const screenshot = response.getScreenshot();
+
+        if (!screenshot) {
+            res.send(404);
+            return;
+        }
+
+        res.set('Content-Type', 'image/png');
+        res.send(screenshot);
+    } catch (error) {
+        console.error('Error fetching screenshot:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/evaluations/monitoring/:monitoring_id/latest-evaluations', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id
+    
+    try {
+        const getLatestEvaluationsRequest = new GetLatestEvaluationsRequest();
+        getLatestEvaluationsRequest.setMonitoringId(Number(monitoring_id));
+
+        const response = await new Promise<GetLatestEvaluationsResponse>((resolve, reject) => {
+            client.getLatestEvaluations(getLatestEvaluationsRequest, (err: Error, callResponse: GetLatestEvaluationsResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            evaluations: convertLatestEvals(response.getEvaluationsList())
+        });
+    } catch (error) {
+        console.error('Error fetching latest evaluations:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/monitoring/evaluations/:evaluation_id/latest-act-assertions', async (req: Request, res: Response) => {
+    const evaluation_id = req.params.evaluation_id;
+    
+    try {
+        const wcagLevelFilters = req.query.wcagLevelFilters;
+        const outcome = req.query.outcome;
+
+        let wcagLevels: string[] = [];
+
+        if (typeof wcagLevelFilters === 'string' && wcagLevelFilters.trim() !== '') {
+            wcagLevels = wcagLevelFilters.split(',');
+        }
+        
+        const getLatestACTAssertionsRequest = new GetLatestACTAssertionsRequest();
+        getLatestACTAssertionsRequest.setEvaluationId(Number(evaluation_id));
+        getLatestACTAssertionsRequest.setWcaglevelfiltersList(wcagLevels);
+        getLatestACTAssertionsRequest.setOutcome(outcome as string);
+
+        const reponse = await new Promise<GetLatestACTAssertionsResponse>((resolve, reject) => {
+            client.getLatestACTAssertions(getLatestACTAssertionsRequest, (err: Error, callResponse: GetLatestACTAssertionsResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (reponse.getStatusCode() !== 200) {
+            res.send(reponse.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            assertions: convertLatestACTAssertions(reponse.getAssertionsList())
+        });
+
+    } catch (error) {
+        console.error('Error fetching latest assertions:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/monitoring/assertions/:assertion_id/results', async (req: Request, res: Response) => {
+    const assertion_id = req.params.assertion_id
+
+    try {
+        const getAssertionResultsRequest = new GetAssertionResultsRequest();
+        getAssertionResultsRequest.setAssertionId(Number(assertion_id));
+
+        const response = await new Promise<GetAssertionResultsResponse>((resolve, reject) => {
+            client.getAssertionResults(getAssertionResultsRequest, (err: Error, callResponse: GetAssertionResultsResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+                });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            results: convertAssertionResults(response.getResultsList())
+        });
+    } catch (error) {
+        console.error('Error fetching results:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/monitoring/issues/:issue_id/elements', async (req: Request, res: Response) => {
+    const issue_id = req.params.issue_id
+
+    try {
+        const getResultElementsRequest = new GetResultElementsRequest();
+        getResultElementsRequest.setIssueId(Number(issue_id));
+
+        const response = await new Promise<GetResultElementsResponse>((resolve, reject) => {
+            client.getResultElement(getResultElementsRequest, (err: Error, callResponse: GetResultElementsResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            element: convertResultElement(response.getElement())
+        });
+    } catch (error) {
+        console.error('Error fetching elements:', error);
+        res.send(500)
     }
 });
 
