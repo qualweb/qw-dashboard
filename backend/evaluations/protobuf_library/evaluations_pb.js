@@ -10858,7 +10858,9 @@ proto.runtimePackage.AssertionResponse.toObject = function(includeInstance, msg)
   var f, obj = {
 assertionId: jspb.Message.getFieldWithDefault(msg, 1, 0),
 assertionName: jspb.Message.getFieldWithDefault(msg, 2, ""),
-assertionRule: jspb.Message.getFieldWithDefault(msg, 3, "")
+assertionRule: jspb.Message.getFieldWithDefault(msg, 3, ""),
+evaluationId: jspb.Message.getFieldWithDefault(msg, 4, 0),
+webpageUrl: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -10907,6 +10909,14 @@ proto.runtimePackage.AssertionResponse.deserializeBinaryFromReader = function(ms
       var value = /** @type {string} */ (reader.readString());
       msg.setAssertionRule(value);
       break;
+    case 4:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setEvaluationId(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setWebpageUrl(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -10954,6 +10964,20 @@ proto.runtimePackage.AssertionResponse.serializeBinaryToWriter = function(messag
   if (f.length > 0) {
     writer.writeString(
       3,
+      f
+    );
+  }
+  f = message.getEvaluationId();
+  if (f !== 0) {
+    writer.writeInt32(
+      4,
+      f
+    );
+  }
+  f = message.getWebpageUrl();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
       f
     );
   }
@@ -11011,6 +11035,42 @@ proto.runtimePackage.AssertionResponse.prototype.getAssertionRule = function() {
  */
 proto.runtimePackage.AssertionResponse.prototype.setAssertionRule = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional int32 evaluation_id = 4;
+ * @return {number}
+ */
+proto.runtimePackage.AssertionResponse.prototype.getEvaluationId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.AssertionResponse} returns this
+ */
+proto.runtimePackage.AssertionResponse.prototype.setEvaluationId = function(value) {
+  return jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional string webpage_url = 5;
+ * @return {string}
+ */
+proto.runtimePackage.AssertionResponse.prototype.getWebpageUrl = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.runtimePackage.AssertionResponse} returns this
+ */
+proto.runtimePackage.AssertionResponse.prototype.setWebpageUrl = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 

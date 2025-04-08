@@ -887,6 +887,13 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             conn = connection_pool.getconn()
             cursor = conn.cursor()
 
+            cursor.execute('''
+                SELECT input_url FROM Evaluation
+                WHERE id = %s
+            ''', (request.evaluation_id, ))
+
+            webpage = cursor.fetchone()[0]
+
             # Get ACT module with evaluation id
             cursor.execute('''
                 SELECT id FROM Module
@@ -934,7 +941,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         AssertionResponse(
                             assertion_id=assertion_id,
                             assertion_name=assertion_metadata[1],
-                            assertion_rule=assertion_metadata[0]
+                            assertion_rule=assertion_metadata[0],
+                            evaluation_id=request.evaluation_id,
+                            webpage_url=webpage
                         )
                     )
                 elif len(wcagFilters) == 0:
@@ -942,7 +951,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         AssertionResponse(
                             assertion_id=assertion_id,
                             assertion_name=assertion_metadata[1],
-                            assertion_rule=assertion_metadata[0]
+                            assertion_rule=assertion_metadata[0],
+                            evaluation_id=request.evaluation_id,
+                            webpage_url=webpage
                         )
                     )
 

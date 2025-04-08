@@ -14,7 +14,9 @@ function convertLatestACTAssertions(latestACTAssertions) {
     return latestACTAssertions.map(function (element) { return ({
         id: element.getAssertionId(),
         name: element.getAssertionName(),
-        rule: element.getAssertionRule()
+        rule: element.getAssertionRule(),
+        evaluation_id: element.getEvaluationId(),
+        webpage_url: element.getWebpageUrl()
     }); });
 }
 function convertAssertionResults(assertionResults) {

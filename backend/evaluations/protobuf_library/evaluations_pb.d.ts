@@ -1383,6 +1383,12 @@ export class AssertionResponse extends jspb.Message {
   getAssertionRule(): string;
   setAssertionRule(value: string): void;
 
+  getEvaluationId(): number;
+  setEvaluationId(value: number): void;
+
+  getWebpageUrl(): string;
+  setWebpageUrl(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AssertionResponse.AsObject;
   static toObject(includeInstance: boolean, msg: AssertionResponse): AssertionResponse.AsObject;
@@ -1398,6 +1404,8 @@ export namespace AssertionResponse {
     assertionId: number,
     assertionName: string,
     assertionRule: string,
+    evaluationId: number,
+    webpageUrl: string,
   }
 }
 

@@ -291,6 +291,8 @@ message AssertionResponse {
     int32 assertion_id = 1;
     string assertion_name = 2;
     string assertion_rule = 3;
+    int32 evaluation_id = 4;
+    string webpage_url = 5;
 }
 
 message GetAssertionResultsRequest {
