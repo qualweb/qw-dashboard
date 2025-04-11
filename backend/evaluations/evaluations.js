@@ -81,7 +81,7 @@ var client = new EvaluationsClient(evaluations_database_ip + ':6000', grpc.crede
     "grpc.max_send_message_length": 100 * 1024 * 1024
 });
 // This endpoint executes the crawling of the URLs in the domain of the input URL
-app.post('/api/evaluations/crawl', function (req, res) {
+app.post('/api/monitoring/crawl', function (req, res) {
     var main_url = req.body.url;
     var domain_name = new URL(main_url).hostname;
     var is_mobile = req.body.is_mobile;
@@ -195,7 +195,7 @@ app.post('/api/evaluations/crawl', function (req, res) {
         res.send(500);
     });
 });
-app.post('/api/evaluations/set-accessibility-metric', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post('/api/monitoring/set-accessibility-metric', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var monitoring_registry_id, accessibility_metric, accessibility_metric_request_1, response, error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -231,17 +231,17 @@ app.post('/api/evaluations/set-accessibility-metric', function (req, res) { retu
     });
 }); });
 // This endpoint executes the evaluations
-app.post('/api/evaluations/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_registry_id, getWebpagesRequest_1, response, urls, screen_width_1, screen_height_1, reports_1, _i, urls_1, url, report, validReports, processPromises, results, successful, failed, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
+app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, getWebpagesRequest_1, response, urls, screen_width_1, screen_height_1, reports_1, _i, urls_1, url, report, validReports, processPromises, results, successful, failed, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                monitoring_registry_id = req.body.monitoring_registry_id;
+                monitoring_id = req.params.monitoring_id;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 10, , 11]);
                 getWebpagesRequest_1 = new evaluations_pb_1.GetMonitoringRegistryRequest();
-                getWebpagesRequest_1.setMonitoringRegistryId(monitoring_registry_id);
+                getWebpagesRequest_1.setMonitoringRegistryId(Number(monitoring_id));
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
                         client.getMonitoringRegistry(getWebpagesRequest_1, function (err, callResponse) {
                             if (err)
@@ -324,6 +324,7 @@ app.post('/api/evaluations/evaluate', function (req, res) { return __awaiter(voi
                                 return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(url, screen_width_1, screen_height_1)];
                             case 5:
                                 screenshot = _l.sent();
+                                console.log(url + "-before:" + (screenshot === null || screenshot === void 0 ? void 0 : screenshot.length));
                                 evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
                                 evaluations_request_1.setQualwebVersion(report.system.version);
                                 evaluations_request_1.setInputUrl((_f = (_e = report.system.url) === null || _e === void 0 ? void 0 : _e.inputUrl) !== null && _f !== void 0 ? _f : "");
@@ -340,7 +341,7 @@ app.post('/api/evaluations/evaluate', function (req, res) { return __awaiter(voi
                             case 6:
                                 _d.apply(_c, [_l.sent()]);
                                 evaluations_request_1.setModulesQuantity(2);
-                                evaluations_request_1.setMonitoredWebsiteId(monitoring_registry_id);
+                                evaluations_request_1.setMonitoredWebsiteId(Number(monitoring_id));
                                 if (screenshot) {
                                     evaluations_request_1.setScreenshot(screenshot);
                                 }
@@ -378,7 +379,7 @@ app.post('/api/evaluations/evaluate', function (req, res) { return __awaiter(voi
                     return [2 /*return*/];
                 }
                 setLatestEvalRequest_1 = new evaluations_pb_1.SetLatestEvaluationRequest();
-                setLatestEvalRequest_1.setMonitoringRegistryId(monitoring_registry_id);
+                setLatestEvalRequest_1.setMonitoringRegistryId(Number(monitoring_id));
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
                         client.setLatestEvaluation(setLatestEvalRequest_1, function (err, callResponse) {
                             if (err)
@@ -409,17 +410,17 @@ app.post('/api/evaluations/evaluate', function (req, res) { return __awaiter(voi
         }
     });
 }); });
-app.post('/api/evaluations/calculate-score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_registry_id, calculateScoreRequest_1, response, error_5;
+app.post('/api/monitoring/:monitoring_id/calculate-score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, calculateScoreRequest_1, response, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                monitoring_registry_id = req.body.monitoring_registry_id;
+                monitoring_id = req.params.monitoring_id;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
                 calculateScoreRequest_1 = new evaluations_pb_1.CalculateAccessibilityScoreRequest();
-                calculateScoreRequest_1.setMonitoringRegistryId(monitoring_registry_id);
+                calculateScoreRequest_1.setMonitoringRegistryId(Number(monitoring_id));
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
                         client.calculateAccessibilityScore(calculateScoreRequest_1, function (err, callResponse) {
                             if (err)
@@ -446,18 +447,18 @@ app.post('/api/evaluations/calculate-score', function (req, res) { return __awai
         }
     });
 }); });
-app.post('/api/evaluations/add-webpages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_registry_id, urls, add_webpages_request_1, response, error_6;
+app.post('/api/monitoring/:monitoring_id/add-webpages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, urls, add_webpages_request_1, response, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                monitoring_registry_id = req.body.monitoring_registry_id;
+                monitoring_id = req.params.monitoring_id;
                 urls = req.body.urls;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
                 add_webpages_request_1 = new evaluations_pb_1.AddWebpagesRequest();
-                add_webpages_request_1.setMonitoringRegistryId(monitoring_registry_id);
+                add_webpages_request_1.setMonitoringRegistryId(Number(monitoring_id));
                 add_webpages_request_1.setWebpagesList(urls);
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
                         client.addWebpages(add_webpages_request_1, function (err, response) {
@@ -485,7 +486,7 @@ app.post('/api/evaluations/add-webpages', function (req, res) { return __awaiter
         }
     });
 }); });
-app.post('/api/evaluations/set-accessibility-metric-all-websites', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post('/api/monitoring/set-accessibility-metric-all-websites', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var accessibility_metric, setMetricRequest_1, response, error_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -522,7 +523,7 @@ app.post('/api/evaluations/set-accessibility-metric-all-websites', function (req
         }
     });
 }); });
-app.get('/api/evaluations/monitored-websites', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.get('/api/monitoring/monitored-websites', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var getWebpagesRequest_2, response, error_8;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -556,7 +557,7 @@ app.get('/api/evaluations/monitored-websites', function (req, res) { return __aw
         }
     });
 }); });
-app.get('/api/evaluations/monitoring/:id/current-warnings', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.get('/api/monitoring/:id/current-warnings', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var monitoring_id, getCurrentWarningsRequest_1, response, error_9;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -592,12 +593,12 @@ app.get('/api/evaluations/monitoring/:id/current-warnings', function (req, res) 
         }
     });
 }); });
-app.get('/api/evaluations/monitoring/:id/score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.get('/api/monitoring/:monitoring_id/score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var monitoring_id, getScoreRequest_1, response, error_10;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                monitoring_id = req.params.id;
+                monitoring_id = req.params.monitoring_id;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
@@ -617,7 +618,6 @@ app.get('/api/evaluations/monitoring/:id/score', function (req, res) { return __
                     res.send(response.getStatusCode());
                     return [2 /*return*/];
                 }
-                console.log("score" + response.getScore());
                 res.status(200).json({
                     score: response.getScore()
                 });
@@ -631,12 +631,12 @@ app.get('/api/evaluations/monitoring/:id/score', function (req, res) { return __
         }
     });
 }); });
-app.get('/api/evaluations/monitoring/:id/issues-stats', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.get('/api/monitoring/:monitoring_id/issues-stats', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var monitoring_id, getIssuesStatsRequest_1, response, error_11;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                monitoring_id = req.params.id;
+                monitoring_id = req.params.monitoring_id;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
@@ -672,12 +672,12 @@ app.get('/api/evaluations/monitoring/:id/issues-stats', function (req, res) { re
         }
     });
 }); });
-app.get('/api/evaluations/evaluations/:id/webpage-screenshot', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.get('/api/monitoring/evaluations/:evaluation_id/webpage-screenshot', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var evaluation_id, getWebpageScreenshotRequest_1, response, screenshot, error_12;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                evaluation_id = req.params.id;
+                evaluation_id = req.params.evaluation_id;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
@@ -697,14 +697,14 @@ app.get('/api/evaluations/evaluations/:id/webpage-screenshot', function (req, re
                     res.send(response.getStatusCode());
                     return [2 /*return*/];
                 }
-                screenshot = response.getScreenshot();
+                screenshot = response.getScreenshot_asU8();
                 if (!screenshot) {
                     res.send(404);
                     return [2 /*return*/];
                 }
-                res.set('Content-Type', 'image/png');
-                res.send(screenshot);
-                return [3 /*break*/, 4];
+                res.setHeader('Content-Type', 'image/png');
+                res.setHeader('Content-Length', screenshot.length);
+                return [2 /*return*/, res.status(200).send(Buffer.from(screenshot))];
             case 3:
                 error_12 = _a.sent();
                 console.error('Error fetching screenshot:', error_12);
@@ -714,7 +714,7 @@ app.get('/api/evaluations/evaluations/:id/webpage-screenshot', function (req, re
         }
     });
 }); });
-app.get('/api/evaluations/monitoring/:monitoring_id/latest-evaluations', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.get('/api/monitoring/:monitoring_id/latest-evaluations', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var monitoring_id, getLatestEvaluationsRequest_1, response, error_13;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -868,6 +868,44 @@ app.get('/api/monitoring/issues/:issue_id/elements', function (req, res) { retur
             case 3:
                 error_16 = _a.sent();
                 console.error('Error fetching elements:', error_16);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/api/monitoring/:monitoring_id/history', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, getEvaluationHistoryRequest_1, response, error_17;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_id = req.params.monitoring_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                getEvaluationHistoryRequest_1 = new evaluations_pb_1.GetEvaluationHistoryRequest();
+                getEvaluationHistoryRequest_1.setMonitoringId(Number(monitoring_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getEvaluationHistory(getEvaluationHistoryRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    history: (0, convert_1.convertEvaluationHistory)(response.getHistoryList())
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_17 = _a.sent();
+                console.error('Error fetching history:', error_17);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];

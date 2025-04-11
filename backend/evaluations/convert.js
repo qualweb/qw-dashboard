@@ -4,6 +4,8 @@ exports.convertLatestEvals = convertLatestEvals;
 exports.convertLatestACTAssertions = convertLatestACTAssertions;
 exports.convertAssertionResults = convertAssertionResults;
 exports.convertResultElement = convertResultElement;
+exports.convertEvaluationHistory = convertEvaluationHistory;
+exports.convertDate = convertDate;
 function convertLatestEvals(latestEvals) {
     return latestEvals.map(function (element) { return ({
         id: element.getEvaluationId(),
@@ -33,6 +35,29 @@ function convertResultElement(element) {
     return {
         id: element.getId(),
         htmlCode: element.getHtmlCode(),
-        pointer: element.getPointer()
+        pointer: element.getPointer(),
+        x: element.getX(),
+        y: element.getY(),
+        width: element.getWidth(),
+        height: element.getHeight()
+    };
+}
+function convertEvaluationHistory(history) {
+    return history.map(function (element) { return ({
+        id: element.getId(),
+        title: element.getTitle(),
+        input_url: element.getInputUrl(),
+        score: element.getScore(),
+        date: convertDate(element.getEvalDate())
+    }); });
+}
+function convertDate(date) {
+    if (!date) {
+        return undefined;
+    }
+    return {
+        day: date.getDay(),
+        month: date.getMonth(),
+        year: date.getYear()
     };
 }

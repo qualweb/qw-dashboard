@@ -17,11 +17,9 @@ from protobuf_library.evaluations_pb2 import (
     SetLatestEvaluationResponse,
     SetAccessibilityMetricAllWebsitesResponse,
     AddMonitoringRegistryResponse,
-    GetLatestAssertionsByWebpageResponse,
     AssertionResponse,
     AssertionMetadataResponse,
     SuccessCriteria,
-    WebpageResponse,
     IssueElementResponse,
     IssueResponse,
     GetLatestAssertionsByTestResponse,
@@ -37,7 +35,10 @@ from protobuf_library.evaluations_pb2 import (
     ResultResponse,
     GetAssertionResultsResponse,
     ElementResponse,
-    GetResultElementsResponse
+    GetResultElementsResponse,
+    GetEvaluationHistoryResponse,
+    EvaluationHistory,
+    EvalDate
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -823,6 +824,12 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 SELECT screenshot FROM Evaluation
                 WHERE id = %s
             ''', (request.evaluation_id,))
+
+            screenshot = bytes(cursor.fetchone()[0])
+
+            print("eval id: " + str(request.evaluation_id) + " after -" + str(len(screenshot)), file=sys.stderr, flush=True)
+
+            cursor.close()
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
             if conn:
@@ -833,7 +840,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             if conn:
                 connection_pool.putconn(conn)
 
-        return GetWebpageScreenshotResponse(status_code=200, screenshot=cursor.fetchone()[0])
+        return GetWebpageScreenshotResponse(status_code=200, screenshot=screenshot)
 
     def GetLatestEvaluations(self, request, context):
         conn = None
@@ -1016,7 +1023,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT id, html_code, pointer FROM Element
+                SELECT id, html_code, pointer, x, y, width, height FROM Element
                 WHERE issue_id = %s
             ''', (request.issue_id, ))
 
@@ -1025,7 +1032,11 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             element_response = ElementResponse(
                 id=element[0],
                 html_code=element[1],
-                pointer=element[2]
+                pointer=element[2],
+                x=element[3],
+                y=element[4],
+                width=element[5],
+                height=element[6]
             )
 
             cursor.close()
@@ -1041,6 +1052,51 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
         
         return GetResultElementsResponse(status_code=200, element=element_response)
+
+    def GetEvaluationHistory(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT id, title, input_url, score, evaluation_date FROM Evaluation
+                WHERE monitored_website_id = %s
+            ''', (request.monitoring_id, ))
+
+            evals = cursor.fetchall()
+                
+            response = []
+            for eval in evals:
+                response.append(
+                    EvaluationHistory(
+                        id=eval[0],
+                        title=eval[1],
+                        input_url=eval[2],
+                        score=eval[3],
+                        eval_date=EvalDate(
+                            day=eval[4].day,
+                            month=eval[4].month,
+                            year=eval[4].year
+                        )
+                    )
+                )
+
+
+            cursor.close()
+
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetEvaluationHistoryResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetEvaluationHistoryResponse(status_code=200, history=response)
 
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

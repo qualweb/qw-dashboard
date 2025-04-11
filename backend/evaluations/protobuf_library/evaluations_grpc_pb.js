@@ -136,6 +136,28 @@ function deserialize_runtimePackage_GetCurrentWarningsResponse(buffer_arg) {
   return evaluations_pb.GetCurrentWarningsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_GetEvaluationHistoryRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetEvaluationHistoryRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetEvaluationHistoryRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetEvaluationHistoryRequest(buffer_arg) {
+  return evaluations_pb.GetEvaluationHistoryRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetEvaluationHistoryResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetEvaluationHistoryResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetEvaluationHistoryResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetEvaluationHistoryResponse(buffer_arg) {
+  return evaluations_pb.GetEvaluationHistoryResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetIssuesStatsRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetIssuesStatsRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetIssuesStatsRequest');
@@ -632,6 +654,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_GetResultElementsRequest,
     responseSerialize: serialize_runtimePackage_GetResultElementsResponse,
     responseDeserialize: deserialize_runtimePackage_GetResultElementsResponse,
+  },
+  getEvaluationHistory: {
+    path: '/runtimePackage.Evaluations/GetEvaluationHistory',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetEvaluationHistoryRequest,
+    responseType: evaluations_pb.GetEvaluationHistoryResponse,
+    requestSerialize: serialize_runtimePackage_GetEvaluationHistoryRequest,
+    requestDeserialize: deserialize_runtimePackage_GetEvaluationHistoryRequest,
+    responseSerialize: serialize_runtimePackage_GetEvaluationHistoryResponse,
+    responseDeserialize: deserialize_runtimePackage_GetEvaluationHistoryResponse,
   },
 };
 

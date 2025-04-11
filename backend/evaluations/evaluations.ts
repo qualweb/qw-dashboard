@@ -14,10 +14,6 @@ import {
     AddWebpagesResponse,
     SetAccessibilityMetricAllWebsitesResponse,
     SetAccessibilityMetricAllWebsitesRequest,
-    GetLatestAssertionsByTestResponse,
-    GetLatestAssertionsByTestRequest,
-    GetLatestAssertionsByWebpageResponse,
-    GetLatestAssertionsByWebpageRequest,
     GetCurrentWarningsRequest,
     GetCurrentWarningsResponse,
     GetMonitoredWebsitesRequest,
@@ -37,11 +33,13 @@ import {
     GetAssertionResultsRequest,
     GetAssertionResultsResponse,
     GetResultElementsRequest,
-    GetResultElementsResponse
+    GetResultElementsResponse,
+    GetEvaluationHistoryRequest,
+    GetEvaluationHistoryResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
-import { convertAssertionResults, convertLatestACTAssertions, convertLatestEvals, convertResultElement } from './convert';
+import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertResultElement } from './convert';
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
@@ -77,7 +75,7 @@ const client = new EvaluationsClient(
 );
 
 // This endpoint executes the crawling of the URLs in the domain of the input URL
-app.post('/api/evaluations/crawl', (req: Request, res: Response) => { 
+app.post('/api/monitoring/crawl', (req: Request, res: Response) => { 
     const main_url = req.body.url
     const domain_name = new URL(main_url).hostname;
     const is_mobile = req.body.is_mobile;
@@ -167,7 +165,7 @@ app.post('/api/evaluations/crawl', (req: Request, res: Response) => {
         });
 });
 
-app.post('/api/evaluations/set-accessibility-metric', async (req: Request, res: Response) => {
+app.post('/api/monitoring/set-accessibility-metric', async (req: Request, res: Response) => {
     const monitoring_registry_id = req.body.monitoring_registry_id  ;
     const accessibility_metric = req.body.accessibility_metric;
 
@@ -192,12 +190,12 @@ app.post('/api/evaluations/set-accessibility-metric', async (req: Request, res: 
 });
 
 // This endpoint executes the evaluations
-app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
-    const monitoring_registry_id = req.body.monitoring_registry_id;
+app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
 
     try {
         const getWebpagesRequest = new GetMonitoringRegistryRequest();
-        getWebpagesRequest.setMonitoringRegistryId(monitoring_registry_id);
+        getWebpagesRequest.setMonitoringRegistryId(Number(monitoring_id));
 
         const response = await new Promise<GetMonitoringRegistryResponse>((resolve, reject) => {
             client.getMonitoringRegistry(getWebpagesRequest, (err: Error, callResponse: GetMonitoringRegistryResponse) => {
@@ -274,6 +272,8 @@ app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
 
                 const screenshot = await takeWebpageScreenshot(url, screen_width, screen_height);
 
+                console.log(url + "-before:" + screenshot?.length);
+
                 const evaluations_request = new AddEvaluationRequest();
                 evaluations_request.setQualwebVersion(report.system.version);
                 evaluations_request.setInputUrl(report.system.url?.inputUrl ?? "");
@@ -287,7 +287,7 @@ app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
                 evaluations_request.setInapplicable(report.metadata.inapplicable);
                 evaluations_request.setModulesList(await getModules(report, page));
                 evaluations_request.setModulesQuantity(2);
-                evaluations_request.setMonitoredWebsiteId(monitoring_registry_id);
+                evaluations_request.setMonitoredWebsiteId(Number(monitoring_id));
 
                 if (screenshot) {
                     evaluations_request.setScreenshot(screenshot);
@@ -324,7 +324,7 @@ app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
         }
 
         const setLatestEvalRequest = new SetLatestEvaluationRequest();
-        setLatestEvalRequest.setMonitoringRegistryId(monitoring_registry_id);
+        setLatestEvalRequest.setMonitoringRegistryId(Number(monitoring_id));
 
         const setLatestEvalResponse = await new Promise<SetLatestEvaluationResponse>((resolve, reject) => {
             client.setLatestEvaluation(setLatestEvalRequest, (err: Error, callResponse: SetLatestEvaluationResponse) => {
@@ -351,12 +351,12 @@ app.post('/api/evaluations/evaluate', async (req: Request, res: Response) => {
     }
 });
 
-app.post('/api/evaluations/calculate-score', async (req: Request, res: Response) => {
-    const monitoring_registry_id = req.body.monitoring_registry_id;
+app.post('/api/monitoring/:monitoring_id/calculate-score', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
 
     try {
         const calculateScoreRequest = new CalculateAccessibilityScoreRequest();
-        calculateScoreRequest.setMonitoringRegistryId(monitoring_registry_id);
+        calculateScoreRequest.setMonitoringRegistryId(Number(monitoring_id));
 
         const response = await new Promise<CalculateAccessibilityScoreResponse>((resolve, reject) => {
             client.calculateAccessibilityScore(calculateScoreRequest, (err: Error, callResponse: CalculateAccessibilityScoreResponse) => {
@@ -378,14 +378,14 @@ app.post('/api/evaluations/calculate-score', async (req: Request, res: Response)
     res.send(200);
 });
 
-app.post('/api/evaluations/add-webpages', async (req: Request, res: Response) => {
-    const monitoring_registry_id = req.body.monitoring_registry_id;
+app.post('/api/monitoring/:monitoring_id/add-webpages', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
     const urls = req.body.urls;
 
     try {
         const add_webpages_request = new AddWebpagesRequest();
         
-        add_webpages_request.setMonitoringRegistryId(monitoring_registry_id);
+        add_webpages_request.setMonitoringRegistryId(Number(monitoring_id));
         add_webpages_request.setWebpagesList(urls);
 
         const response = await new Promise<AddWebpagesResponse>((resolve, reject) => {
@@ -408,7 +408,7 @@ app.post('/api/evaluations/add-webpages', async (req: Request, res: Response) =>
     }
 });
 
-app.post('/api/evaluations/set-accessibility-metric-all-websites', async (req: Request, res: Response) => {
+app.post('/api/monitoring/set-accessibility-metric-all-websites', async (req: Request, res: Response) => {
     const accessibility_metric = req.body.accessibility_metric;
 
     try {
@@ -436,7 +436,7 @@ app.post('/api/evaluations/set-accessibility-metric-all-websites', async (req: R
     }
 });
 
-app.get('/api/evaluations/monitored-websites', async (req: Request, res: Response) => {
+app.get('/api/monitoring/monitored-websites', async (req: Request, res: Response) => {
     try {
         const getWebpagesRequest = new GetMonitoredWebsitesRequest();
 
@@ -461,7 +461,7 @@ app.get('/api/evaluations/monitored-websites', async (req: Request, res: Respons
     }
 });
 
-app.get('/api/evaluations/monitoring/:id/current-warnings', async (req: Request, res: Response) => {
+app.get('/api/monitoring/:id/current-warnings', async (req: Request, res: Response) => {
     const monitoring_id = req.params.id;
 
     try {
@@ -487,8 +487,8 @@ app.get('/api/evaluations/monitoring/:id/current-warnings', async (req: Request,
     }
 });
 
-app.get('/api/evaluations/monitoring/:id/score', async (req: Request, res: Response) => {
-    const monitoring_id = req.params.id;
+app.get('/api/monitoring/:monitoring_id/score', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
 
     try {
         const getScoreRequest = new GetWebsiteScoreRequest();
@@ -506,8 +506,6 @@ app.get('/api/evaluations/monitoring/:id/score', async (req: Request, res: Respo
             return;
         }
 
-        console.log("score" + response.getScore())
-
         res.status(200).json({
             score: response.getScore()
         });
@@ -517,8 +515,8 @@ app.get('/api/evaluations/monitoring/:id/score', async (req: Request, res: Respo
     }
 });
 
-app.get('/api/evaluations/monitoring/:id/issues-stats', async (req: Request, res: Response) => {
-    const monitoring_id = req.params.id;
+app.get('/api/monitoring/:monitoring_id/issues-stats', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
 
     try {
         const getIssuesStatsRequest = new GetIssuesStatsRequest();
@@ -548,8 +546,8 @@ app.get('/api/evaluations/monitoring/:id/issues-stats', async (req: Request, res
     }
 });
 
-app.get('/api/evaluations/evaluations/:id/webpage-screenshot', async (req: Request, res: Response) => {
-    const evaluation_id = req.params.id;
+app.get('/api/monitoring/evaluations/:evaluation_id/webpage-screenshot', async (req: Request, res: Response) => {
+    const evaluation_id = req.params.evaluation_id;
     
     try {
         const getWebpageScreenshotRequest = new GetWebpageScreenshotRequest();
@@ -567,22 +565,23 @@ app.get('/api/evaluations/evaluations/:id/webpage-screenshot', async (req: Reque
             return;
         }
 
-        const screenshot = response.getScreenshot();
+        const screenshot = response.getScreenshot_asU8();
 
         if (!screenshot) {
             res.send(404);
             return;
         }
 
-        res.set('Content-Type', 'image/png');
-        res.send(screenshot);
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Length', screenshot.length);
+        return res.status(200).send(Buffer.from(screenshot));
     } catch (error) {
         console.error('Error fetching screenshot:', error);
         res.send(500);
     }
 });
 
-app.get('/api/evaluations/monitoring/:monitoring_id/latest-evaluations', async (req: Request, res: Response) => {
+app.get('/api/monitoring/:monitoring_id/latest-evaluations', async (req: Request, res: Response) => {
     const monitoring_id = req.params.monitoring_id
     
     try {
@@ -703,6 +702,35 @@ app.get('/api/monitoring/issues/:issue_id/elements', async (req: Request, res: R
     } catch (error) {
         console.error('Error fetching elements:', error);
         res.send(500)
+    }
+});
+
+app.get('/api/monitoring/:monitoring_id/history', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id
+
+    try {
+        const getEvaluationHistoryRequest = new GetEvaluationHistoryRequest();
+        getEvaluationHistoryRequest.setMonitoringId(Number(monitoring_id));
+
+        const response = await new Promise<GetEvaluationHistoryResponse>((resolve, reject) => {
+            client.getEvaluationHistory(getEvaluationHistoryRequest, (err: Error, callResponse: GetEvaluationHistoryResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            history: convertEvaluationHistory(response.getHistoryList())
+        });
+
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.send(500);
     }
 });
 

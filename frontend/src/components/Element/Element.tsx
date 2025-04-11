@@ -1,13 +1,17 @@
+import IssueLocation from '../IssueLocation/IssueLocation';
 import Visualize from '../Visualize/Visualize';
 import './Element.css'
-
-import {MapPin, Clipboard } from 'lucide-react';
 
 interface ElementProps {
     id : string;
     html_code : string;
     pointer : string;
     evaluation_id : string;
+    webpage_screenshot : string;
+    x : number;
+    y : number;
+    width : number;
+    height : number;
 }
 
 function Element(props: ElementProps) {
@@ -17,13 +21,14 @@ function Element(props: ElementProps) {
             {props.html_code}
           </div>
           <div className='location-visualize-wrapper'>
-            <button className='copy'>
-              <Clipboard />
-            </button>
-            <button className='location'>
-              <MapPin />
-            </button>
-            <Visualize evaluation_id={props.evaluation_id} />
+            <IssueLocation pointer={props.pointer} />
+            <Visualize 
+              webpage_screenshot={props.webpage_screenshot} 
+              issueX={props.x} 
+              issueY={props.y} 
+              issueWidth={props.width} 
+              issueHeight={props.height}
+            />
           </div>
         </div>
     );

@@ -1,6 +1,6 @@
-// const EVALUATIONS_API_URL = 'http://10.10.6.132:8081/api/evaluations';
+// const MONITORING_API_URL = 'http://10.10.6.132:8081/api/monitoring';
 
-const EVALUATIONS_API_URL = 'http://localhost:8081/api/evaluations';
+const MONITORING_API_URL = 'http://localhost:8081/api/monitoring';
 
 export const runCrawler = async (
     url : string,
@@ -9,7 +9,7 @@ export const runCrawler = async (
     display_width : number = 1920,
     display_height : number = 1080
 ) => {
-    const response = await fetch(`${EVALUATIONS_API_URL}/crawl`, {
+    const response = await fetch(`${MONITORING_API_URL}/crawl`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -35,14 +35,11 @@ export const runCrawler = async (
 export const runEvaluation = async (
     monitoring_registry_id : string
 ) => {
-    const response = await fetch(`${EVALUATIONS_API_URL}/evaluate`, {
+    const response = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            monitoring_registry_id
-        })
+        }
     });
 
     if (response.status !== 200) {
@@ -51,10 +48,8 @@ export const runEvaluation = async (
 }
 
 export const getMonitoredWebsites = async () => {
-    const response = await fetch(`${EVALUATIONS_API_URL}/monitored-websites`);
+    const response = await fetch(`${MONITORING_API_URL}/monitored-websites`);
     const data = await response.json();
-
-    console.log(data)
 
     if (response.status !== 200) {
         throw new Error('Failed to fetch evaluation data.');
@@ -66,11 +61,8 @@ export const getMonitoredWebsites = async () => {
 export const getAccessibilityScore = async (
     monitoring_id : string
 ) => {
-    const score_response = await fetch(`${EVALUATIONS_API_URL}/monitoring/${monitoring_id}/score`);
+    const score_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/score`);
     const data = await score_response.json();
-
-    console.log(data)
-    console.log(data.score)
 
     if (score_response.status !== 200) {
         throw new Error('Failed to fetch accessibility score.');
@@ -82,7 +74,7 @@ export const getAccessibilityScore = async (
 export const getCurrentWarnings = async (
     monitoring_id : string
 ) => {
-    const warnings_response = await fetch(`${EVALUATIONS_API_URL}/monitoring/${monitoring_id}/current-warnings`);
+    const warnings_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/current-warnings`);
     const data = await warnings_response.json();
 
     if (warnings_response.status !== 200) {
@@ -95,7 +87,7 @@ export const getCurrentWarnings = async (
 export const getIssuesStats = async (
     monitoring_id : string
 ) => {
-    const stats_response = await fetch(`${EVALUATIONS_API_URL}/monitoring/${monitoring_id}/issues-stats`);
+    const stats_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/issues-stats`);
     const data = await stats_response.json();
 
     if (stats_response.status !== 200) {
@@ -108,27 +100,27 @@ export const getIssuesStats = async (
 export const getWebpageScreenshot = async (
     evaluation_id : string
 ) => {
-    const screenshot_response = await fetch(`${EVALUATIONS_API_URL}/evaluations/${evaluation_id}/webpage-screenshot`);
-    const data = await screenshot_response.json();
+    const screenshot_response = await fetch(`${MONITORING_API_URL}/evaluations/${evaluation_id}/webpage-screenshot`);
+    const data = await screenshot_response.blob();
 
     if (screenshot_response.status !== 200) {
         throw new Error('Failed to fetch webpage screenshot.');
     }
 
-    return data;
+    const url = URL.createObjectURL(data);
+
+    return url;
 }
 
 export const getLatestEvaluations = async (
     monitoring_id: string
 ) => {
-    const evaluations_response = await fetch(`${EVALUATIONS_API_URL}/monitoring/${monitoring_id}/latest-evaluations`);
+    const evaluations_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/latest-evaluations`);
     const data = await evaluations_response.json();
 
     if(evaluations_response.status != 200) {
         throw new Error('Failed to fetch latest evaluations.');
     }
-
-    console.log(data)
 
     return data.evaluations;
 }
@@ -138,14 +130,12 @@ export const getLatestACTAssertions = async (
     wcagLevelFilters: string[],
     outcome: string
 ) => {
-    const assertions_response = await fetch(`http://localhost:8081/api/monitoring/evaluations/${evaluation_id}/latest-act-assertions?wcagLevelFilters=${wcagLevelFilters.join(',')}&outcome=${outcome}`);
+    const assertions_response = await fetch(`${MONITORING_API_URL}/evaluations/${evaluation_id}/latest-act-assertions?wcagLevelFilters=${wcagLevelFilters.join(',')}&outcome=${outcome}`);
     const data = await assertions_response.json();
 
     if(assertions_response.status != 200) {
         throw new Error('Failed to fetch latest assertions.');
     }
-
-    console.log(data)
 
     return data;
 }
@@ -153,14 +143,12 @@ export const getLatestACTAssertions = async (
 export const getAssertionResults = async (
     assertion_id: string
 ) => {
-    const results_response = await fetch(`http://localhost:8081/api/monitoring/assertions/${assertion_id}/results`);
+    const results_response = await fetch(`${MONITORING_API_URL}/assertions/${assertion_id}/results`);
     const data = await results_response.json();
 
     if(results_response.status != 200) {
         throw new Error('Failed to fetch assertion results.');
     }
-
-    console.log(data)
 
     return data;
 }
@@ -168,14 +156,25 @@ export const getAssertionResults = async (
 export const getResultElement = async (
     result_id: string
 ) => {
-    const elements_response = await fetch(`http://localhost:8081/api/monitoring/issues/${result_id}/elements`);
+    const elements_response = await fetch(`${MONITORING_API_URL}/issues/${result_id}/elements`);
     const data = await elements_response.json();
 
     if(elements_response.status != 200) {
         throw new Error('Failed to fetch result elements.');
     }
 
-    console.log(data)
-
     return data;
+}
+
+export const getHistoryEvaluations = async (
+    monitoring_id: string
+) => {
+    const evaluations_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/history`);
+    const data = await evaluations_response.json();
+
+    if(evaluations_response.status != 200) {
+        throw new Error('Failed to fetch history.');
+    }
+
+    return data.history;
 }

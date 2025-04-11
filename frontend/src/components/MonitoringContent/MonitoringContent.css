@@ -1,0 +1,59 @@
+.main-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5rem;
+}
+
+.score-history-wrapper {
+    display: flex;
+    gap: 5rem;
+}
+
+.score-container {
+    width: 60%;
+    height: 50rem;
+    border-radius: 4rem;
+    background-color: var(--secondary-color);
+    min-width: 25rem;
+    min-height: 25rem;
+}
+
+.issues {
+    width: 100%;
+    border-radius: 4rem;
+    background-color: var(--secondary-color);
+    height: fit-content;
+}
+
+
+@media (max-width: 60rem) {
+
+    .website-dashboard {
+        align-items: flex-start;
+    }
+
+    .wrapper {
+        justify-content: flex-start;
+        margin-left: 0 !important;
+        height: 100vh;
+    }
+
+}
+
+@media (max-width: 78rem) {
+    .website-dashboard {
+        height: 100vh;
+        align-items: flex-start;
+    }
+
+    .score-history-wrapper {
+        flex-direction: column;
+    }
+
+    .score-container {
+        width: 100%;
+    }
+
+    
+}

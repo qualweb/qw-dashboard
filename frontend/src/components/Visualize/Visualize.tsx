@@ -1,39 +1,92 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './Visualize.css'
 import { Dialog } from '@ark-ui/react/dialog';
 import { Portal } from '@ark-ui/react/portal';
-import { Eye } from 'lucide-react';
-import { getWebpageScreenshot } from '../../services/EvaluationService';
+import { Eye, X } from 'lucide-react';
 
 interface VisualizeProps {
-    evaluation_id: string;
+    webpage_screenshot: string;
+    issueX: number;
+    issueY: number;
+    issueWidth: number;
+    issueHeight: number;
 }
 
 function Visualize(props: VisualizeProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [webpageScreehshot, setWebpageScreehshot] = useState(null);
+
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchWebpageScreenshot = async () => {
-            const data = await getWebpageScreenshot(props.evaluation_id);
-            setWebpageScreehshot(data);
-        }
-        fetchWebpageScreenshot();
-    }, [props.evaluation_id]);
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        img.onload = () => {
+        setDimensions({
+            width: img.width,
+            height: img.height
+        });
+        setIsLoading(false);
+        
+        setTimeout(() => {
+            const canvas = canvasRef.current;
+            if (!canvas) 
+                return;
+            
+            const ctx = canvas.getContext('2d');
+
+            if (!ctx) 
+                return;
+            
+            ctx.drawImage(img, 0, 0);
+            
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(props.issueX, props.issueY, props.issueWidth, props.issueHeight);
+        }, 0);
+        };
+        
+        img.onerror = (err) => {
+        console.error('Error loading image:', err);
+        setIsLoading(false);
+        };
+        
+        img.src = props.webpage_screenshot;
+    }, [props.webpage_screenshot, props.issueX, props.issueY, props.issueWidth, props.issueHeight]);
 
     return (
         <>
-            <button className='visualize' onClick={() => setIsOpen(true)}>
+            <button className='visualize-dialog-trigger' onClick={() => setIsOpen(true)}>
                 <Eye />
             </button>
             <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>
                 <Portal>
-                    <Dialog.Backdrop className="dialog-backdrop" />
-                    <Dialog.Positioner className="dialog-positioner">
-                        <Dialog.Content className="dialog-content">
-                            <Dialog.Title>Element Visualization</Dialog.Title>
-                            
-                            <Dialog.CloseTrigger>Close</Dialog.CloseTrigger>
+                    <Dialog.Backdrop className="visualize-dialog-backdrop" />
+                    <Dialog.Positioner className="visualize-dialog-positioner">
+                        <Dialog.Content className="visualize-dialog-content">
+                            <div className='visualize-dialog-wrapper'>
+                                <div className='visualize-dialog-header'>
+                                    <Dialog.Title className='visualize-dialog-title'>Issue Visualization</Dialog.Title>
+                                    <Dialog.CloseTrigger className="dialog-close-trigger"><X size={18} /></Dialog.CloseTrigger>
+                                </div>
+                                <div className='visualize-dialog-wrapper-2'>
+                                    <div className='visualize-screenshot'>
+                                        {isLoading && <div>Loading...</div>}
+                                        <canvas
+                                            ref={canvasRef}
+                                            width={dimensions.width}
+                                            height={dimensions.height}
+                                            style={{ 
+                                                maxWidth: '100%', 
+                                                height: 'auto',
+                                                display: isLoading ? 'none' : 'block' 
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </Dialog.Content>
                     </Dialog.Positioner>
                 </Portal>

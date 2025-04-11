@@ -1,5 +1,5 @@
+import HistoryWidget from '../HistoryWidget/HistoryWidget';
 import IssuesListWidget from '../IssuesListWidget/IssuesListWidget';
-import ProgressWidget from '../ProgressWidget/ProgressWidget';
 import ScoreWidget from '../ScoreWidget/ScoreWidget';
 import './MonitoringContent.css';
 
@@ -10,10 +10,12 @@ interface MonitoringContentProps {
 function MonitoringContent(props: MonitoringContentProps) {  
     return (
         <main className='main-content'>
-            <ScoreWidget 
-                monitoring_id={props.monitoring_id} 
-            />
-            <ProgressWidget />
+            <div className='score-history-wrapper'>
+                <ScoreWidget 
+                    monitoring_id={props.monitoring_id} 
+                />
+                <HistoryWidget monitoring_id={props.monitoring_id} />
+            </div>
             <IssuesListWidget 
                 monitoring_id={props.monitoring_id} 
             />

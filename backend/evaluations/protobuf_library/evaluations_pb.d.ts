@@ -1539,6 +1539,18 @@ export class ElementResponse extends jspb.Message {
   getPointer(): string;
   setPointer(value: string): void;
 
+  getX(): number;
+  setX(value: number): void;
+
+  getY(): number;
+  setY(value: number): void;
+
+  getWidth(): number;
+  setWidth(value: number): void;
+
+  getHeight(): number;
+  setHeight(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ElementResponse.AsObject;
   static toObject(includeInstance: boolean, msg: ElementResponse): ElementResponse.AsObject;
@@ -1554,6 +1566,122 @@ export namespace ElementResponse {
     id: number,
     htmlCode: string,
     pointer: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  }
+}
+
+export class GetEvaluationHistoryRequest extends jspb.Message {
+  getMonitoringId(): number;
+  setMonitoringId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetEvaluationHistoryRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetEvaluationHistoryRequest): GetEvaluationHistoryRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetEvaluationHistoryRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetEvaluationHistoryRequest;
+  static deserializeBinaryFromReader(message: GetEvaluationHistoryRequest, reader: jspb.BinaryReader): GetEvaluationHistoryRequest;
+}
+
+export namespace GetEvaluationHistoryRequest {
+  export type AsObject = {
+    monitoringId: number,
+  }
+}
+
+export class GetEvaluationHistoryResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearHistoryList(): void;
+  getHistoryList(): Array<EvaluationHistory>;
+  setHistoryList(value: Array<EvaluationHistory>): void;
+  addHistory(value?: EvaluationHistory, index?: number): EvaluationHistory;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetEvaluationHistoryResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetEvaluationHistoryResponse): GetEvaluationHistoryResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetEvaluationHistoryResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetEvaluationHistoryResponse;
+  static deserializeBinaryFromReader(message: GetEvaluationHistoryResponse, reader: jspb.BinaryReader): GetEvaluationHistoryResponse;
+}
+
+export namespace GetEvaluationHistoryResponse {
+  export type AsObject = {
+    statusCode: number,
+    historyList: Array<EvaluationHistory.AsObject>,
+  }
+}
+
+export class EvaluationHistory extends jspb.Message {
+  getId(): number;
+  setId(value: number): void;
+
+  getTitle(): string;
+  setTitle(value: string): void;
+
+  getInputUrl(): string;
+  setInputUrl(value: string): void;
+
+  getScore(): number;
+  setScore(value: number): void;
+
+  hasEvalDate(): boolean;
+  clearEvalDate(): void;
+  getEvalDate(): EvalDate | undefined;
+  setEvalDate(value?: EvalDate): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): EvaluationHistory.AsObject;
+  static toObject(includeInstance: boolean, msg: EvaluationHistory): EvaluationHistory.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: EvaluationHistory, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EvaluationHistory;
+  static deserializeBinaryFromReader(message: EvaluationHistory, reader: jspb.BinaryReader): EvaluationHistory;
+}
+
+export namespace EvaluationHistory {
+  export type AsObject = {
+    id: number,
+    title: string,
+    inputUrl: string,
+    score: number,
+    evalDate?: EvalDate.AsObject,
+  }
+}
+
+export class EvalDate extends jspb.Message {
+  getDay(): number;
+  setDay(value: number): void;
+
+  getMonth(): number;
+  setMonth(value: number): void;
+
+  getYear(): number;
+  setYear(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): EvalDate.AsObject;
+  static toObject(includeInstance: boolean, msg: EvalDate): EvalDate.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: EvalDate, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EvalDate;
+  static deserializeBinaryFromReader(message: EvalDate, reader: jspb.BinaryReader): EvalDate;
+}
+
+export namespace EvalDate {
+  export type AsObject = {
+    day: number,
+    month: number,
+    year: number,
   }
 }
 

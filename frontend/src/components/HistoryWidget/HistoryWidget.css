@@ -1,0 +1,89 @@
+.history {
+    width: 100%;
+    max-height: 50rem;
+    border-radius: 4rem;
+    background-color: var(--secondary-color);
+    min-width: 25rem;
+    min-height: 25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.history-title {
+    color: white;
+    text-align: left;
+    padding-top: 4rem;
+    padding-left: 6rem;
+    margin: 0;
+}
+
+.history-list-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding-bottom: 2.5rem;
+    max-height: 100%;
+    padding-left: 5rem;
+    padding-right: 5rem;
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    height: 37rem;
+    overflow-y: scroll;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--terciary-color);
+    padding-left: 3rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-right: 3rem;
+    border-radius: 1rem;
+    gap: 3rem;
+}
+
+.webpage-score-date {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3rem;
+}
+
+.webpage-title-url {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    width: 60%;
+}
+
+.webpage-title-url > h3 {
+    margin: 0;
+}
+
+.webpage-title-url > h4 {
+    margin: 0;
+    color: #a2a2a2;
+}
+
+.webpage-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.3rem;
+    background-color: rgba(255, 221, 0, 0.186);
+    border-radius: 2rem;
+}

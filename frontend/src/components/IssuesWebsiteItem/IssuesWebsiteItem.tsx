@@ -1,7 +1,8 @@
 import "./IssuesWebsiteItem.css";
 import { Globe, ChevronDown } from 'lucide-react';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CategoryPerWebpage from "../CategoryPerWebpage/CategoryPerWebpage.tsx";
+import { getWebpageScreenshot } from "../../services/EvaluationService.tsx";
 
 interface IssueItemProps {
   evaluation_id: string;
@@ -14,6 +15,17 @@ function IssuesWebsiteItem(props: IssueItemProps) {
   const [expanded, setExpanded] = useState(false);
 
   const categories = ["passed", "warning", "failed", "inapplicable"];
+
+  const [webpageScreehshot, setWebpageScreehshot] = useState('');
+
+    useEffect(() => {
+      const fetchWebpageScreenshot = async () => {
+          const data = await getWebpageScreenshot(props.evaluation_id);
+
+          setWebpageScreehshot(data);
+      }
+      fetchWebpageScreenshot();
+  }, [props.evaluation_id]);
 
   return (
     <div className="issue-item-container" key={props.webpage_url}>
@@ -49,6 +61,7 @@ function IssuesWebsiteItem(props: IssueItemProps) {
                   evaluation_id={props.evaluation_id}
                   outcome={category} 
                   wcagLevelFilters={props.wcagLevelFilters}
+                  webpage_screenshot={webpageScreehshot}
                 />;
             })}
             {props.statusFilters.length === 0 &&
@@ -58,6 +71,7 @@ function IssuesWebsiteItem(props: IssueItemProps) {
                   evaluation_id={props.evaluation_id} 
                   outcome={category} 
                   wcagLevelFilters={props.wcagLevelFilters} 
+                  webpage_screenshot={webpageScreehshot}
                 />;
             })}
           </div>

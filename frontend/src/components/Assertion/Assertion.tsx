@@ -13,6 +13,7 @@ interface AssertionProps {
     className: string;
     evaluation_id: string;
     webpage_url: string;
+    webpage_screenshot: string;
 }
 
 function Assertion(props: AssertionProps) {
@@ -63,6 +64,7 @@ function Assertion(props: AssertionProps) {
                                 description={result.description}
                                 evaluation_id={props.evaluation_id}
                                 webpage_url={props.webpage_url}
+                                webpage_screenshot={props.webpage_screenshot}
                             />
                         ))}
                     </div>

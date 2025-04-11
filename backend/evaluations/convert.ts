@@ -1,4 +1,4 @@
-import { AssertionResponse, ElementResponse, EvaluationIdUrl, ResultResponse } from "./protobuf_library/evaluations_pb";
+import { AssertionResponse, ElementResponse, EvalDate, EvaluationHistory, EvaluationIdUrl, ResultResponse } from "./protobuf_library/evaluations_pb";
 
 export function convertLatestEvals(latestEvals: EvaluationIdUrl[]) {
   return latestEvals.map(element => ({
@@ -33,6 +33,32 @@ export function convertResultElement(element: ElementResponse | undefined) {
   return {
     id: element.getId(),
     htmlCode: element.getHtmlCode(),
-    pointer: element.getPointer()
+    pointer: element.getPointer(),
+    x: element.getX(),
+    y: element.getY(),
+    width: element.getWidth(),
+    height: element.getHeight()
+  }
+}
+
+export function convertEvaluationHistory(history: EvaluationHistory[]) {
+  return history.map(element => ({
+    id: element.getId(),
+    title: element.getTitle(),
+    input_url: element.getInputUrl(),
+    score: element.getScore(),
+    date: convertDate(element.getEvalDate())
+  }))
+}
+
+export function convertDate(date: EvalDate | undefined) {
+  if (!date) {
+    return undefined;
+  }
+
+  return {
+    day: date.getDay(),
+    month: date.getMonth(),
+    year: date.getYear()
   }
 }

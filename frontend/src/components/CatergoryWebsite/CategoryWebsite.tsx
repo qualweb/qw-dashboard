@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons.tsx';
 import { GetLatestACTAssertion, GetLatestACTAssertionsResponse } from "../Types/Types.ts";
-import { getLatestACTAssertions } from '../../services/EvaluationService.tsx';
+import { getLatestACTAssertions, getWebpageScreenshot } from '../../services/EvaluationService.tsx';
 import Assertion from '../Assertion/Assertion.tsx';
 
 interface CategoryWebsiteProps {
@@ -22,10 +22,13 @@ const categoryConfig = {
 function  CategoryWebsite(props: CategoryWebsiteProps) {
     const [expanded, setExpanded] = useState(false);
     const [assertions, setAssertions] = useState<GetLatestACTAssertionsResponse>();
+    const [webpageScreenshots, setWebpageScreenshots] = useState<string[]>([]);
 
     useEffect(() => {
         const fetchAssertions = async () => {
             const data: GetLatestACTAssertionsResponse = { assertions: [] };
+            const screenshots = [];
+
             for (let i = 0; i < props.evaluation_ids.length; i++) {
                 const response = await getLatestACTAssertions(props.evaluation_ids[i], props.wcagLevelFilters, props.outcome);
                 if (response && response.assertions) {
@@ -33,9 +36,13 @@ function  CategoryWebsite(props: CategoryWebsiteProps) {
                         data.assertions.push(element);
                     });
                 };
+
+                const screenshot = await getWebpageScreenshot(props.evaluation_ids[i]);
+                screenshots.push(screenshot);
             }
 
             setAssertions(data);
+            setWebpageScreenshots(screenshots);
         }
         fetchAssertions();
     }, [props.evaluation_ids, props.wcagLevelFilters, props.outcome]);
@@ -82,16 +89,17 @@ function  CategoryWebsite(props: CategoryWebsiteProps) {
                 <div className="tests-container">
                 {expanded && (
                     <div className="expanded-tests-2">
-                    {assertions && assertions.assertions.map((assertion) => (
+                    {assertions && range(0, assertions.assertions.length - 1).map((index) => (
                         <Assertion 
-                        key={assertion.id}
-                        id={String(assertion.id)}
-                        name={assertion.name}
-                        rule= {assertion.rule}
-                        icon={icon}
-                        className={className}
-                        evaluation_id={String(assertion.evaluation_id)}
-                        webpage_url={assertion.webpage_url}
+                            key={assertions.assertions[index].id}
+                            id={String(assertions.assertions[index].id)}
+                            name={assertions.assertions[index].name}
+                            rule= {assertions.assertions[index].rule}
+                            icon={icon}
+                            className={className}
+                            evaluation_id={String(assertions.assertions[index].evaluation_id)}
+                            webpage_url={assertions.assertions[index].webpage_url}
+                            webpage_screenshot={webpageScreenshots[index]}
                         />
                     ))}
                     </div>
@@ -103,3 +111,13 @@ function  CategoryWebsite(props: CategoryWebsiteProps) {
 };
 
 export default CategoryWebsite;
+
+function range (start: number, end: number) {
+    const result = [];
+
+    for (let i = start; i <= end; i++) {
+        result.push(i);
+    }
+
+    return result;
+}

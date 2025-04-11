@@ -10,6 +10,7 @@ interface ResultProps {
   description: string;
   evaluation_id: string;
   webpage_url: string;
+  webpage_screenshot: string;
 }
 
 function Result(props: ResultProps) {
@@ -37,6 +38,11 @@ function Result(props: ResultProps) {
           html_code={element.htmlCode} 
           pointer= {element.pointer} 
           evaluation_id={props.evaluation_id}
+          webpage_screenshot={props.webpage_screenshot}
+          x={element.x}
+          y={element.y}
+          width={element.width}
+          height={element.height}
         />
       }
     </div>

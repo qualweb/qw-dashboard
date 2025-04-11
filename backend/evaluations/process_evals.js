@@ -232,7 +232,6 @@ function getResults(assertion, page) {
                                         console.error("Bounding box not found for pointer: ".concat(pointer));
                                         return [2 /*return*/];
                                     }
-                                    console.log(bounding_box);
                                     new_element.setX(bounding_box.x);
                                     new_element.setY(bounding_box.y);
                                     new_element.setWidth(bounding_box.width);

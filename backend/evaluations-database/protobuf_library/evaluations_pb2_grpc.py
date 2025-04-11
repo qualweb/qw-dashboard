@@ -129,6 +129,11 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.GetResultElementsRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.GetResultElementsResponse.FromString,
                 _registered_method=True)
+        self.GetEvaluationHistory = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetEvaluationHistory',
+                request_serializer=evaluations__pb2.GetEvaluationHistoryRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetEvaluationHistoryResponse.FromString,
+                _registered_method=True)
 
 
 class EvaluationsServicer(object):
@@ -248,6 +253,12 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetEvaluationHistory(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -345,6 +356,11 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     servicer.GetResultElement,
                     request_deserializer=evaluations__pb2.GetResultElementsRequest.FromString,
                     response_serializer=evaluations__pb2.GetResultElementsResponse.SerializeToString,
+            ),
+            'GetEvaluationHistory': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetEvaluationHistory,
+                    request_deserializer=evaluations__pb2.GetEvaluationHistoryRequest.FromString,
+                    response_serializer=evaluations__pb2.GetEvaluationHistoryResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -860,6 +876,33 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/GetResultElement',
             evaluations__pb2.GetResultElementsRequest.SerializeToString,
             evaluations__pb2.GetResultElementsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetEvaluationHistory(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetEvaluationHistory',
+            evaluations__pb2.GetEvaluationHistoryRequest.SerializeToString,
+            evaluations__pb2.GetEvaluationHistoryResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -1,0 +1,20 @@
+.location-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--terciary-color);
+    width: 3rem;
+    height: 3rem;
+    border-radius: 2rem;
+    padding: 0;
+}
+
+.location-wrapper:hover {
+    border-color: white;
+}
+
+.location {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -323,6 +323,33 @@ message ElementResponse {
     int32 id = 1;
     string html_code = 2;
     string pointer = 3;
+    float x = 4;
+    float y = 5;
+    float width = 6;
+    float height = 7;
+}
+
+message GetEvaluationHistoryRequest {
+    int32 monitoring_id = 1;
+}
+
+message GetEvaluationHistoryResponse {
+    int32 status_code = 1;
+    repeated EvaluationHistory history = 2;
+}
+
+message EvaluationHistory {
+    int32 id = 1;
+    string title = 2;
+    string input_url = 3;
+    float score = 4;
+    EvalDate eval_date = 5;
+}
+
+message EvalDate {
+    int32 day = 1;
+    int32 month = 2;
+    int32 year = 3;
 }
 
 service Evaluations {
@@ -345,4 +372,5 @@ service Evaluations {
     rpc GetLatestACTAssertions(GetLatestACTAssertionsRequest) returns (GetLatestACTAssertionsResponse);
     rpc GetAssertionResults (GetAssertionResultsRequest) returns (GetAssertionResultsResponse);
     rpc GetResultElement (GetResultElementsRequest) returns (GetResultElementsResponse);
+    rpc GetEvaluationHistory (GetEvaluationHistoryRequest) returns (GetEvaluationHistoryResponse);
 }

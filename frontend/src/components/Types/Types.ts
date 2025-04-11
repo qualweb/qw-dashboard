@@ -169,4 +169,8 @@ export interface ResultElement {
     id: string | number;
     htmlCode: string;
     pointer: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }

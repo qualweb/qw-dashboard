@@ -167,8 +167,6 @@ async function getResults(assertion : QualwebAssertion, page : Page) : Promise<[
                         return;
                     }
 
-                    console.log(bounding_box);
-
                     new_element.setX(bounding_box.x);
                     new_element.setY(bounding_box.y);
                     new_element.setWidth(bounding_box.width);
@@ -212,7 +210,7 @@ export async function takeWebpageScreenshot(webpage_url: string, width: number, 
         });
         
         const screenshot = await page.screenshot({ 
-            fullPage: true 
+            fullPage: true
         });
         
         return screenshot;
