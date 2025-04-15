@@ -2,12 +2,12 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 5rem;
+    gap: 3rem;
 }
 
 .score-history-wrapper {
     display: flex;
-    gap: 5rem;
+    gap: 3rem;
 }
 
 .score-container {
