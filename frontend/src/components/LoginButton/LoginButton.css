@@ -1,0 +1,15 @@
+.login-register-button {
+    background-color: #FF7B00;
+    border-radius: 3rem;
+    padding: 1.5rem 2rem;
+    color: var(--terciary-color);
+    z-index: 100;
+}
+
+.login-register-button:hover {
+    background-color: #ff9b3d;
+}
+
+.login-register-button:active {
+    background-color: white;
+}

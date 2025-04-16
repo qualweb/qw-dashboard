@@ -3,6 +3,7 @@ import { Form1, Form3, Form4 } from '../../assets/Icons';
 import './Homepage.css';
 import { runCrawler, runEvaluation } from '../../services/EvaluationService';
 import { useNavigate } from 'react-router-dom';
+import LoginButton from '../LoginButton/LoginButton';
 
 function Homepage() {
     const [loading, setLoading] = useState(false);
@@ -41,10 +42,7 @@ function Homepage() {
                             <span className="monitoring">Monitoring</span>
                         </div>
                     </h1>
-                    <div className='login-register'>
-                        <button className='register-button'><strong>Register</strong></button>
-                        <button className='login-button'><strong>Login</strong></button>
-                    </div>
+                    <LoginButton />
                 </div>
             </div>
             <div className='homepage-content'>

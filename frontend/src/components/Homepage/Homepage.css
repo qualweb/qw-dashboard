@@ -10,6 +10,7 @@ html, body {
 
 .homepage-container {
     width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -62,28 +63,6 @@ html, body {
     padding-top: 10vh;
 }
 
-.login-register {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1vw;
-}
-
-.login-register button {
-    border-radius: 2rem;
-    padding: 1rem 1.5rem;
-    color: var(--terciary-color);
-    font-size: 0.7vw;
-}
-
-.register-button {
-    background-color: #FF7B00;
-}
-
-.login-button {
-    background-color: #ffffff;
-}
-
 .homepage-content {
     position: absolute;
     display: flex;
@@ -102,7 +81,6 @@ html, body {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    font-size: 0.7vw;
 }
 
 .start-monitoring-input-button {
@@ -115,7 +93,6 @@ html, body {
 .start-monitoring-input-button > input {
     width: 100%;
     padding-left: 3.5rem;
-    font-size: 0.7vw;
     border: none;
     border-radius: 2vw;
     background-color: #CDCDCD;
@@ -125,7 +102,6 @@ html, body {
 
 .start-monitoring-input-button > input::placeholder {
     color: var(--terciary-color);
-    font-size: 0.7vw;
     font-weight: bolder;
 }
 
@@ -135,7 +111,6 @@ html, body {
     padding: 2rem 1.5rem;
     color: var(--terciary-color);
     background-color: #FF7B00;
-    font-size: 0.7vw;
 }
 
 .forms {
