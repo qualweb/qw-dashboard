@@ -35,11 +35,13 @@ import {
     GetResultElementsRequest,
     GetResultElementsResponse,
     GetEvaluationHistoryRequest,
-    GetEvaluationHistoryResponse
+    GetEvaluationHistoryResponse,
+    GetUserMonitoringRegistriesRequest,
+    GetUserMonitoringRegistriesResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
-import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertResultElement } from './convert';
+import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertMonitoringRegistries, convertResultElement } from './convert';
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
@@ -706,7 +708,7 @@ app.get('/api/monitoring/issues/:issue_id/elements', async (req: Request, res: R
 });
 
 app.get('/api/monitoring/:monitoring_id/history', async (req: Request, res: Response) => {
-    const monitoring_id = req.params.monitoring_id
+    const monitoring_id = req.params.monitoring_id;
 
     try {
         const getEvaluationHistoryRequest = new GetEvaluationHistoryRequest();
@@ -728,6 +730,34 @@ app.get('/api/monitoring/:monitoring_id/history', async (req: Request, res: Resp
             history: convertEvaluationHistory(response.getHistoryList())
         });
 
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/monitoring/:user_id', async (req: Request, res: Response) => {
+    const user_id = req.params.user_id;
+
+    try {
+        const getUserMonitoringRegistries = new GetUserMonitoringRegistriesRequest();
+        getUserMonitoringRegistries.setUserId(Number(user_id));
+
+        const response = await new Promise<GetUserMonitoringRegistriesResponse>((resolve, reject) => {
+            client.getUserMonitoringRegistries(getUserMonitoringRegistries, (err: Error, callResponse: GetUserMonitoringRegistriesResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            monitoring_registries: convertMonitoringRegistries(response.getMonitoringRegistriesList())
+        });
     } catch (error) {
         console.error('Error fetching history:', error);
         res.send(500);

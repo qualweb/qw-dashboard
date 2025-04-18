@@ -19,7 +19,8 @@ CREATE TABLE MonitoringRegistry (
     display_height          INTEGER NOT NULL,
     webpages                VARCHAR[] NOT NULL,
     latest_evaluation       TIMESTAMP,
-    score                   FLOAT
+    score                   FLOAT,
+    user_id                 INTEGER NOT NULL
 );
 
 CREATE TABLE Evaluation (

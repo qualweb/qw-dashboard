@@ -352,6 +352,28 @@ message EvalDate {
     int32 year = 3;
 }
 
+message GetUserMonitoringRegistriesRequest {
+    int32 user_id = 2;
+}
+
+message GetUserMonitoringRegistriesResponse {
+    int32 status_code = 1;
+    repeated MonitoringRegistry monitoring_registries = 2;
+}
+
+message MonitoringRegistry {
+    int32 id = 1;
+    string accessibility_metric = 2;
+    string main_url = 3;
+    bool is_mobile = 4;
+    bool is_landscape = 5;
+    int32 display_width = 6;
+    int32 display_height = 7;
+    repeated string webpages = 8;
+    EvalDate latest_evaluation = 9;
+    float score = 10;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -373,4 +395,5 @@ service Evaluations {
     rpc GetAssertionResults (GetAssertionResultsRequest) returns (GetAssertionResultsResponse);
     rpc GetResultElement (GetResultElementsRequest) returns (GetResultElementsResponse);
     rpc GetEvaluationHistory (GetEvaluationHistoryRequest) returns (GetEvaluationHistoryResponse);
+    rpc GetUserMonitoringRegistries (GetUserMonitoringRegistriesRequest) returns (GetUserMonitoringRegistriesResponse);
 }

@@ -1,4 +1,4 @@
-import { AssertionResponse, ElementResponse, EvalDate, EvaluationHistory, EvaluationIdUrl, ResultResponse } from "./protobuf_library/evaluations_pb";
+import { AssertionResponse, ElementResponse, EvalDate, EvaluationHistory, EvaluationIdUrl, MonitoringRegistry, ResultResponse } from "./protobuf_library/evaluations_pb";
 
 export function convertLatestEvals(latestEvals: EvaluationIdUrl[]) {
   return latestEvals.map(element => ({
@@ -61,4 +61,18 @@ export function convertDate(date: EvalDate | undefined) {
     month: date.getMonth(),
     year: date.getYear()
   }
+}
+
+export function convertMonitoringRegistries( monitoringRegistries: MonitoringRegistry[]) {
+  return monitoringRegistries.map(element => ({
+    id: element.getId(),
+    accessibility_metric: element.getAccessibilityMetric(),
+    main_url: element.getMainUrl(),
+    is_mobile: element.getIsMobile(),
+    is_landscape: element.getIsLandscape(),
+    display_width: element.getDisplayWidth(),
+    display_height: element.getDisplayHeight(),
+    webpages: element.getWebpagesList(),
+    score: element.getScore()
+  }))
 }

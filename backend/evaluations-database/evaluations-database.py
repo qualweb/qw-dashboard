@@ -5,7 +5,6 @@ from concurrent import futures
 import sys
 import os
 from dotenv import load_dotenv
-import datetime
 from score import calculate_website_a3_score
 from urllib.parse import urlparse
 import requests
@@ -38,7 +37,9 @@ from protobuf_library.evaluations_pb2 import (
     GetResultElementsResponse,
     GetEvaluationHistoryResponse,
     EvaluationHistory,
-    EvalDate
+    EvalDate,
+    MonitoringRegistry,
+    GetUserMonitoringRegistriesResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -1097,6 +1098,58 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return GetEvaluationHistoryResponse(status_code=200, history=response)
+    
+    def GetUserMonitoringRegistries(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT  id, accessibility_metric, 
+                        main_url, is_mobile, is_landscape, 
+                        display_width, display_height, webpages, 
+                        latest_evaluation, score FROM MonitoringRegistry
+                WHERE user_id = %s
+            ''', (request.user_id, ))
+
+            registries = cursor.fetchall()
+
+            response = []
+            for registry in registries:
+                response.append(
+                    MonitoringRegistry(
+                        id=registry[0],
+                        accessibility_metric=registry[1],
+                        main_url=registry[2],
+                        is_mobile=registry[3],
+                        is_landscape=registry[4],
+                        display_width=registry[5],
+                        display_height=registry[6],
+                        webpages=registry[7],
+                        latest_evaluation=EvalDate(
+                            day=registry[8].day,
+                            month=registry[8].month,
+                            year=registry[8].year
+                        ),
+                        score=registry[9]
+                    )
+                )
+
+            cursor.close()
+
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetUserMonitoringRegistriesResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetUserMonitoringRegistriesResponse(status_code=200, monitoring_registries=response)
 
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

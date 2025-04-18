@@ -1685,3 +1685,109 @@ export namespace EvalDate {
   }
 }
 
+export class GetUserMonitoringRegistriesRequest extends jspb.Message {
+  getUserId(): number;
+  setUserId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetUserMonitoringRegistriesRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetUserMonitoringRegistriesRequest): GetUserMonitoringRegistriesRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetUserMonitoringRegistriesRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetUserMonitoringRegistriesRequest;
+  static deserializeBinaryFromReader(message: GetUserMonitoringRegistriesRequest, reader: jspb.BinaryReader): GetUserMonitoringRegistriesRequest;
+}
+
+export namespace GetUserMonitoringRegistriesRequest {
+  export type AsObject = {
+    userId: number,
+  }
+}
+
+export class GetUserMonitoringRegistriesResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearMonitoringRegistriesList(): void;
+  getMonitoringRegistriesList(): Array<MonitoringRegistry>;
+  setMonitoringRegistriesList(value: Array<MonitoringRegistry>): void;
+  addMonitoringRegistries(value?: MonitoringRegistry, index?: number): MonitoringRegistry;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetUserMonitoringRegistriesResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetUserMonitoringRegistriesResponse): GetUserMonitoringRegistriesResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetUserMonitoringRegistriesResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetUserMonitoringRegistriesResponse;
+  static deserializeBinaryFromReader(message: GetUserMonitoringRegistriesResponse, reader: jspb.BinaryReader): GetUserMonitoringRegistriesResponse;
+}
+
+export namespace GetUserMonitoringRegistriesResponse {
+  export type AsObject = {
+    statusCode: number,
+    monitoringRegistriesList: Array<MonitoringRegistry.AsObject>,
+  }
+}
+
+export class MonitoringRegistry extends jspb.Message {
+  getId(): number;
+  setId(value: number): void;
+
+  getAccessibilityMetric(): string;
+  setAccessibilityMetric(value: string): void;
+
+  getMainUrl(): string;
+  setMainUrl(value: string): void;
+
+  getIsMobile(): boolean;
+  setIsMobile(value: boolean): void;
+
+  getIsLandscape(): boolean;
+  setIsLandscape(value: boolean): void;
+
+  getDisplayWidth(): number;
+  setDisplayWidth(value: number): void;
+
+  getDisplayHeight(): number;
+  setDisplayHeight(value: number): void;
+
+  clearWebpagesList(): void;
+  getWebpagesList(): Array<string>;
+  setWebpagesList(value: Array<string>): void;
+  addWebpages(value: string, index?: number): string;
+
+  hasLatestEvaluation(): boolean;
+  clearLatestEvaluation(): void;
+  getLatestEvaluation(): EvalDate | undefined;
+  setLatestEvaluation(value?: EvalDate): void;
+
+  getScore(): number;
+  setScore(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): MonitoringRegistry.AsObject;
+  static toObject(includeInstance: boolean, msg: MonitoringRegistry): MonitoringRegistry.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: MonitoringRegistry, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): MonitoringRegistry;
+  static deserializeBinaryFromReader(message: MonitoringRegistry, reader: jspb.BinaryReader): MonitoringRegistry;
+}
+
+export namespace MonitoringRegistry {
+  export type AsObject = {
+    id: number,
+    accessibilityMetric: string,
+    mainUrl: string,
+    isMobile: boolean,
+    isLandscape: boolean,
+    displayWidth: number,
+    displayHeight: number,
+    webpagesList: Array<string>,
+    latestEvaluation?: EvalDate.AsObject,
+    score: number,
+  }
+}
+

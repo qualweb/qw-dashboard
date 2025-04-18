@@ -42,6 +42,7 @@
 
 .welcome {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .username {

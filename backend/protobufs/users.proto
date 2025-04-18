@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package runtimePackage;
+
+message AddUserRequest {
+    string auth0_id = 1;
+    string nickname = 2;
+    string picture = 3;
+    string email = 4;
+}
+
+message AddUserResponse {
+    int32 status_code= 1;
+    int32 user_id = 2;
+}
+
+message GetUserRequest {
+    string auth0_id = 1;
+}
+
+message GetUserResponse {
+    int32 status_code = 1;
+    int32 user_id = 2;
+    string nickname = 3;
+    string picture = 4;
+    string email = 5;
+}
+
+service Users {
+    rpc AddUser (AddUserRequest) returns (AddUserResponse);
+    rpc GetUser (GetUserRequest) returns (GetUserResponse);
+}

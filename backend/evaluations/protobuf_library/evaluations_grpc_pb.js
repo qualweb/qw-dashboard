@@ -334,6 +334,28 @@ function deserialize_runtimePackage_GetResultElementsResponse(buffer_arg) {
   return evaluations_pb.GetResultElementsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_GetUserMonitoringRegistriesRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetUserMonitoringRegistriesRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetUserMonitoringRegistriesRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetUserMonitoringRegistriesRequest(buffer_arg) {
+  return evaluations_pb.GetUserMonitoringRegistriesRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetUserMonitoringRegistriesResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetUserMonitoringRegistriesResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetUserMonitoringRegistriesResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetUserMonitoringRegistriesResponse(buffer_arg) {
+  return evaluations_pb.GetUserMonitoringRegistriesResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetWebpageScreenshotRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetWebpageScreenshotRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetWebpageScreenshotRequest');
@@ -665,6 +687,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_GetEvaluationHistoryRequest,
     responseSerialize: serialize_runtimePackage_GetEvaluationHistoryResponse,
     responseDeserialize: deserialize_runtimePackage_GetEvaluationHistoryResponse,
+  },
+  getUserMonitoringRegistries: {
+    path: '/runtimePackage.Evaluations/GetUserMonitoringRegistries',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetUserMonitoringRegistriesRequest,
+    responseType: evaluations_pb.GetUserMonitoringRegistriesResponse,
+    requestSerialize: serialize_runtimePackage_GetUserMonitoringRegistriesRequest,
+    requestDeserialize: deserialize_runtimePackage_GetUserMonitoringRegistriesRequest,
+    responseSerialize: serialize_runtimePackage_GetUserMonitoringRegistriesResponse,
+    responseDeserialize: deserialize_runtimePackage_GetUserMonitoringRegistriesResponse,
   },
 };
 

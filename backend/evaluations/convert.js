@@ -6,6 +6,7 @@ exports.convertAssertionResults = convertAssertionResults;
 exports.convertResultElement = convertResultElement;
 exports.convertEvaluationHistory = convertEvaluationHistory;
 exports.convertDate = convertDate;
+exports.convertMonitoringRegistries = convertMonitoringRegistries;
 function convertLatestEvals(latestEvals) {
     return latestEvals.map(function (element) { return ({
         id: element.getEvaluationId(),
@@ -60,4 +61,17 @@ function convertDate(date) {
         month: date.getMonth(),
         year: date.getYear()
     };
+}
+function convertMonitoringRegistries(monitoringRegistries) {
+    return monitoringRegistries.map(function (element) { return ({
+        id: element.getId(),
+        accessibility_metric: element.getAccessibilityMetric(),
+        main_url: element.getMainUrl(),
+        is_mobile: element.getIsMobile(),
+        is_landscape: element.getIsLandscape(),
+        display_width: element.getDisplayWidth(),
+        display_height: element.getDisplayHeight(),
+        webpages: element.getWebpagesList(),
+        score: element.getScore()
+    }); });
 }

@@ -178,3 +178,18 @@ export const getHistoryEvaluations = async (
 
     return data.history;
 }
+
+export const getUserWebsites = async(
+    user_id: string
+) => {
+    const response = await fetch(`${MONITORING_API_URL}/${user_id}`);
+    const data = await response.json();
+
+    if(response.status != 200) {
+        throw new Error('Failed to fetch history.');
+    }
+
+    console.log(data);
+
+    return data.monitoring_registries;
+}
