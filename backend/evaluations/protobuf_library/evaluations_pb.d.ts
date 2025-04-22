@@ -393,6 +393,12 @@ export class AddMonitoringRegistryRequest extends jspb.Message {
   setWebpagesList(value: Array<string>): void;
   addWebpages(value: string, index?: number): string;
 
+  getWebsiteName(): string;
+  setWebsiteName(value: string): void;
+
+  getUserId(): number;
+  setUserId(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AddMonitoringRegistryRequest.AsObject;
   static toObject(includeInstance: boolean, msg: AddMonitoringRegistryRequest): AddMonitoringRegistryRequest.AsObject;
@@ -412,6 +418,8 @@ export namespace AddMonitoringRegistryRequest {
     displayWidth: number,
     displayHeight: number,
     webpagesList: Array<string>,
+    websiteName: string,
+    userId: number,
   }
 }
 
@@ -1738,6 +1746,9 @@ export class MonitoringRegistry extends jspb.Message {
   getAccessibilityMetric(): string;
   setAccessibilityMetric(value: string): void;
 
+  getName(): string;
+  setName(value: string): void;
+
   getMainUrl(): string;
   setMainUrl(value: string): void;
 
@@ -1766,6 +1777,18 @@ export class MonitoringRegistry extends jspb.Message {
   getScore(): number;
   setScore(value: number): void;
 
+  getPassed(): number;
+  setPassed(value: number): void;
+
+  getWarnings(): number;
+  setWarnings(value: number): void;
+
+  getFailed(): number;
+  setFailed(value: number): void;
+
+  getInapplicable(): number;
+  setInapplicable(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MonitoringRegistry.AsObject;
   static toObject(includeInstance: boolean, msg: MonitoringRegistry): MonitoringRegistry.AsObject;
@@ -1780,6 +1803,7 @@ export namespace MonitoringRegistry {
   export type AsObject = {
     id: number,
     accessibilityMetric: string,
+    name: string,
     mainUrl: string,
     isMobile: boolean,
     isLandscape: boolean,
@@ -1788,6 +1812,10 @@ export namespace MonitoringRegistry {
     webpagesList: Array<string>,
     latestEvaluation?: EvalDate.AsObject,
     score: number,
+    passed: number,
+    warnings: number,
+    failed: number,
+    inapplicable: number,
   }
 }
 

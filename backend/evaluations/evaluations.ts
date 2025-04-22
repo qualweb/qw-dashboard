@@ -84,8 +84,8 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
     const is_landscape = req.body.is_landscape;
     const display_width = req.body.display_width;
     const display_height = req.body.display_height;
-
-    console.log(main_url);
+    const website_name = req.body.website_name;
+    const user_id = req.body.user_id;
 
     const puppeteerOptions = {
         headless: true,
@@ -110,8 +110,31 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
             maxRequestsPerCrawl: 10,
             launchContext: {
                 launchOptions: {
-                    ...puppeteerOptions,
-                    args: [...(puppeteerOptions.args || []), '--incognito'],
+                    args: [
+                        '--disable-dev-shm-usage',
+                        '--disable-gpu',
+                        '--disable-setuid-sandbox',
+                        '--no-sandbox',
+                        '--no-zygote',
+                        '--deterministic-fetch',
+                        '--disable-features=IsolateOrigins',
+                        '--disable-site-isolation-trials',
+                        '--disable-extensions',
+                        '--disable-component-extensions-with-background-pages',
+                        '--disable-default-apps',
+                        '--mute-audio',
+                        '--no-default-browser-check',
+                        '--autoplay-policy=user-gesture-required',
+                        '--disable-background-timer-throttling',
+                        '--disable-backgrounding-occluded-windows',
+                        '--disable-notifications',
+                        '--disable-background-networking',
+                        '--disable-breakpad',
+                        '--disable-component-update',
+                        '--disable-domain-reliability',
+                        '--disable-sync',
+                    ],
+                    headless: true,
                 },
             },
             navigationTimeoutSecs: 60,
@@ -134,6 +157,7 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
             try {
                 const monitoring_registry_request = new AddMonitoringRegistryRequest();
                 
+                monitoring_registry_request.setWebsiteName(website_name);
                 monitoring_registry_request.setMainUrl(main_url);
                 monitoring_registry_request.setDomainName(domain_name);
                 monitoring_registry_request.setIsMobile(is_mobile);
@@ -141,6 +165,7 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
                 monitoring_registry_request.setDisplayWidth(display_width);
                 monitoring_registry_request.setDisplayHeight(display_height);
                 monitoring_registry_request.setWebpagesList(urls);
+                monitoring_registry_request.setUserId(user_id);
 
                 const response = await new Promise<AddMonitoringRegistryResponse>((resolve, reject) => {
                     client.addMonitoringRegistry(monitoring_registry_request, (err : Error, response : AddMonitoringRegistryResponse) => {
@@ -273,8 +298,6 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
                 await page.goto(url, { waitUntil: 'domcontentloaded' });
 
                 const screenshot = await takeWebpageScreenshot(url, screen_width, screen_height);
-
-                console.log(url + "-before:" + screenshot?.length);
 
                 const evaluations_request = new AddEvaluationRequest();
                 evaluations_request.setQualwebVersion(report.system.version);

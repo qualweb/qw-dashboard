@@ -20,7 +20,8 @@ CREATE TABLE MonitoringRegistry (
     webpages                VARCHAR[] NOT NULL,
     latest_evaluation       TIMESTAMP,
     score                   FLOAT,
-    user_id                 INTEGER NOT NULL
+    user_id                 INTEGER NOT NULL,
+    website_name            VARCHAR NOT NULL
 );
 
 CREATE TABLE Evaluation (

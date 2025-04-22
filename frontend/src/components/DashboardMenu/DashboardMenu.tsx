@@ -45,7 +45,7 @@ function DashboardMenu (props: DashboardMenuProps) {
                 <ul>
                     <li>
                         <Select.Root collection={collection}>
-                            <Select.Label>
+                            <Select.Label className='select-website-label'>
                                 <strong>Current website</strong>
                             </Select.Label>
                             <Select.Control>

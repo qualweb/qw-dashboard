@@ -67,12 +67,18 @@ export function convertMonitoringRegistries( monitoringRegistries: MonitoringReg
   return monitoringRegistries.map(element => ({
     id: element.getId(),
     accessibility_metric: element.getAccessibilityMetric(),
+    name: element.getName(),
     main_url: element.getMainUrl(),
     is_mobile: element.getIsMobile(),
     is_landscape: element.getIsLandscape(),
     display_width: element.getDisplayWidth(),
     display_height: element.getDisplayHeight(),
     webpages: element.getWebpagesList(),
-    score: element.getScore()
+    score: element.getScore(),
+    latest_evaluation: convertDate(element.getLatestEvaluation()),
+    passed: element.getPassed(),
+    warnings: element.getWarnings(),
+    failed: element.getFailed(),
+    inapplicable: element.getInapplicable()
   }))
 }

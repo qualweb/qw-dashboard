@@ -89,6 +89,8 @@ message AddMonitoringRegistryRequest {
     int32 display_width = 5;
     int32 display_height = 6;
     repeated string webpages = 7;
+    string website_name = 8;
+    int32 user_id = 9;
 }
 
 message AddMonitoringRegistryResponse {
@@ -364,14 +366,19 @@ message GetUserMonitoringRegistriesResponse {
 message MonitoringRegistry {
     int32 id = 1;
     string accessibility_metric = 2;
-    string main_url = 3;
-    bool is_mobile = 4;
-    bool is_landscape = 5;
-    int32 display_width = 6;
-    int32 display_height = 7;
-    repeated string webpages = 8;
-    EvalDate latest_evaluation = 9;
-    float score = 10;
+    string name = 3;
+    string main_url = 4;
+    bool is_mobile = 5;
+    bool is_landscape = 6;
+    int32 display_width = 7;
+    int32 display_height = 8;
+    repeated string webpages = 9;
+    EvalDate latest_evaluation = 10;
+    float score = 11;
+    int32 passed = 12;
+    int32 warnings = 13;
+    int32 failed = 14;
+    int32 inapplicable = 15;
 }
 
 service Evaluations {

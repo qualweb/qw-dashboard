@@ -82,7 +82,7 @@
     flex-direction: column;
 }
 
-[data-scope="select"][data-part="label"] {
+.select-website-label {
     text-align: left;
     padding-left: 1rem;
     padding-bottom: 0.5rem;

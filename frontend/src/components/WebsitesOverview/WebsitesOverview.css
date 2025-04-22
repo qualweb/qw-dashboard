@@ -60,21 +60,6 @@
     justify-content: space-between;
 }
 
-.add-website-button {
-    color: var(--secondary-color);
-    background-color: #FF7B00;
-    border-radius: 3rem;
-    padding: 1rem 2rem 1rem 2rem;
-}
-
-.add-website-button:hover {
-    background-color: #ff9b3d;
-}
-
-.add-website-button:active {
-    background-color: white;
-}
-
 .your-websites-list {
     padding: 0;
     display: flex;

@@ -65,13 +65,13 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             cursor.execute('''
                 INSERT INTO MonitoringRegistry (
-                    main_url, domain_name, is_mobile, is_landscape, display_width, display_height, webpages
+                    main_url, domain_name, is_mobile, is_landscape, display_width, display_height, webpages, user_id, website_name
                 ) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s
                 ) RETURNING id
             ''', (
                 request.main_url, request.domain_name, request.is_mobile, request.is_landscape, 
-                request.display_width, request.display_height, list(request.webpages)
+                request.display_width, request.display_height, list(request.webpages), request.user_id, request.website_name
             ))
 
             monitoring_registry_id = cursor.fetchone()[0]
@@ -1107,7 +1107,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
 
             cursor.execute('''
-                SELECT  id, accessibility_metric, 
+                SELECT  id, accessibility_metric, website_name,
                         main_url, is_mobile, is_landscape, 
                         display_width, display_height, webpages, 
                         latest_evaluation, score FROM MonitoringRegistry
@@ -1118,22 +1118,58 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             response = []
             for registry in registries:
+                passed = 0
+                warnings = 0
+                failed = 0
+                inapplicable = 0
+
+                for webpage in registry[8]:
+                    cursor.execute('''
+                        SELECT id 
+                        FROM Evaluation
+                        WHERE monitored_website_id = %s
+                        AND input_url = %s
+                        ORDER BY evaluation_date DESC
+                        LIMIT 1
+                    ''', (registry[0], webpage))
+
+                    eval_id = cursor.fetchone()
+
+                    cursor.execute('''
+                        SELECT passed, warning, failed, inapplicable
+                        FROM Module
+                        WHERE evaluation_id = %s
+                        AND module_type = 'act-rules'
+                    ''', (eval_id,))
+
+                    stats = cursor.fetchone()
+
+                    passed += stats[0]
+                    warnings += stats[1]
+                    failed += stats[2]
+                    inapplicable += stats[3]
+
                 response.append(
                     MonitoringRegistry(
                         id=registry[0],
                         accessibility_metric=registry[1],
-                        main_url=registry[2],
-                        is_mobile=registry[3],
-                        is_landscape=registry[4],
-                        display_width=registry[5],
-                        display_height=registry[6],
-                        webpages=registry[7],
+                        name=registry[2],
+                        main_url=registry[3],
+                        is_mobile=registry[4],
+                        is_landscape=registry[5],
+                        display_width=registry[6],
+                        display_height=registry[7],
+                        webpages=registry[8],
                         latest_evaluation=EvalDate(
-                            day=registry[8].day,
-                            month=registry[8].month,
-                            year=registry[8].year
+                            day=registry[9].day,
+                            month=registry[9].month,
+                            year=registry[9].year
                         ),
-                        score=registry[9]
+                        score=registry[10],
+                        passed=passed,
+                        warnings=warnings,
+                        failed=failed,
+                        inapplicable=inapplicable
                     )
                 )
 

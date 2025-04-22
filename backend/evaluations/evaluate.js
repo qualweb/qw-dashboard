@@ -17,8 +17,31 @@ async function evaluate(url, screenWidth, screenHeight, isMobile, isLandscape) {
   };
 
   const puppeteerOptions = {
+    args: [
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--disable-setuid-sandbox',
+      '--no-sandbox',
+      '--no-zygote',
+      '--deterministic-fetch',
+      '--disable-features=IsolateOrigins',
+      '--disable-site-isolation-trials',
+      '--disable-extensions',
+      '--disable-component-extensions-with-background-pages',
+      '--disable-default-apps',
+      '--mute-audio',
+      '--no-default-browser-check',
+      '--autoplay-policy=user-gesture-required',
+      '--disable-background-timer-throttling',
+      '--disable-backgrounding-occluded-windows',
+      '--disable-notifications',
+      '--disable-background-networking',
+      '--disable-breakpad',
+      '--disable-component-update',
+      '--disable-domain-reliability',
+      '--disable-sync',
+    ],
     headless: true,
-    args: ['--no-sandbox', '--disable-gpu'],
     defaultViewport: {
       width: screenWidth,
       height: screenHeight,

@@ -1,15 +1,4 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -46,15 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var evaluations_pb_1 = require("./protobuf_library/evaluations_pb");
 var dotenv = require("dotenv");
@@ -88,7 +68,8 @@ app.post('/api/monitoring/crawl', function (req, res) {
     var is_landscape = req.body.is_landscape;
     var display_width = req.body.display_width;
     var display_height = req.body.display_height;
-    console.log(main_url);
+    var website_name = req.body.website_name;
+    var user_id = req.body.user_id;
     var puppeteerOptions = {
         headless: true,
         args: ['--no-sandbox']
@@ -125,7 +106,33 @@ app.post('/api/monitoring/crawl', function (req, res) {
                             },
                             maxRequestsPerCrawl: 10,
                             launchContext: {
-                                launchOptions: __assign(__assign({}, puppeteerOptions), { args: __spreadArray(__spreadArray([], (puppeteerOptions.args || []), true), ['--incognito'], false) }),
+                                launchOptions: {
+                                    args: [
+                                        '--disable-dev-shm-usage',
+                                        '--disable-gpu',
+                                        '--disable-setuid-sandbox',
+                                        '--no-sandbox',
+                                        '--no-zygote',
+                                        '--deterministic-fetch',
+                                        '--disable-features=IsolateOrigins',
+                                        '--disable-site-isolation-trials',
+                                        '--disable-extensions',
+                                        '--disable-component-extensions-with-background-pages',
+                                        '--disable-default-apps',
+                                        '--mute-audio',
+                                        '--no-default-browser-check',
+                                        '--autoplay-policy=user-gesture-required',
+                                        '--disable-background-timer-throttling',
+                                        '--disable-backgrounding-occluded-windows',
+                                        '--disable-notifications',
+                                        '--disable-background-networking',
+                                        '--disable-breakpad',
+                                        '--disable-component-update',
+                                        '--disable-domain-reliability',
+                                        '--disable-sync',
+                                    ],
+                                    headless: true,
+                                },
                             },
                             navigationTimeoutSecs: 60,
                         });
@@ -159,6 +166,7 @@ app.post('/api/monitoring/crawl', function (req, res) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
                     monitoring_registry_request_1 = new evaluations_pb_1.AddMonitoringRegistryRequest();
+                    monitoring_registry_request_1.setWebsiteName(website_name);
                     monitoring_registry_request_1.setMainUrl(main_url);
                     monitoring_registry_request_1.setDomainName(domain_name);
                     monitoring_registry_request_1.setIsMobile(is_mobile);
@@ -166,6 +174,7 @@ app.post('/api/monitoring/crawl', function (req, res) {
                     monitoring_registry_request_1.setDisplayWidth(display_width);
                     monitoring_registry_request_1.setDisplayHeight(display_height);
                     monitoring_registry_request_1.setWebpagesList(urls);
+                    monitoring_registry_request_1.setUserId(user_id);
                     return [4 /*yield*/, new Promise(function (resolve, reject) {
                             client.addMonitoringRegistry(monitoring_registry_request_1, function (err, response) {
                                 if (err)
@@ -324,7 +333,6 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                 return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(url, screen_width_1, screen_height_1)];
                             case 5:
                                 screenshot = _l.sent();
-                                console.log(url + "-before:" + (screenshot === null || screenshot === void 0 ? void 0 : screenshot.length));
                                 evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
                                 evaluations_request_1.setQualwebVersion(report.system.version);
                                 evaluations_request_1.setInputUrl((_f = (_e = report.system.url) === null || _e === void 0 ? void 0 : _e.inputUrl) !== null && _f !== void 0 ? _f : "");

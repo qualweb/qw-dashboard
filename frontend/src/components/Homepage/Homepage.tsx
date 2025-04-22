@@ -1,37 +1,8 @@
-import { SetStateAction, useState } from 'react';
 import { Form1, Form3, Form4 } from '../../assets/Icons';
 import './Homepage.css';
-import { runCrawler, runEvaluation } from '../../services/EvaluationService';
-import { useNavigate } from 'react-router-dom';
 import LoginButton from '../LoginButton/LoginButton';
 
 function Homepage() {
-    const [loading, setLoading] = useState(false);
-    const [url, setUrl] = useState('');
-    const navigate = useNavigate();
-
-    const handleUrlChange = (event: { target: { value: SetStateAction<string>; }; }) => {
-        setUrl(event.target.value);
-    };
-
-    const postData = async (url: string) => {
-        setLoading(true);
-
-        try {
-            const crawl_response = await runCrawler(url);
-            console.log(crawl_response);
-    
-            const eval_response = await runEvaluation(crawl_response);
-            console.log(eval_response);
-
-            navigate(`/dashboard/evaluations/${crawl_response.monitoring_registry_id}`);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     return (
         <div className='homepage-container'>
             <div className='header-wrapper'>
@@ -47,22 +18,15 @@ function Homepage() {
             </div>
             <div className='homepage-content'>
                 <div className='start-monitoring-container'>
-                    {loading ? (
-                        <div className='loading'>
-                            <div className='loader'></div>
-                            <p>Starting monitoring...</p>
+                    <div>
+                        <div className='start-monitoring-title'>
+                            <h2>Website URL</h2>
                         </div>
-                    ) : (
-                        <div>
-                            <div className='start-monitoring-title'>
-                                <h2>Website URL</h2>
-                            </div>
-                            <div className='start-monitoring-input-button'>
-                                <input type='text' placeholder='Enter your website URL' value={url} onChange={handleUrlChange} />
-                                <button onClick={() => postData(url)}><strong>Start Monitoring</strong></button>
-                            </div>
+                        <div className='start-monitoring-input-button'>
+                            <input type='text' placeholder='Enter your website URL' />
+                            <button><strong>Start Monitoring</strong></button>
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
             <div className='forms'>

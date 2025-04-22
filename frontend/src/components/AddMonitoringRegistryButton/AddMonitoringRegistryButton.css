@@ -1,0 +1,132 @@
+.add-website-button {
+    color: var(--secondary-color);
+    background-color: #FF7B00;
+    border-radius: 3rem;
+    padding: 1rem 2rem 1rem 2rem;
+}
+
+.add-website-button:hover {
+    background-color: #ff9b3d;
+}
+
+.add-website-button:active {
+    background-color: white;
+}
+
+.add-website-dialog-content {
+    position: relative;
+    background-color: #222222;
+    padding-top: 2.5rem;
+    padding-left: 3.5rem;
+    padding-right: 3.5rem;
+    padding-bottom: 3.5rem;
+    border-radius: 3rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.add-website-dialog-desc-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.add-website-dialog-desc {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.device-screen-orientation {
+    display: flex;
+    width: 100%;
+    gap: 6rem;
+}
+
+.website-dimensions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.website-dimensions > svg {
+    width: 1.2rem;
+    color: rgb(163, 163, 163);
+}
+
+.add-website-dialog-content input {
+    padding-left: 1rem;
+    height: 3rem;
+    border-radius: 3rem;
+    background-color: var(--primary-color);
+    border-color: rgb(109, 109, 109);
+    border-style: solid;
+    border-width: 1px;
+}
+
+.dimension > input {
+    width: 5rem;
+    text-align: center;
+}
+
+.dimension {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.enter-website-name > input, .enter-website-url > input {
+    width: 96%;
+}
+
+.add-website-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-website-dialog-close {
+    border-radius: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: fit-content;
+    padding: 0.8rem;
+}
+
+.device-screen-orientation-label {
+    padding: 0rem;
+}
+
+.add-website-dialog-select-options {
+    z-index: 102;
+}
+
+.start-monitoring-button {
+    background-color: #FF7B00;
+    color: var(--terciary-color);
+    height: 3rem;
+    border-radius: 3rem;
+}
+
+.start-monitoring-button:hover {
+    background-color: #ff9b3d;
+}
+
+.start-monitoring-button:active {
+    background-color: white;
+}
+
+.input-error {
+    border: 1px solid #f44336;
+  }
+  
+.error-message {
+    display: flex;
+    align-items: center;
+    color: #f44336;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    gap: 0.3rem;
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+}

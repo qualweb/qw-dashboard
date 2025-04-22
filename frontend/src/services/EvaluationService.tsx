@@ -3,11 +3,13 @@
 const MONITORING_API_URL = 'http://localhost:8081/api/monitoring';
 
 export const runCrawler = async (
+    website_name : string,
     url : string,
     is_mobile : boolean = false,
     is_landscape : boolean = true,
     display_width : number = 1920,
-    display_height : number = 1080
+    display_height : number = 1080,
+    user_id: number
 ) => {
     const response = await fetch(`${MONITORING_API_URL}/crawl`, {
         method: 'POST',
@@ -15,11 +17,13 @@ export const runCrawler = async (
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+            website_name,
             url,
             is_mobile,
             is_landscape,
             display_width,
-            display_height
+            display_height,
+            user_id
         })
     });
 
@@ -42,7 +46,19 @@ export const runEvaluation = async (
         }
     });
 
+    
     if (response.status !== 200) {
+        throw new Error('It was not possible to evaluate the website.');
+    }
+    
+    const response_calculate = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/calculate-score`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response_calculate.status !== 200) {
         throw new Error('It was not possible to evaluate the website.');
     }
 }
@@ -189,7 +205,20 @@ export const getUserWebsites = async(
         throw new Error('Failed to fetch history.');
     }
 
-    console.log(data);
-
     return data.monitoring_registries;
+}
+
+export const getWebsiteFavicon = async(
+    url: string
+) : Promise<string> => {
+    const domain = new URL(url).hostname;
+
+    const googleUrl = `https://www.google.com/s2/favicons?domain=${domain}`;
+  
+    const img = new Image();
+    img.src = googleUrl;
+    
+    return new Promise((resolve) => {
+        img.onload = () => resolve(googleUrl);;
+    });
 }

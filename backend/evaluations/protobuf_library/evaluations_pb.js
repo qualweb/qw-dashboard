@@ -4040,7 +4040,9 @@ isMobile: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
 isLandscape: jspb.Message.getBooleanFieldWithDefault(msg, 4, false),
 displayWidth: jspb.Message.getFieldWithDefault(msg, 5, 0),
 displayHeight: jspb.Message.getFieldWithDefault(msg, 6, 0),
-webpagesList: (f = jspb.Message.getRepeatedField(msg, 7)) == null ? undefined : f
+webpagesList: (f = jspb.Message.getRepeatedField(msg, 7)) == null ? undefined : f,
+websiteName: jspb.Message.getFieldWithDefault(msg, 8, ""),
+userId: jspb.Message.getFieldWithDefault(msg, 9, 0)
   };
 
   if (includeInstance) {
@@ -4104,6 +4106,14 @@ proto.runtimePackage.AddMonitoringRegistryRequest.deserializeBinaryFromReader = 
     case 7:
       var value = /** @type {string} */ (reader.readString());
       msg.addWebpages(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setWebsiteName(value);
+      break;
+    case 9:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setUserId(value);
       break;
     default:
       reader.skipField();
@@ -4180,6 +4190,20 @@ proto.runtimePackage.AddMonitoringRegistryRequest.serializeBinaryToWriter = func
   if (f.length > 0) {
     writer.writeRepeatedString(
       7,
+      f
+    );
+  }
+  f = message.getWebsiteName();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
+      f
+    );
+  }
+  f = message.getUserId();
+  if (f !== 0) {
+    writer.writeInt32(
+      9,
       f
     );
   }
@@ -4328,6 +4352,42 @@ proto.runtimePackage.AddMonitoringRegistryRequest.prototype.addWebpages = functi
  */
 proto.runtimePackage.AddMonitoringRegistryRequest.prototype.clearWebpagesList = function() {
   return this.setWebpagesList([]);
+};
+
+
+/**
+ * optional string website_name = 8;
+ * @return {string}
+ */
+proto.runtimePackage.AddMonitoringRegistryRequest.prototype.getWebsiteName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.runtimePackage.AddMonitoringRegistryRequest} returns this
+ */
+proto.runtimePackage.AddMonitoringRegistryRequest.prototype.setWebsiteName = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
+};
+
+
+/**
+ * optional int32 user_id = 9;
+ * @return {number}
+ */
+proto.runtimePackage.AddMonitoringRegistryRequest.prototype.getUserId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.AddMonitoringRegistryRequest} returns this
+ */
+proto.runtimePackage.AddMonitoringRegistryRequest.prototype.setUserId = function(value) {
+  return jspb.Message.setProto3IntField(this, 9, value);
 };
 
 
@@ -13466,7 +13526,7 @@ proto.runtimePackage.GetUserMonitoringRegistriesResponse.prototype.clearMonitori
  * @private {!Array<number>}
  * @const
  */
-proto.runtimePackage.MonitoringRegistry.repeatedFields_ = [8];
+proto.runtimePackage.MonitoringRegistry.repeatedFields_ = [9];
 
 
 
@@ -13501,14 +13561,19 @@ proto.runtimePackage.MonitoringRegistry.toObject = function(includeInstance, msg
   var f, obj = {
 id: jspb.Message.getFieldWithDefault(msg, 1, 0),
 accessibilityMetric: jspb.Message.getFieldWithDefault(msg, 2, ""),
-mainUrl: jspb.Message.getFieldWithDefault(msg, 3, ""),
-isMobile: jspb.Message.getBooleanFieldWithDefault(msg, 4, false),
-isLandscape: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
-displayWidth: jspb.Message.getFieldWithDefault(msg, 6, 0),
-displayHeight: jspb.Message.getFieldWithDefault(msg, 7, 0),
-webpagesList: (f = jspb.Message.getRepeatedField(msg, 8)) == null ? undefined : f,
+name: jspb.Message.getFieldWithDefault(msg, 3, ""),
+mainUrl: jspb.Message.getFieldWithDefault(msg, 4, ""),
+isMobile: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
+isLandscape: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
+displayWidth: jspb.Message.getFieldWithDefault(msg, 7, 0),
+displayHeight: jspb.Message.getFieldWithDefault(msg, 8, 0),
+webpagesList: (f = jspb.Message.getRepeatedField(msg, 9)) == null ? undefined : f,
 latestEvaluation: (f = msg.getLatestEvaluation()) && proto.runtimePackage.EvalDate.toObject(includeInstance, f),
-score: jspb.Message.getFloatingPointFieldWithDefault(msg, 10, 0.0)
+score: jspb.Message.getFloatingPointFieldWithDefault(msg, 11, 0.0),
+passed: jspb.Message.getFieldWithDefault(msg, 12, 0),
+warnings: jspb.Message.getFieldWithDefault(msg, 13, 0),
+failed: jspb.Message.getFieldWithDefault(msg, 14, 0),
+inapplicable: jspb.Message.getFieldWithDefault(msg, 15, 0)
   };
 
   if (includeInstance) {
@@ -13555,36 +13620,56 @@ proto.runtimePackage.MonitoringRegistry.deserializeBinaryFromReader = function(m
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setMainUrl(value);
+      msg.setName(value);
       break;
     case 4:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setIsMobile(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setMainUrl(value);
       break;
     case 5:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setIsLandscape(value);
+      msg.setIsMobile(value);
       break;
     case 6:
-      var value = /** @type {number} */ (reader.readInt32());
-      msg.setDisplayWidth(value);
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setIsLandscape(value);
       break;
     case 7:
       var value = /** @type {number} */ (reader.readInt32());
-      msg.setDisplayHeight(value);
+      msg.setDisplayWidth(value);
       break;
     case 8:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setDisplayHeight(value);
+      break;
+    case 9:
       var value = /** @type {string} */ (reader.readString());
       msg.addWebpages(value);
       break;
-    case 9:
+    case 10:
       var value = new proto.runtimePackage.EvalDate;
       reader.readMessage(value,proto.runtimePackage.EvalDate.deserializeBinaryFromReader);
       msg.setLatestEvaluation(value);
       break;
-    case 10:
+    case 11:
       var value = /** @type {number} */ (reader.readFloat());
       msg.setScore(value);
+      break;
+    case 12:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setPassed(value);
+      break;
+    case 13:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setWarnings(value);
+      break;
+    case 14:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setFailed(value);
+      break;
+    case 15:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setInapplicable(value);
       break;
     default:
       reader.skipField();
@@ -13629,52 +13714,59 @@ proto.runtimePackage.MonitoringRegistry.serializeBinaryToWriter = function(messa
       f
     );
   }
-  f = message.getMainUrl();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = message.getIsMobile();
-  if (f) {
-    writer.writeBool(
+  f = message.getMainUrl();
+  if (f.length > 0) {
+    writer.writeString(
       4,
       f
     );
   }
-  f = message.getIsLandscape();
+  f = message.getIsMobile();
   if (f) {
     writer.writeBool(
       5,
       f
     );
   }
-  f = message.getDisplayWidth();
-  if (f !== 0) {
-    writer.writeInt32(
+  f = message.getIsLandscape();
+  if (f) {
+    writer.writeBool(
       6,
       f
     );
   }
-  f = message.getDisplayHeight();
+  f = message.getDisplayWidth();
   if (f !== 0) {
     writer.writeInt32(
       7,
       f
     );
   }
+  f = message.getDisplayHeight();
+  if (f !== 0) {
+    writer.writeInt32(
+      8,
+      f
+    );
+  }
   f = message.getWebpagesList();
   if (f.length > 0) {
     writer.writeRepeatedString(
-      8,
+      9,
       f
     );
   }
   f = message.getLatestEvaluation();
   if (f != null) {
     writer.writeMessage(
-      9,
+      10,
       f,
       proto.runtimePackage.EvalDate.serializeBinaryToWriter
     );
@@ -13682,7 +13774,35 @@ proto.runtimePackage.MonitoringRegistry.serializeBinaryToWriter = function(messa
   f = message.getScore();
   if (f !== 0.0) {
     writer.writeFloat(
-      10,
+      11,
+      f
+    );
+  }
+  f = message.getPassed();
+  if (f !== 0) {
+    writer.writeInt32(
+      12,
+      f
+    );
+  }
+  f = message.getWarnings();
+  if (f !== 0) {
+    writer.writeInt32(
+      13,
+      f
+    );
+  }
+  f = message.getFailed();
+  if (f !== 0) {
+    writer.writeInt32(
+      14,
+      f
+    );
+  }
+  f = message.getInapplicable();
+  if (f !== 0) {
+    writer.writeInt32(
+      15,
       f
     );
   }
@@ -13726,10 +13846,10 @@ proto.runtimePackage.MonitoringRegistry.prototype.setAccessibilityMetric = funct
 
 
 /**
- * optional string main_url = 3;
+ * optional string name = 3;
  * @return {string}
  */
-proto.runtimePackage.MonitoringRegistry.prototype.getMainUrl = function() {
+proto.runtimePackage.MonitoringRegistry.prototype.getName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -13738,34 +13858,34 @@ proto.runtimePackage.MonitoringRegistry.prototype.getMainUrl = function() {
  * @param {string} value
  * @return {!proto.runtimePackage.MonitoringRegistry} returns this
  */
-proto.runtimePackage.MonitoringRegistry.prototype.setMainUrl = function(value) {
+proto.runtimePackage.MonitoringRegistry.prototype.setName = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional bool is_mobile = 4;
+ * optional string main_url = 4;
+ * @return {string}
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.getMainUrl = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.runtimePackage.MonitoringRegistry} returns this
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.setMainUrl = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional bool is_mobile = 5;
  * @return {boolean}
  */
 proto.runtimePackage.MonitoringRegistry.prototype.getIsMobile = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 4, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.runtimePackage.MonitoringRegistry} returns this
- */
-proto.runtimePackage.MonitoringRegistry.prototype.setIsMobile = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 4, value);
-};
-
-
-/**
- * optional bool is_landscape = 5;
- * @return {boolean}
- */
-proto.runtimePackage.MonitoringRegistry.prototype.getIsLandscape = function() {
   return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 5, false));
 };
 
@@ -13774,34 +13894,34 @@ proto.runtimePackage.MonitoringRegistry.prototype.getIsLandscape = function() {
  * @param {boolean} value
  * @return {!proto.runtimePackage.MonitoringRegistry} returns this
  */
-proto.runtimePackage.MonitoringRegistry.prototype.setIsLandscape = function(value) {
+proto.runtimePackage.MonitoringRegistry.prototype.setIsMobile = function(value) {
   return jspb.Message.setProto3BooleanField(this, 5, value);
 };
 
 
 /**
- * optional int32 display_width = 6;
+ * optional bool is_landscape = 6;
+ * @return {boolean}
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.getIsLandscape = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 6, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.runtimePackage.MonitoringRegistry} returns this
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.setIsLandscape = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 6, value);
+};
+
+
+/**
+ * optional int32 display_width = 7;
  * @return {number}
  */
 proto.runtimePackage.MonitoringRegistry.prototype.getDisplayWidth = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.runtimePackage.MonitoringRegistry} returns this
- */
-proto.runtimePackage.MonitoringRegistry.prototype.setDisplayWidth = function(value) {
-  return jspb.Message.setProto3IntField(this, 6, value);
-};
-
-
-/**
- * optional int32 display_height = 7;
- * @return {number}
- */
-proto.runtimePackage.MonitoringRegistry.prototype.getDisplayHeight = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
 };
 
@@ -13810,17 +13930,35 @@ proto.runtimePackage.MonitoringRegistry.prototype.getDisplayHeight = function() 
  * @param {number} value
  * @return {!proto.runtimePackage.MonitoringRegistry} returns this
  */
-proto.runtimePackage.MonitoringRegistry.prototype.setDisplayHeight = function(value) {
+proto.runtimePackage.MonitoringRegistry.prototype.setDisplayWidth = function(value) {
   return jspb.Message.setProto3IntField(this, 7, value);
 };
 
 
 /**
- * repeated string webpages = 8;
+ * optional int32 display_height = 8;
+ * @return {number}
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.getDisplayHeight = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.MonitoringRegistry} returns this
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.setDisplayHeight = function(value) {
+  return jspb.Message.setProto3IntField(this, 8, value);
+};
+
+
+/**
+ * repeated string webpages = 9;
  * @return {!Array<string>}
  */
 proto.runtimePackage.MonitoringRegistry.prototype.getWebpagesList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 8));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 9));
 };
 
 
@@ -13829,7 +13967,7 @@ proto.runtimePackage.MonitoringRegistry.prototype.getWebpagesList = function() {
  * @return {!proto.runtimePackage.MonitoringRegistry} returns this
  */
 proto.runtimePackage.MonitoringRegistry.prototype.setWebpagesList = function(value) {
-  return jspb.Message.setField(this, 8, value || []);
+  return jspb.Message.setField(this, 9, value || []);
 };
 
 
@@ -13839,7 +13977,7 @@ proto.runtimePackage.MonitoringRegistry.prototype.setWebpagesList = function(val
  * @return {!proto.runtimePackage.MonitoringRegistry} returns this
  */
 proto.runtimePackage.MonitoringRegistry.prototype.addWebpages = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 8, value, opt_index);
+  return jspb.Message.addToRepeatedField(this, 9, value, opt_index);
 };
 
 
@@ -13853,12 +13991,12 @@ proto.runtimePackage.MonitoringRegistry.prototype.clearWebpagesList = function()
 
 
 /**
- * optional EvalDate latest_evaluation = 9;
+ * optional EvalDate latest_evaluation = 10;
  * @return {?proto.runtimePackage.EvalDate}
  */
 proto.runtimePackage.MonitoringRegistry.prototype.getLatestEvaluation = function() {
   return /** @type{?proto.runtimePackage.EvalDate} */ (
-    jspb.Message.getWrapperField(this, proto.runtimePackage.EvalDate, 9));
+    jspb.Message.getWrapperField(this, proto.runtimePackage.EvalDate, 10));
 };
 
 
@@ -13867,7 +14005,7 @@ proto.runtimePackage.MonitoringRegistry.prototype.getLatestEvaluation = function
  * @return {!proto.runtimePackage.MonitoringRegistry} returns this
 */
 proto.runtimePackage.MonitoringRegistry.prototype.setLatestEvaluation = function(value) {
-  return jspb.Message.setWrapperField(this, 9, value);
+  return jspb.Message.setWrapperField(this, 10, value);
 };
 
 
@@ -13885,16 +14023,16 @@ proto.runtimePackage.MonitoringRegistry.prototype.clearLatestEvaluation = functi
  * @return {boolean}
  */
 proto.runtimePackage.MonitoringRegistry.prototype.hasLatestEvaluation = function() {
-  return jspb.Message.getField(this, 9) != null;
+  return jspb.Message.getField(this, 10) != null;
 };
 
 
 /**
- * optional float score = 10;
+ * optional float score = 11;
  * @return {number}
  */
 proto.runtimePackage.MonitoringRegistry.prototype.getScore = function() {
-  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 10, 0.0));
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 11, 0.0));
 };
 
 
@@ -13903,7 +14041,79 @@ proto.runtimePackage.MonitoringRegistry.prototype.getScore = function() {
  * @return {!proto.runtimePackage.MonitoringRegistry} returns this
  */
 proto.runtimePackage.MonitoringRegistry.prototype.setScore = function(value) {
-  return jspb.Message.setProto3FloatField(this, 10, value);
+  return jspb.Message.setProto3FloatField(this, 11, value);
+};
+
+
+/**
+ * optional int32 passed = 12;
+ * @return {number}
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.getPassed = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 12, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.MonitoringRegistry} returns this
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.setPassed = function(value) {
+  return jspb.Message.setProto3IntField(this, 12, value);
+};
+
+
+/**
+ * optional int32 warnings = 13;
+ * @return {number}
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.getWarnings = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 13, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.MonitoringRegistry} returns this
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.setWarnings = function(value) {
+  return jspb.Message.setProto3IntField(this, 13, value);
+};
+
+
+/**
+ * optional int32 failed = 14;
+ * @return {number}
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.getFailed = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 14, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.MonitoringRegistry} returns this
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.setFailed = function(value) {
+  return jspb.Message.setProto3IntField(this, 14, value);
+};
+
+
+/**
+ * optional int32 inapplicable = 15;
+ * @return {number}
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.getInapplicable = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 15, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.runtimePackage.MonitoringRegistry} returns this
+ */
+proto.runtimePackage.MonitoringRegistry.prototype.setInapplicable = function(value) {
+  return jspb.Message.setProto3IntField(this, 15, value);
 };
 
 
