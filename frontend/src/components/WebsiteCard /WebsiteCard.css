@@ -1,16 +1,30 @@
+
+.website-card-link {
+    display: flex;
+    flex-direction: column;
+    min-width: 30rem;
+    gap: 2rem;
+}
+
+.website-card:hover {
+    background-color: #121212;
+}
+
+.website-card-link:hover {
+    color: white;
+}
+
 .website-card {
-    flex: 1 1;
     min-width: 30rem;
     background-color: var(--terciary-color);
     list-style: none;
     border-radius: 3rem;
-    display: flex;
-    flex-direction: column;
     padding: 4rem;
-    gap: 2rem;
+    flex: 1 1
 }
 
 .website-card-above {
+    width: 100%;    
     display: flex;
     justify-content: space-between;
 }
@@ -22,7 +36,6 @@
 
 .website-info > img {
     width: 3rem;
-    height:auto;
 }
 
 .website-name-url {
@@ -64,6 +77,7 @@
 }
 
 .website-card-under {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;

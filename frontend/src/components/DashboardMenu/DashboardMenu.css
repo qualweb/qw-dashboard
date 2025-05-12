@@ -59,7 +59,7 @@
     justify-content: center;
 }
 
-.sidebar-menu ul li:not(:first-child):not(:last-child):hover {
+.sidebar-menu ul li:not(:last-child):hover {
     background-color: white;
 }
 
@@ -67,10 +67,12 @@
     color: black;
 }
 
+/*
 .sidebar-menu ul li:first-child {
     min-height: 5rem;
     margin-bottom: 3rem;
 }
+*/
 
 .sidebar-menu ul li:last-child {
     margin-top: 3rem;
@@ -117,7 +119,6 @@
     padding-left: 1rem;
     padding-right: 1rem;
 }
-
 
 [data-scope="select"][data-part="item"][data-highlighted]:first-child:last-child {
     border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;

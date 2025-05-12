@@ -315,6 +315,9 @@ export class AddEvaluationRequest extends jspb.Message {
   getMonitoredWebsiteId(): number;
   setMonitoredWebsiteId(value: number): void;
 
+  getMonitoringCycleId(): number;
+  setMonitoringCycleId(value: number): void;
+
   getScreenshot(): Uint8Array | string;
   getScreenshot_asU8(): Uint8Array;
   getScreenshot_asB64(): string;
@@ -345,6 +348,7 @@ export namespace AddEvaluationRequest {
     modulesList: Array<Module.AsObject>,
     modulesQuantity: number,
     monitoredWebsiteId: number,
+    monitoringCycleId: number,
     screenshot: Uint8Array | string,
   }
 }
@@ -1816,6 +1820,122 @@ export namespace MonitoringRegistry {
     warnings: number,
     failed: number,
     inapplicable: number,
+  }
+}
+
+export class GetWebsiteMonitoringCyclesRequest extends jspb.Message {
+  getMonitoringId(): number;
+  setMonitoringId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetWebsiteMonitoringCyclesRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetWebsiteMonitoringCyclesRequest): GetWebsiteMonitoringCyclesRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetWebsiteMonitoringCyclesRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetWebsiteMonitoringCyclesRequest;
+  static deserializeBinaryFromReader(message: GetWebsiteMonitoringCyclesRequest, reader: jspb.BinaryReader): GetWebsiteMonitoringCyclesRequest;
+}
+
+export namespace GetWebsiteMonitoringCyclesRequest {
+  export type AsObject = {
+    monitoringId: number,
+  }
+}
+
+export class GetWebsiteMonitoringCyclesResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearMonitoringCyclesList(): void;
+  getMonitoringCyclesList(): Array<MonitoringCycle>;
+  setMonitoringCyclesList(value: Array<MonitoringCycle>): void;
+  addMonitoringCycles(value?: MonitoringCycle, index?: number): MonitoringCycle;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetWebsiteMonitoringCyclesResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetWebsiteMonitoringCyclesResponse): GetWebsiteMonitoringCyclesResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetWebsiteMonitoringCyclesResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetWebsiteMonitoringCyclesResponse;
+  static deserializeBinaryFromReader(message: GetWebsiteMonitoringCyclesResponse, reader: jspb.BinaryReader): GetWebsiteMonitoringCyclesResponse;
+}
+
+export namespace GetWebsiteMonitoringCyclesResponse {
+  export type AsObject = {
+    statusCode: number,
+    monitoringCyclesList: Array<MonitoringCycle.AsObject>,
+  }
+}
+
+export class MonitoringCycle extends jspb.Message {
+  getId(): number;
+  setId(value: number): void;
+
+  hasCycleDate(): boolean;
+  clearCycleDate(): void;
+  getCycleDate(): EvalDate | undefined;
+  setCycleDate(value?: EvalDate): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): MonitoringCycle.AsObject;
+  static toObject(includeInstance: boolean, msg: MonitoringCycle): MonitoringCycle.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: MonitoringCycle, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): MonitoringCycle;
+  static deserializeBinaryFromReader(message: MonitoringCycle, reader: jspb.BinaryReader): MonitoringCycle;
+}
+
+export namespace MonitoringCycle {
+  export type AsObject = {
+    id: number,
+    cycleDate?: EvalDate.AsObject,
+  }
+}
+
+export class SetNewMonitoringCycleRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SetNewMonitoringCycleRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: SetNewMonitoringCycleRequest): SetNewMonitoringCycleRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SetNewMonitoringCycleRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SetNewMonitoringCycleRequest;
+  static deserializeBinaryFromReader(message: SetNewMonitoringCycleRequest, reader: jspb.BinaryReader): SetNewMonitoringCycleRequest;
+}
+
+export namespace SetNewMonitoringCycleRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+  }
+}
+
+export class SetNewMonitoringCycleResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  getMonitoringCycleId(): number;
+  setMonitoringCycleId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SetNewMonitoringCycleResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: SetNewMonitoringCycleResponse): SetNewMonitoringCycleResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SetNewMonitoringCycleResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SetNewMonitoringCycleResponse;
+  static deserializeBinaryFromReader(message: SetNewMonitoringCycleResponse, reader: jspb.BinaryReader): SetNewMonitoringCycleResponse;
+}
+
+export namespace SetNewMonitoringCycleResponse {
+  export type AsObject = {
+    statusCode: number,
+    monitoringCycleId: number,
   }
 }
 

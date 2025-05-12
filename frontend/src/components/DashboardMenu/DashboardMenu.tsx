@@ -1,19 +1,22 @@
-import { DashboardIcon, HistoryIcon, ManualIcon, SignOutIcon, TimeIcon, UserIcon, WarningIcon } from '../../assets/Icons';
+import { DashboardIcon, ScaleIcon, ManualIcon, SignOutIcon, TimeIcon, UserIcon, WarningIcon } from '../../assets/Icons';
 import WebsiteDashboardMenuItem from '../DashboardMenuItem/DashboardMenuItem';
 import './DashboardMenu.css';
 
+import { Menu } from '@ark-ui/react/menu'
+/*
 import { Portal } from '@ark-ui/react/portal'
 import { Select, createListCollection } from '@ark-ui/react/select'
 import { ChevronDownIcon } from 'lucide-react'
-import { Menu } from '@ark-ui/react/menu'
 import { useEffect, useState } from 'react';
 import { getMonitoredWebsites } from '../../services/EvaluationService';
+*/
 
 interface DashboardMenuProps {
     monitoring_id : string;
 }
 
 function DashboardMenu (props: DashboardMenuProps) {
+    /*
     const [monitoredWebsites, setMonitoredWebsites] = useState([]);
 
     useEffect(() => {
@@ -25,11 +28,13 @@ function DashboardMenu (props: DashboardMenuProps) {
         fetchMonitoredWebsites();
     }, [props.monitoring_id]);
 
+    
     const items = createWebpagesCollection(monitoredWebsites);
 
     const collection = createListCollection({
         items: items,
     });
+    */
     
     const current_username = "Tomás"
 
@@ -43,7 +48,7 @@ function DashboardMenu (props: DashboardMenuProps) {
             </h1>
             <nav className='sidebar-menu'>
                 <ul>
-                    <li>
+                    { /*<li>
                         <Select.Root collection={collection}>
                             <Select.Label className='select-website-label'>
                                 <strong>Current website</strong>
@@ -71,10 +76,10 @@ function DashboardMenu (props: DashboardMenuProps) {
                             </Portal>
                             <Select.HiddenSelect />
                         </Select.Root>
-                    </li>
+                    </li> */}
                     <li>
                         <div className='list-item'>
-                            <WebsiteDashboardMenuItem name="Dashboard" path={`/dashboard/${props.monitoring_id}`}  icon={DashboardIcon} />
+                            <WebsiteDashboardMenuItem name="Websites overview" path={`/websites-overview`}  icon={DashboardIcon} />
                         </div>
                     </li>
                     <li>
@@ -94,7 +99,7 @@ function DashboardMenu (props: DashboardMenuProps) {
                     </li>
                     <li>
                         <div className='list-item'>
-                            <WebsiteDashboardMenuItem name="Evaluation history" path="/history" icon={HistoryIcon} />
+                            <WebsiteDashboardMenuItem name="Compare Evaluations" path={`/compare-evaluations/${props.monitoring_id}`} icon={ScaleIcon} />
                         </div>
                     </li>
                     <li>
@@ -123,6 +128,7 @@ function DashboardMenu (props: DashboardMenuProps) {
 
 export default DashboardMenu;
 
+/*
 function createWebpagesCollection(list : string[]) {
     const items : { label: string, value: string }[] = []
 
@@ -132,3 +138,4 @@ function createWebpagesCollection(list : string[]) {
 
     return items;
 }
+*/

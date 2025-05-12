@@ -33,7 +33,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
     z-index: 101;
 }
   
@@ -41,10 +40,11 @@
     background-color: #222222;
     border-radius: 2rem;
     padding: 24px;
-    width: 70vw;
+    width: 60vw;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     color: white;
     position: relative;
+    padding: 2rem 4rem;
 }
 
 .visualize-dialog-wrapper {
@@ -71,7 +71,6 @@
 }
 
 .visualize-screenshot {
-    width: fit-content;
     max-height: 70vh;
     overflow-y: auto;
     overflow-x: hidden;
@@ -82,9 +81,8 @@
 }
 
 .visualize-dialog-header {
-    width: 90%;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 1rem;
 }

@@ -76,7 +76,7 @@ app.post('/api/monitoring/crawl', function (req, res) {
     };
     function run(urlToCrawl) {
         return __awaiter(this, void 0, void 0, function () {
-            var urls, requestQueue, crawler;
+            var urls, requestQueue, seenUrls, crawler;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -84,15 +84,22 @@ app.post('/api/monitoring/crawl', function (req, res) {
                         return [4 /*yield*/, crawlee_1.RequestQueue.open()];
                     case 1:
                         requestQueue = _a.sent();
+                        seenUrls = new Set();
                         crawler = new crawlee_1.PuppeteerCrawler({
                             requestQueue: requestQueue,
                             requestHandler: function (_a) {
                                 return __awaiter(this, arguments, void 0, function (_b) {
+                                    var finalUrl;
                                     var request = _b.request, page = _b.page, enqueueLinks = _b.enqueueLinks, log = _b.log;
                                     return __generator(this, function (_c) {
                                         switch (_c.label) {
                                             case 0:
-                                                urls.push(request.url);
+                                                finalUrl = page.url();
+                                                // Only add URLs we haven't seen before
+                                                if (!seenUrls.has(finalUrl)) {
+                                                    urls.push(finalUrl);
+                                                    seenUrls.add(finalUrl);
+                                                }
                                                 return [4 /*yield*/, enqueueLinks({
                                                         globs: ["http?(s)://".concat(new URL(urlToCrawl).hostname, "/**")],
                                                         requestQueue: requestQueue,
@@ -108,28 +115,8 @@ app.post('/api/monitoring/crawl', function (req, res) {
                             launchContext: {
                                 launchOptions: {
                                     args: [
-                                        '--disable-dev-shm-usage',
                                         '--disable-gpu',
-                                        '--disable-setuid-sandbox',
                                         '--no-sandbox',
-                                        '--no-zygote',
-                                        '--deterministic-fetch',
-                                        '--disable-features=IsolateOrigins',
-                                        '--disable-site-isolation-trials',
-                                        '--disable-extensions',
-                                        '--disable-component-extensions-with-background-pages',
-                                        '--disable-default-apps',
-                                        '--mute-audio',
-                                        '--no-default-browser-check',
-                                        '--autoplay-policy=user-gesture-required',
-                                        '--disable-background-timer-throttling',
-                                        '--disable-backgrounding-occluded-windows',
-                                        '--disable-notifications',
-                                        '--disable-background-networking',
-                                        '--disable-breakpad',
-                                        '--disable-component-update',
-                                        '--disable-domain-reliability',
-                                        '--disable-sync',
                                     ],
                                     headless: true,
                                 },
@@ -240,12 +227,13 @@ app.post('/api/monitoring/set-accessibility-metric', function (req, res) { retur
     });
 }); });
 // This endpoint executes the evaluations
-app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getWebpagesRequest_1, response, urls, screen_width_1, screen_height_1, reports_1, _i, urls_1, url, report, validReports, processPromises, results, successful, failed, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
+app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, monitoring_cycle_id, getWebpagesRequest_1, response, urls, screen_width_1, screen_height_1, reports_1, _i, urls_1, url, report, validReports, processPromises, results, successful, failed, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 monitoring_id = req.params.monitoring_id;
+                monitoring_cycle_id = req.params.monitoring_cycle_id;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 10, , 11]);
@@ -262,8 +250,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
             case 2:
                 response = _a.sent();
                 if (response.getStatusCode() !== 200) {
-                    res.send(response.getStatusCode());
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.send(response.getStatusCode())];
                 }
                 urls = response.getWebpagesList();
                 screen_width_1 = response.getDisplayWidth();
@@ -277,7 +264,9 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                 return [4 /*yield*/, evaluate(url, screen_width_1, screen_height_1, response.getIsMobile(), response.getIsLandscape())];
             case 4:
                 report = _a.sent();
-                reports_1[url] = report[url];
+                console.log("Successfully evaluated URL ".concat(url));
+                if (report[url] !== undefined)
+                    reports_1[url] = report[url];
                 if (!(url !== urls[urls.length - 1])) return [3 /*break*/, 6];
                 return [4 /*yield*/, (0, crawlee_1.sleep)(500)];
             case 5:
@@ -287,21 +276,19 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                 _i++;
                 return [3 /*break*/, 3];
             case 7:
+                console.log(reports_1);
                 validReports = urls
                     .filter(function (url) { return reports_1[url]; })
                     .map(function (url) { return ({
                     url: url,
                     report: reports_1[url]
                 }); });
+                console.log(validReports);
                 if (validReports.length === 0) {
-                    res.send(404);
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.send(404)];
                 }
                 if (validReports.length < urls.length) {
-                    res.status(207).json({
-                        message: 'Some URLs could not be evaluated',
-                        urls: urls.filter(function (url) { return !reports_1[url]; })
-                    });
+                    console.error('Some URLs could not be evaluated');
                 }
                 processPromises = validReports.map(function (_a) { return __awaiter(void 0, [_a], void 0, function (_b) {
                     var browser_1, page, screenshot, evaluations_request_1, _c, _d, response_1, error_4;
@@ -310,28 +297,36 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                     return __generator(this, function (_l) {
                         switch (_l.label) {
                             case 0:
-                                _l.trys.push([0, 8, , 9]);
+                                _l.trys.push([0, 9, , 10]);
                                 return [4 /*yield*/, puppeteer_1.default.launch({
                                         headless: true,
-                                        args: ['--no-sandbox']
+                                        args: [
+                                            '--disable-gpu',
+                                            '--no-sandbox',
+                                            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+                                        ],
+                                        timeout: 5000,
                                     })];
                             case 1:
                                 browser_1 = _l.sent();
                                 return [4 /*yield*/, browser_1.newPage()];
                             case 2:
                                 page = _l.sent();
+                                return [4 /*yield*/, page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
+                            case 3:
+                                _l.sent();
                                 return [4 /*yield*/, page.setViewport({
                                         width: screen_width_1,
                                         height: screen_height_1,
                                         deviceScaleFactor: 1,
                                     })];
-                            case 3:
-                                _l.sent();
-                                return [4 /*yield*/, page.goto(url, { waitUntil: 'domcontentloaded' })];
                             case 4:
                                 _l.sent();
-                                return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(url, screen_width_1, screen_height_1)];
+                                return [4 /*yield*/, page.goto(url, { waitUntil: 'networkidle0' })];
                             case 5:
+                                _l.sent();
+                                return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(url, screen_width_1, screen_height_1)];
+                            case 6:
                                 screenshot = _l.sent();
                                 evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
                                 evaluations_request_1.setQualwebVersion(report.system.version);
@@ -346,10 +341,11 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                 evaluations_request_1.setInapplicable(report.metadata.inapplicable);
                                 _d = (_c = evaluations_request_1).setModulesList;
                                 return [4 /*yield*/, (0, process_evals_1.default)(report, page)];
-                            case 6:
+                            case 7:
                                 _d.apply(_c, [_l.sent()]);
                                 evaluations_request_1.setModulesQuantity(2);
                                 evaluations_request_1.setMonitoredWebsiteId(Number(monitoring_id));
+                                evaluations_request_1.setMonitoringCycleId(Number(monitoring_cycle_id));
                                 if (screenshot) {
                                     evaluations_request_1.setScreenshot(screenshot);
                                 }
@@ -361,15 +357,15 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                                 resolve(response);
                                         });
                                     })];
-                            case 7:
+                            case 8:
                                 response_1 = _l.sent();
                                 console.log("Successfully added evaluation for URL ".concat(url));
                                 return [2 /*return*/, { url: url, success: true, statusCode: response_1.getStatusCode() }];
-                            case 8:
+                            case 9:
                                 error_4 = _l.sent();
                                 console.error("Error adding evaluation for URL ".concat(url, ":"), error_4);
                                 return [2 /*return*/, { url: url, success: false, error: error_4 }];
-                            case 9: return [2 /*return*/];
+                            case 10: return [2 /*return*/];
                         }
                     });
                 }); });
@@ -380,11 +376,10 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                 failed = results.length - successful;
                 console.log("Processing complete. Successful: ".concat(successful, ", Failed: ").concat(failed));
                 if (successful === 0 && failed > 0) {
-                    res.status(500).json({
-                        message: 'All evaluations failed',
-                        results: results
-                    });
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.status(500).json({
+                            message: 'All evaluations failed',
+                            results: results
+                        })];
                 }
                 setLatestEvalRequest_1 = new evaluations_pb_1.SetLatestEvaluationRequest();
                 setLatestEvalRequest_1.setMonitoringRegistryId(Number(monitoring_id));
@@ -399,16 +394,14 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
             case 9:
                 setLatestEvalResponse = _a.sent();
                 if (setLatestEvalResponse.getStatusCode() !== 200) {
-                    res.send(setLatestEvalResponse.getStatusCode());
-                    return [2 /*return*/];
+                    return [2 /*return*/, res.send(setLatestEvalResponse.getStatusCode())];
                 }
-                res.status(200).json({
-                    message: 'Evaluation processing complete',
-                    total: results.length,
-                    successful: successful,
-                    failed: failed
-                });
-                return [3 /*break*/, 11];
+                return [2 /*return*/, res.status(200).json({
+                        message: 'Evaluation processing complete',
+                        total: results.length,
+                        successful: successful,
+                        failed: failed
+                    })];
             case 10:
                 error_3 = _a.sent();
                 console.error('Error during evaluation:', error_3);
@@ -419,7 +412,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
     });
 }); });
 app.post('/api/monitoring/:monitoring_id/calculate-score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, calculateScoreRequest_1, response, error_5;
+    var monitoring_id, getScoreRequest_1, response, error_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -427,10 +420,10 @@ app.post('/api/monitoring/:monitoring_id/calculate-score', function (req, res) {
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                calculateScoreRequest_1 = new evaluations_pb_1.CalculateAccessibilityScoreRequest();
-                calculateScoreRequest_1.setMonitoringRegistryId(Number(monitoring_id));
+                getScoreRequest_1 = new evaluations_pb_1.CalculateAccessibilityScoreRequest();
+                getScoreRequest_1.setMonitoringRegistryId(Number(monitoring_id));
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        client.calculateAccessibilityScore(calculateScoreRequest_1, function (err, callResponse) {
+                        client.calculateAccessibilityScore(getScoreRequest_1, function (err, callResponse) {
                             if (err)
                                 reject(err);
                             else
@@ -439,19 +432,12 @@ app.post('/api/monitoring/:monitoring_id/calculate-score', function (req, res) {
                     })];
             case 2:
                 response = _a.sent();
-                if (response.getStatusCode() !== 200) {
-                    res.send(response.getStatusCode());
-                    return [2 /*return*/];
-                }
-                return [3 /*break*/, 4];
+                return [2 /*return*/, res.send(response.getStatusCode())];
             case 3:
                 error_5 = _a.sent();
-                console.error('Error calculating the accessibility score:', error_5);
-                res.send(500);
-                return [3 /*break*/, 4];
-            case 4:
-                res.send(200);
-                return [2 /*return*/];
+                console.error('Error fetching score:', error_5);
+                return [2 /*return*/, res.send(500)];
+            case 4: return [2 /*return*/];
         }
     });
 }); });
@@ -602,7 +588,7 @@ app.get('/api/monitoring/:id/current-warnings', function (req, res) { return __a
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getScoreRequest_1, response, error_10;
+    var monitoring_id, getScoreRequest_2, response, error_10;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -610,10 +596,10 @@ app.get('/api/monitoring/:monitoring_id/score', function (req, res) { return __a
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                getScoreRequest_1 = new evaluations_pb_1.GetWebsiteScoreRequest();
-                getScoreRequest_1.setMonitoringRegistryId(Number(monitoring_id));
+                getScoreRequest_2 = new evaluations_pb_1.GetWebsiteScoreRequest();
+                getScoreRequest_2.setMonitoringRegistryId(Number(monitoring_id));
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        client.getWebsiteScore(getScoreRequest_1, function (err, callResponse) {
+                        client.getWebsiteScore(getScoreRequest_2, function (err, callResponse) {
                             if (err)
                                 reject(err);
                             else
@@ -952,6 +938,82 @@ app.get('/api/monitoring/:user_id', function (req, res) { return __awaiter(void 
             case 3:
                 error_18 = _a.sent();
                 console.error('Error fetching history:', error_18);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.post('/api/monitoring/:monitoring_id/monitoring-cycle', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, setNewMonitoringCycle_1, response, error_19;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_id = req.params.monitoring_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                setNewMonitoringCycle_1 = new evaluations_pb_1.SetNewMonitoringCycleRequest();
+                setNewMonitoringCycle_1.setMonitoringRegistryId(Number(monitoring_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.setNewMonitoringCycle(setNewMonitoringCycle_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    monitoring_cycle_id: response.getMonitoringCycleId()
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_19 = _a.sent();
+                console.error('Error setting evaluation cycle:', error_19);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.get('/api/monitoring/:monitoring_id/monitoring-cycles', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, getWebsiteMonitoringCycles_1, response, error_20;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_id = req.params.monitoring_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                getWebsiteMonitoringCycles_1 = new evaluations_pb_1.GetWebsiteMonitoringCyclesRequest();
+                getWebsiteMonitoringCycles_1.setMonitoringId(Number(monitoring_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getWebsiteMonitoringCycles(getWebsiteMonitoringCycles_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    monitoring_cycles: (0, convert_1.convertMonitoringCycles)(response.getMonitoringCyclesList())
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_20 = _a.sent();
+                console.error('Error fetching history:', error_20);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];

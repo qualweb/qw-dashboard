@@ -5,3 +5,7 @@
     gap: 1rem;
     align-items: center;
 }
+
+.result-desc {
+    text-align: left;
+}

@@ -37,11 +37,15 @@ import {
     GetEvaluationHistoryRequest,
     GetEvaluationHistoryResponse,
     GetUserMonitoringRegistriesRequest,
-    GetUserMonitoringRegistriesResponse
+    GetUserMonitoringRegistriesResponse,
+    GetWebsiteMonitoringCyclesRequest,
+    GetWebsiteMonitoringCyclesResponse,
+    SetNewMonitoringCycleRequest,
+    SetNewMonitoringCycleResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
-import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertMonitoringRegistries, convertResultElement } from './convert';
+import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertMonitoringCycles, convertMonitoringRegistries, convertResultElement } from './convert';
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
@@ -96,11 +100,19 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
         const urls: string[] = [];
         
         const requestQueue = await RequestQueue.open();
+        const seenUrls = new Set<string>();
         
         const crawler = new PuppeteerCrawler({
             requestQueue,
             async requestHandler({ request, page, enqueueLinks, log }) {
-                urls.push(request.url);
+                // Get the final URL after any redirects
+                const finalUrl = page.url();
+                
+                // Only add URLs we haven't seen before
+                if (!seenUrls.has(finalUrl)) {
+                    urls.push(finalUrl);
+                    seenUrls.add(finalUrl);
+                }
                 
                 await enqueueLinks({
                     globs: [`http?(s)://${new URL(urlToCrawl).hostname}/**`],
@@ -111,28 +123,8 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
             launchContext: {
                 launchOptions: {
                     args: [
-                        '--disable-dev-shm-usage',
                         '--disable-gpu',
-                        '--disable-setuid-sandbox',
                         '--no-sandbox',
-                        '--no-zygote',
-                        '--deterministic-fetch',
-                        '--disable-features=IsolateOrigins',
-                        '--disable-site-isolation-trials',
-                        '--disable-extensions',
-                        '--disable-component-extensions-with-background-pages',
-                        '--disable-default-apps',
-                        '--mute-audio',
-                        '--no-default-browser-check',
-                        '--autoplay-policy=user-gesture-required',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-notifications',
-                        '--disable-background-networking',
-                        '--disable-breakpad',
-                        '--disable-component-update',
-                        '--disable-domain-reliability',
-                        '--disable-sync',
                     ],
                     headless: true,
                 },
@@ -217,8 +209,9 @@ app.post('/api/monitoring/set-accessibility-metric', async (req: Request, res: R
 });
 
 // This endpoint executes the evaluations
-app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Response) => {
+app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id', async (req: Request, res: Response) => {
     const monitoring_id = req.params.monitoring_id;
+    const monitoring_cycle_id = req.params.monitoring_cycle_id;
 
     try {
         const getWebpagesRequest = new GetMonitoringRegistryRequest();
@@ -232,8 +225,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
         });
 
         if (response.getStatusCode() !== 200) {
-            res.send(response.getStatusCode());
-            return;
+            return res.send(response.getStatusCode());
         }
 
         const urls = response.getWebpagesList();
@@ -253,30 +245,33 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
                 response.getIsLandscape()
             );
             
-            reports[url] = report[url];
+            console.log(`Successfully evaluated URL ${url}`);
+
+            if (report[url] !== undefined)
+                reports[url] = report[url];
             
             if (url !== urls[urls.length - 1]) {
                 await sleep(500);
             }
         }
 
+        console.log(reports);
+
         const validReports = urls
             .filter(url => reports[url])
             .map(url => ({
                 url,
                 report: reports[url]
-            }));
+        }));
+
+        console.log(validReports);
 
         if (validReports.length === 0) {
-            res.send(404);
-            return;
+            return res.send(404);
         }
 
         if (validReports.length < urls.length) {
-            res.status(207).json({ 
-                message: 'Some URLs could not be evaluated',
-                urls: urls.filter(url => !reports[url])
-            });
+            console.error('Some URLs could not be evaluated');
         }
 
         const processPromises = validReports.map(async ({ url, report }) => {
@@ -284,10 +279,17 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
 
                 const browser : Browser = await puppeteer.launch({
                     headless: true,
-                    args: ['--no-sandbox']
+                    args: [
+                        '--disable-gpu',
+                        '--no-sandbox',
+                        '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+                      ],
+                    timeout: 5000,
                 });
                 
                 const page : Page = await browser.newPage();
+
+                await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
 
                 await page.setViewport({
                     width: screen_width,
@@ -295,7 +297,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
                     deviceScaleFactor: 1,
                 });
                 
-                await page.goto(url, { waitUntil: 'domcontentloaded' });
+                await page.goto(url, { waitUntil: 'networkidle0' });
 
                 const screenshot = await takeWebpageScreenshot(url, screen_width, screen_height);
 
@@ -313,6 +315,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
                 evaluations_request.setModulesList(await getModules(report, page));
                 evaluations_request.setModulesQuantity(2);
                 evaluations_request.setMonitoredWebsiteId(Number(monitoring_id));
+                evaluations_request.setMonitoringCycleId(Number(monitoring_cycle_id));
 
                 if (screenshot) {
                     evaluations_request.setScreenshot(screenshot);
@@ -341,11 +344,10 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
         console.log(`Processing complete. Successful: ${successful}, Failed: ${failed}`);
         
         if (successful === 0 && failed > 0) {
-            res.status(500).json({ 
+            return res.status(500).json({ 
                 message: 'All evaluations failed',
                 results 
             });
-            return;
         }
 
         const setLatestEvalRequest = new SetLatestEvaluationRequest();
@@ -359,11 +361,10 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
         });
 
         if (setLatestEvalResponse.getStatusCode() !== 200) {
-            res.send(setLatestEvalResponse.getStatusCode());
-            return;
+            return res.send(setLatestEvalResponse.getStatusCode());
         }
 
-        res.status(200).json({ 
+        return res.status(200).json({ 
             message: 'Evaluation processing complete',
             total: results.length,
             successful,
@@ -380,27 +381,21 @@ app.post('/api/monitoring/:monitoring_id/calculate-score', async (req: Request, 
     const monitoring_id = req.params.monitoring_id;
 
     try {
-        const calculateScoreRequest = new CalculateAccessibilityScoreRequest();
-        calculateScoreRequest.setMonitoringRegistryId(Number(monitoring_id));
+        const getScoreRequest = new CalculateAccessibilityScoreRequest();
+        getScoreRequest.setMonitoringRegistryId(Number(monitoring_id));
 
         const response = await new Promise<CalculateAccessibilityScoreResponse>((resolve, reject) => {
-            client.calculateAccessibilityScore(calculateScoreRequest, (err: Error, callResponse: CalculateAccessibilityScoreResponse) => {
+            client.calculateAccessibilityScore(getScoreRequest, (err: Error, callResponse: CalculateAccessibilityScoreResponse) => {
                 if (err) reject(err);
                 else resolve(callResponse);
             });
         });
 
-        if (response.getStatusCode() !== 200) {
-            res.send(response.getStatusCode());
-            return;
-        }
+        return res.send(response.getStatusCode());
+    } catch (error) {
+        console.error('Error fetching score:', error);
+        return res.send(500);
     }
-    catch (error) {
-        console.error('Error calculating the accessibility score:', error);
-        res.send(500);
-    }
-
-    res.send(200);
 });
 
 app.post('/api/monitoring/:monitoring_id/add-webpages', async (req: Request, res: Response) => {
@@ -780,6 +775,62 @@ app.get('/api/monitoring/:user_id', async (req: Request, res: Response) => {
 
         res.status(200).json({
             monitoring_registries: convertMonitoringRegistries(response.getMonitoringRegistriesList())
+        });
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.send(500);
+    }
+});
+
+app.post('/api/monitoring/:monitoring_id/monitoring-cycle', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
+
+    try {
+        const setNewMonitoringCycle = new SetNewMonitoringCycleRequest();
+        setNewMonitoringCycle.setMonitoringRegistryId(Number(monitoring_id));
+
+        const response = await new Promise<SetNewMonitoringCycleResponse>((resolve, reject) => {
+            client.setNewMonitoringCycle(setNewMonitoringCycle, (err: Error, callResponse: SetNewMonitoringCycleResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            monitoring_cycle_id: response.getMonitoringCycleId()
+        });
+    } catch (error) {
+        console.error('Error setting evaluation cycle:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/monitoring/:monitoring_id/monitoring-cycles', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
+
+    try {
+        const getWebsiteMonitoringCycles = new GetWebsiteMonitoringCyclesRequest();
+        getWebsiteMonitoringCycles.setMonitoringId(Number(monitoring_id));
+
+        const response = await new Promise<GetWebsiteMonitoringCyclesResponse>((resolve, reject) => {
+            client.getWebsiteMonitoringCycles(getWebsiteMonitoringCycles, (err: Error, callResponse: GetWebsiteMonitoringCyclesResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            monitoring_cycles: convertMonitoringCycles(response.getMonitoringCyclesList())
         });
     } catch (error) {
         console.error('Error fetching history:', error);

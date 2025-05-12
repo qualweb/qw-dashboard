@@ -81,6 +81,7 @@ function WebsitesOverview() {
                             websites.map((website) => (
                                 <WebsiteCard 
                                     key={website['id']}
+                                    id={website['id']}
                                     name={website['name']}
                                     url={website['main_url']}
                                     is_mobile={website['is_mobile']}

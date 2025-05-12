@@ -39,7 +39,10 @@ from protobuf_library.evaluations_pb2 import (
     EvaluationHistory,
     EvalDate,
     MonitoringRegistry,
-    GetUserMonitoringRegistriesResponse
+    GetUserMonitoringRegistriesResponse,
+    GetWebsiteMonitoringCyclesResponse,
+    MonitoringCycle,
+    SetNewMonitoringCycleResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -106,18 +109,18 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 INSERT INTO Evaluation (
                     qualweb_version, monitored_website_id, input_url,
                     complete_url,
-                    dom, title, element_count, passed, warning, failed, inapplicable, screenshot
+                    dom, title, element_count, passed, warning, failed, inapplicable, screenshot, evaluation_cycle_id
                 ) VALUES (
                     %s, %s, %s,
                     %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s
                 ) RETURNING id
             ''', (
                 str(request.qualweb_version), str(request.monitored_website_id), str(request.input_url), 
                 str(request.complete_url),
                 str(request.dom), str(request.title), str(request.element_count), 
                 str(int(request.passed)), str(int(request.warning)), str(int(request.failed)), str(int(request.inapplicable)),
-                request.screenshot
+                request.screenshot, request.monitoring_cycle_id
             ))
 
             print("Hello", file=sys.stderr, flush=True)
@@ -354,7 +357,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             print(webpages, file=sys.stderr, flush=True)
 
-            calculate_website_a3_score(webpages, request.monitoring_registry_id, cursor)
+            score = calculate_website_a3_score(webpages, request.monitoring_registry_id, cursor)
 
             conn.commit()
             cursor.close()
@@ -368,7 +371,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             if conn:
                 connection_pool.putconn(conn)
 
-        return CalculateAccessibilityScoreResponse(status_code=200)
+        return CalculateAccessibilityScoreResponse(status_code=200, accessibility_score=score)
 
     def SetLatestEvaluation(self, request, context):
         conn = None
@@ -870,12 +873,13 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
                 evaluation_id = cursor.fetchone()
 
-                response.append(
-                    EvaluationIdUrl(
-                        evaluation_id=evaluation_id[0],
-                        evaluation_url=webpage
+                if evaluation_id:
+                    response.append(
+                        EvaluationIdUrl(
+                            evaluation_id=evaluation_id[0],
+                            evaluation_url=webpage
+                        )
                     )
-                )
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
             if conn:
@@ -1135,19 +1139,20 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
                     eval_id = cursor.fetchone()
 
-                    cursor.execute('''
-                        SELECT passed, warning, failed, inapplicable
-                        FROM Module
-                        WHERE evaluation_id = %s
-                        AND module_type = 'act-rules'
-                    ''', (eval_id,))
+                    if eval_id is not None:
+                        cursor.execute('''
+                            SELECT passed, warning, failed, inapplicable
+                            FROM Module
+                            WHERE evaluation_id = %s
+                            AND module_type = 'act-rules'
+                        ''', (eval_id,))
 
-                    stats = cursor.fetchone()
+                        stats = cursor.fetchone()
 
-                    passed += stats[0]
-                    warnings += stats[1]
-                    failed += stats[2]
-                    inapplicable += stats[3]
+                        passed += stats[0]
+                        warnings += stats[1]
+                        failed += stats[2]
+                        inapplicable += stats[3]
 
                 response.append(
                     MonitoringRegistry(
@@ -1186,6 +1191,83 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return GetUserMonitoringRegistriesResponse(status_code=200, monitoring_registries=response)
+    
+    def GetWebsiteMonitoringCycles(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                SELECT id, cycle_date FROM Monitoring_Cycle
+                WHERE monitoring_registry_id = %s
+                ORDER BY cycle_date DESC
+            ''', (request.monitoring_id, ))
+
+            response = cursor.fetchall()
+
+            monitoring_cycles=[]
+
+            for cycle in response:
+                monitoring_cycles.append(
+                    MonitoringCycle(
+                        id=cycle[0],
+                        cycle_date=EvalDate(
+                            day=cycle[1].day,
+                            month=cycle[1].month,
+                            year=cycle[1].year
+                        )
+                    )
+                )
+
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetWebsiteMonitoringCyclesResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+        
+        return GetWebsiteMonitoringCyclesResponse(status_code=200, monitoring_cycles=monitoring_cycles)
+    
+    def SetNewMonitoringCycle(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                INSERT INTO Monitoring_Cycle (
+                    monitoring_registry_id
+                ) VALUES (
+                    %s
+                ) RETURNING id
+            ''', (
+                request.monitoring_registry_id, 
+            ))
+
+            monitoring_cycle_id = cursor.fetchone()[0]
+            print(monitoring_cycle_id, file=sys.stderr, flush=True)
+
+            conn.commit()
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return SetNewMonitoringCycleResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return SetNewMonitoringCycleResponse(status_code=200, monitoring_cycle_id=monitoring_cycle_id)
 
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

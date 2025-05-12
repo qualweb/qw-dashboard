@@ -130,87 +130,131 @@ function getSuccessCriteriaList(assertion : QualwebAssertion) : SuccessCriteria[
     return success_criteria_list;
 }
 
-async function getResults(assertion : QualwebAssertion, page : Page) : Promise<[Result[], number]> {
-    var results : Result[] = [];
-    var results_counter : number = 0;
+async function getResults(assertion: QualwebAssertion, page: Page): Promise<[Result[], number]> {
+    const results: Result[] = [];
+    let results_counter = 0;
 
-    for(const result of assertion.results) {
-        var new_result = new Result();
+    // Flatten all pointers with a lookup for mapping back
+    const pointerMap = new Map<string, { resultIndex: number, elementIndex: number }[]>();
 
-        var elements : Element[] = [];
-        var elements_counter : number = 0;
+    for (let i = 0; i < assertion.results.length; i++) {
+        for (let j = 0; j < assertion.results[i].elements.length; j++) {
+            const pointer = assertion.results[i].elements[j].pointer;
+            if (pointer) {
+                if (!pointerMap.has(pointer)) {
+                    pointerMap.set(pointer, []);
+                }
+                pointerMap.get(pointer)!.push({ resultIndex: i, elementIndex: j });
+            }
+        }
+    }
 
+    const uniquePointers = Array.from(pointerMap.keys());
+
+    // Run a single evaluation to get all bounding boxes and outerHTML
+    const boundingBoxResults: {
+        selector: string;
+        html?: string;
+        x?: number;
+        y?: number;
+        width?: number;
+        height?: number;
+    }[] = await page.evaluate((selectors) => {
+        return selectors.map(selector => {
+            try {
+              const el = document.querySelector(selector);
+              if (!el) return { selector };
+          
+              const rect = el.getBoundingClientRect();
+              return {
+                selector,
+                html: el.outerHTML,
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height
+              };
+            } catch (e : any) {
+              return { selector, error: e.message }; // Return error info without crashing
+            }
+          });
+    }, uniquePointers);
+
+    // Build a fast lookup
+    const boundingBoxMap = new Map(boundingBoxResults.map(b => [b.selector, b]));
+
+    for (let i = 0; i < assertion.results.length; i++) {
+        const result = assertion.results[i];
+        const new_result = new Result();
         new_result.setVerdict(result.verdict);
         new_result.setDescription(result.description);
-    
-        for(const element of result.elements) {
-            var new_element = new Element();
-            
-            if (element.htmlCode !== undefined)
-                new_element.setHtmlCode(element.htmlCode);
 
-            if (element.pointer !== undefined) {
-                new_element.setPointer(element.pointer);
+        const elements: Element[] = [];
 
-                const getElementPosDim = async (pointer : string) => {
-                    const element = await page.waitForSelector(pointer);
+        for (let j = 0; j < result.elements.length; j++) {
+            const original = result.elements[j];
+            const new_element = new Element();
 
-                    if (!element) {
-                        console.error(`Element not found for pointer: ${pointer}`);
-                        return;
-                    }
+            if (original.htmlCode !== undefined) {
+                new_element.setHtmlCode(original.htmlCode);
+            }
 
-                    const bounding_box = await element.boundingBox();
-                    
-                    if (!bounding_box) {
-                        console.error(`Bounding box not found for pointer: ${pointer}`);
-                        return;
-                    }
+            if (original.pointer !== undefined) {
+                new_element.setPointer(original.pointer);
 
-                    new_element.setX(bounding_box.x);
-                    new_element.setY(bounding_box.y);
-                    new_element.setWidth(bounding_box.width);
-                    new_element.setHeight(bounding_box.height);
+                const bounding = boundingBoxMap.get(original.pointer);
+                if (!bounding || bounding.x === undefined) {
+                    console.log(`Bounding box not found: ${original.pointer} ${page.url()}`);
+                    continue;
                 }
 
-                await getElementPosDim(element.pointer);
+                new_element.setX(bounding.x!);
+                new_element.setY(bounding.y!);
+                new_element.setWidth(bounding.width!);
+                new_element.setHeight(bounding.height!);
+
+                console.log("Bounding box found:", bounding, original.pointer);
             }
 
             elements.push(new_element);
-            elements_counter++;
         }
 
         new_result.setResultCode(result.resultCode);
-
         new_result.setElementsList(elements);
-        new_result.setElementsQuantity(elements_counter);
-        
+        new_result.setElementsQuantity(elements.length);
+
         results.push(new_result);
         results_counter++;
     }
 
-    return  [results, results_counter];
+    return [results, results_counter];
 }
 
 export async function takeWebpageScreenshot(webpage_url: string, width: number, height: number) {
     const browser = await puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox']
+        args: [
+            '--disable-gpu',
+            '--no-sandbox',
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+          ]
     });
 
     try {
         const page = await browser.newPage();
 
-        await page.goto(webpage_url, { waitUntil: 'domcontentloaded' });
+        await page.goto(webpage_url, { waitUntil: 'networkidle0' });
         
+        const fullHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+
         await page.setViewport({
             width: width,
-            height: height,
+            height: fullHeight,
             deviceScaleFactor: 1,
         });
         
         const screenshot = await page.screenshot({ 
-            fullPage: true
+            fullPage: false
         });
         
         return screenshot;

@@ -7,6 +7,7 @@ exports.convertResultElement = convertResultElement;
 exports.convertEvaluationHistory = convertEvaluationHistory;
 exports.convertDate = convertDate;
 exports.convertMonitoringRegistries = convertMonitoringRegistries;
+exports.convertMonitoringCycles = convertMonitoringCycles;
 function convertLatestEvals(latestEvals) {
     return latestEvals.map(function (element) { return ({
         id: element.getEvaluationId(),
@@ -79,5 +80,11 @@ function convertMonitoringRegistries(monitoringRegistries) {
         warnings: element.getWarnings(),
         failed: element.getFailed(),
         inapplicable: element.getInapplicable()
+    }); });
+}
+function convertMonitoringCycles(cycles) {
+    return cycles.map(function (element) { return ({
+        id: element.getId(),
+        cycle_date: convertDate(element.getCycleDate())
     }); });
 }

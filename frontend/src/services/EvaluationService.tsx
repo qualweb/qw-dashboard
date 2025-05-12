@@ -39,7 +39,20 @@ export const runCrawler = async (
 export const runEvaluation = async (
     monitoring_registry_id : string
 ) => {
-    const response = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate`, {
+    const response_1 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/monitoring-cycle`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response_1.status !== 200) {
+        throw new Error('It was not possible to run the evaluation.');
+    }
+
+    const data = await response_1.json();
+
+    const response_2 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate/${data.monitoring_cycle_id}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -47,7 +60,7 @@ export const runEvaluation = async (
     });
 
     
-    if (response.status !== 200) {
+    if (response_2.status !== 200) {
         throw new Error('It was not possible to evaluate the website.');
     }
     
@@ -211,7 +224,7 @@ export const getUserWebsites = async(
 export const getWebsiteFavicon = async(
     url: string
 ) : Promise<string> => {
-    const domain = new URL(url).hostname;
+    const domain = new URL(url);
 
     const googleUrl = `https://www.google.com/s2/favicons?domain=${domain}`;
   
@@ -221,4 +234,19 @@ export const getWebsiteFavicon = async(
     return new Promise((resolve) => {
         img.onload = () => resolve(googleUrl);;
     });
+}
+
+export const getWebsiteMonitoringCycles = async(
+    monitoring_id: string
+) => {
+    const evaluation_cycles_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/monitoring-cycles`);
+    const data = await evaluation_cycles_response.json();
+
+    if(evaluation_cycles_response.status != 200) {
+        throw new Error('Failed to fetch evaluations.');
+    }
+
+    console.log(data);
+
+    return data.monitoring_cycles;
 }

@@ -187,127 +187,136 @@ function getSuccessCriteriaList(assertion) {
 }
 function getResults(assertion, page) {
     return __awaiter(this, void 0, void 0, function () {
-        var results, results_counter, _i, _a, result, new_result, elements, elements_counter, _b, _c, element, new_element, getElementPosDim;
-        var _this = this;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
+        var results, results_counter, pointerMap, i, j, pointer, uniquePointers, boundingBoxResults, boundingBoxMap, i, result, new_result, elements, j, original, new_element, bounding;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     results = [];
                     results_counter = 0;
-                    _i = 0, _a = assertion.results;
-                    _d.label = 1;
-                case 1:
-                    if (!(_i < _a.length)) return [3 /*break*/, 8];
-                    result = _a[_i];
-                    new_result = new evaluations_pb_1.Result();
-                    elements = [];
-                    elements_counter = 0;
-                    new_result.setVerdict(result.verdict);
-                    new_result.setDescription(result.description);
-                    _b = 0, _c = result.elements;
-                    _d.label = 2;
-                case 2:
-                    if (!(_b < _c.length)) return [3 /*break*/, 6];
-                    element = _c[_b];
-                    new_element = new evaluations_pb_1.Element();
-                    if (element.htmlCode !== undefined)
-                        new_element.setHtmlCode(element.htmlCode);
-                    if (!(element.pointer !== undefined)) return [3 /*break*/, 4];
-                    new_element.setPointer(element.pointer);
-                    getElementPosDim = function (pointer) { return __awaiter(_this, void 0, void 0, function () {
-                        var element, bounding_box;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, page.waitForSelector(pointer)];
-                                case 1:
-                                    element = _a.sent();
-                                    if (!element) {
-                                        console.error("Element not found for pointer: ".concat(pointer));
-                                        return [2 /*return*/];
-                                    }
-                                    return [4 /*yield*/, element.boundingBox()];
-                                case 2:
-                                    bounding_box = _a.sent();
-                                    if (!bounding_box) {
-                                        console.error("Bounding box not found for pointer: ".concat(pointer));
-                                        return [2 /*return*/];
-                                    }
-                                    new_element.setX(bounding_box.x);
-                                    new_element.setY(bounding_box.y);
-                                    new_element.setWidth(bounding_box.width);
-                                    new_element.setHeight(bounding_box.height);
-                                    return [2 /*return*/];
+                    pointerMap = new Map();
+                    for (i = 0; i < assertion.results.length; i++) {
+                        for (j = 0; j < assertion.results[i].elements.length; j++) {
+                            pointer = assertion.results[i].elements[j].pointer;
+                            if (pointer) {
+                                if (!pointerMap.has(pointer)) {
+                                    pointerMap.set(pointer, []);
+                                }
+                                pointerMap.get(pointer).push({ resultIndex: i, elementIndex: j });
                             }
-                        });
-                    }); };
-                    return [4 /*yield*/, getElementPosDim(element.pointer)];
-                case 3:
-                    _d.sent();
-                    _d.label = 4;
-                case 4:
-                    elements.push(new_element);
-                    elements_counter++;
-                    _d.label = 5;
-                case 5:
-                    _b++;
-                    return [3 /*break*/, 2];
-                case 6:
-                    new_result.setResultCode(result.resultCode);
-                    new_result.setElementsList(elements);
-                    new_result.setElementsQuantity(elements_counter);
-                    results.push(new_result);
-                    results_counter++;
-                    _d.label = 7;
-                case 7:
-                    _i++;
-                    return [3 /*break*/, 1];
-                case 8: return [2 /*return*/, [results, results_counter]];
+                        }
+                    }
+                    uniquePointers = Array.from(pointerMap.keys());
+                    return [4 /*yield*/, page.evaluate(function (selectors) {
+                            return selectors.map(function (selector) {
+                                try {
+                                    var el = document.querySelector(selector);
+                                    if (!el)
+                                        return { selector: selector };
+                                    var rect = el.getBoundingClientRect();
+                                    return {
+                                        selector: selector,
+                                        html: el.outerHTML,
+                                        x: rect.x,
+                                        y: rect.y,
+                                        width: rect.width,
+                                        height: rect.height
+                                    };
+                                }
+                                catch (e) {
+                                    return { selector: selector, error: e.message }; // Return error info without crashing
+                                }
+                            });
+                        }, uniquePointers)];
+                case 1:
+                    boundingBoxResults = _a.sent();
+                    boundingBoxMap = new Map(boundingBoxResults.map(function (b) { return [b.selector, b]; }));
+                    for (i = 0; i < assertion.results.length; i++) {
+                        result = assertion.results[i];
+                        new_result = new evaluations_pb_1.Result();
+                        new_result.setVerdict(result.verdict);
+                        new_result.setDescription(result.description);
+                        elements = [];
+                        for (j = 0; j < result.elements.length; j++) {
+                            original = result.elements[j];
+                            new_element = new evaluations_pb_1.Element();
+                            if (original.htmlCode !== undefined) {
+                                new_element.setHtmlCode(original.htmlCode);
+                            }
+                            if (original.pointer !== undefined) {
+                                new_element.setPointer(original.pointer);
+                                bounding = boundingBoxMap.get(original.pointer);
+                                if (!bounding || bounding.x === undefined) {
+                                    console.log("Bounding box not found: ".concat(original.pointer, " ").concat(page.url()));
+                                    continue;
+                                }
+                                new_element.setX(bounding.x);
+                                new_element.setY(bounding.y);
+                                new_element.setWidth(bounding.width);
+                                new_element.setHeight(bounding.height);
+                                console.log("Bounding box found:", bounding, original.pointer);
+                            }
+                            elements.push(new_element);
+                        }
+                        new_result.setResultCode(result.resultCode);
+                        new_result.setElementsList(elements);
+                        new_result.setElementsQuantity(elements.length);
+                        results.push(new_result);
+                        results_counter++;
+                    }
+                    return [2 /*return*/, [results, results_counter]];
             }
         });
     });
 }
 function takeWebpageScreenshot(webpage_url, width, height) {
     return __awaiter(this, void 0, void 0, function () {
-        var browser, page, screenshot, error_1;
+        var browser, page, fullHeight, screenshot, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, puppeteer_1.default.launch({
                         headless: true,
-                        args: ['--no-sandbox']
+                        args: [
+                            '--disable-gpu',
+                            '--no-sandbox',
+                            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+                        ]
                     })];
                 case 1:
                     browser = _a.sent();
                     _a.label = 2;
                 case 2:
-                    _a.trys.push([2, 7, 8, 10]);
+                    _a.trys.push([2, 8, 9, 11]);
                     return [4 /*yield*/, browser.newPage()];
                 case 3:
                     page = _a.sent();
-                    return [4 /*yield*/, page.goto(webpage_url, { waitUntil: 'domcontentloaded' })];
+                    return [4 /*yield*/, page.goto(webpage_url, { waitUntil: 'networkidle0' })];
                 case 4:
                     _a.sent();
+                    return [4 /*yield*/, page.evaluate(function () { return document.documentElement.scrollHeight; })];
+                case 5:
+                    fullHeight = _a.sent();
                     return [4 /*yield*/, page.setViewport({
                             width: width,
-                            height: height,
+                            height: fullHeight,
                             deviceScaleFactor: 1,
                         })];
-                case 5:
+                case 6:
                     _a.sent();
                     return [4 /*yield*/, page.screenshot({
-                            fullPage: true
+                            fullPage: false
                         })];
-                case 6:
+                case 7:
                     screenshot = _a.sent();
                     return [2 /*return*/, screenshot];
-                case 7:
+                case 8:
                     error_1 = _a.sent();
                     console.error('Error taking screenshot:', error_1);
                     return [2 /*return*/, null];
-                case 8: return [4 /*yield*/, browser.close()];
-                case 9:
+                case 9: return [4 /*yield*/, browser.close()];
+                case 10:
                     _a.sent();
                     return [7 /*endfinally*/];
-                case 10: return [2 /*return*/];
+                case 11: return [2 /*return*/];
             }
         });
     });

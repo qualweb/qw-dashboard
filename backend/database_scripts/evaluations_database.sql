@@ -24,6 +24,14 @@ CREATE TABLE MonitoringRegistry (
     website_name            VARCHAR NOT NULL
 );
 
+CREATE TABLE Monitoring_Cycle (
+    id                      SERIAL PRIMARY KEY,
+    monitoring_registry_id  INTEGER NOT NULL,
+    cycle_date              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (monitoring_registry_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE
+);
+
 CREATE TABLE Evaluation (
     id                      SERIAL PRIMARY KEY,
     monitored_website_id    INTEGER NOT NULL,
@@ -40,8 +48,19 @@ CREATE TABLE Evaluation (
     inapplicable            INTEGER NOT NULL,
     score                   FLOAT,
     screenshot              BYTEA,
+    evaluation_cycle_id     INTEGER NOT NULL,
 
-    FOREIGN KEY (monitored_website_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE
+    FOREIGN KEY (monitored_website_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE,
+    FOREIGN KEY (evaluation_cycle_id) REFERENCES Monitoring_Cycle(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Monitoring_Cycle_Evaluation (
+    monitoring_cycle_id     INTEGER NOT NULL,
+    evaluation_id           INTEGER NOT NULL,
+
+    PRIMARY KEY (monitoring_cycle_id, evaluation_id),
+    FOREIGN KEY (monitoring_cycle_id) REFERENCES Monitoring_Cycle(id) ON DELETE CASCADE,
+    FOREIGN KEY (evaluation_id) REFERENCES Evaluation(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Module (

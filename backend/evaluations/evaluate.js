@@ -11,35 +11,16 @@ async function evaluate(url, screenWidth, screenHeight, isMobile, isLandscape) {
   const qualweb = new QualWeb(plugins);
 
   const clusterOptions = {
-    maxConcurrency: 5, // Performs several urls evaluations at the same time - the higher the number given, more resources will be used. Default value = 1
+    maxConcurrency: 1, // Performs several urls evaluations at the same time - the higher the number given, more resources will be used. Default value = 1
     timeout: 60 * 1000, // Timeout for loading page. Default value = 30 seconds
     monitor: true // Displays urls information on the terminal. Default value = false
   };
 
   const puppeteerOptions = {
     args: [
-      '--disable-dev-shm-usage',
       '--disable-gpu',
-      '--disable-setuid-sandbox',
       '--no-sandbox',
-      '--no-zygote',
-      '--deterministic-fetch',
-      '--disable-features=IsolateOrigins',
-      '--disable-site-isolation-trials',
-      '--disable-extensions',
-      '--disable-component-extensions-with-background-pages',
-      '--disable-default-apps',
-      '--mute-audio',
-      '--no-default-browser-check',
-      '--autoplay-policy=user-gesture-required',
-      '--disable-background-timer-throttling',
-      '--disable-backgrounding-occluded-windows',
-      '--disable-notifications',
-      '--disable-background-networking',
-      '--disable-breakpad',
-      '--disable-component-update',
-      '--disable-domain-reliability',
-      '--disable-sync',
+      '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
     ],
     headless: true,
     defaultViewport: {

@@ -378,6 +378,28 @@ function deserialize_runtimePackage_GetWebpageScreenshotResponse(buffer_arg) {
   return evaluations_pb.GetWebpageScreenshotResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_GetWebsiteMonitoringCyclesRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetWebsiteMonitoringCyclesRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetWebsiteMonitoringCyclesRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetWebsiteMonitoringCyclesRequest(buffer_arg) {
+  return evaluations_pb.GetWebsiteMonitoringCyclesRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetWebsiteMonitoringCyclesResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetWebsiteMonitoringCyclesResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetWebsiteMonitoringCyclesResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetWebsiteMonitoringCyclesResponse(buffer_arg) {
+  return evaluations_pb.GetWebsiteMonitoringCyclesResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetWebsiteScoreRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetWebsiteScoreRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetWebsiteScoreRequest');
@@ -464,6 +486,28 @@ function serialize_runtimePackage_SetLatestEvaluationResponse(arg) {
 
 function deserialize_runtimePackage_SetLatestEvaluationResponse(buffer_arg) {
   return evaluations_pb.SetLatestEvaluationResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_SetNewMonitoringCycleRequest(arg) {
+  if (!(arg instanceof evaluations_pb.SetNewMonitoringCycleRequest)) {
+    throw new Error('Expected argument of type runtimePackage.SetNewMonitoringCycleRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_SetNewMonitoringCycleRequest(buffer_arg) {
+  return evaluations_pb.SetNewMonitoringCycleRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_SetNewMonitoringCycleResponse(arg) {
+  if (!(arg instanceof evaluations_pb.SetNewMonitoringCycleResponse)) {
+    throw new Error('Expected argument of type runtimePackage.SetNewMonitoringCycleResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_SetNewMonitoringCycleResponse(buffer_arg) {
+  return evaluations_pb.SetNewMonitoringCycleResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 
@@ -698,6 +742,28 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_GetUserMonitoringRegistriesRequest,
     responseSerialize: serialize_runtimePackage_GetUserMonitoringRegistriesResponse,
     responseDeserialize: deserialize_runtimePackage_GetUserMonitoringRegistriesResponse,
+  },
+  getWebsiteMonitoringCycles: {
+    path: '/runtimePackage.Evaluations/GetWebsiteMonitoringCycles',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetWebsiteMonitoringCyclesRequest,
+    responseType: evaluations_pb.GetWebsiteMonitoringCyclesResponse,
+    requestSerialize: serialize_runtimePackage_GetWebsiteMonitoringCyclesRequest,
+    requestDeserialize: deserialize_runtimePackage_GetWebsiteMonitoringCyclesRequest,
+    responseSerialize: serialize_runtimePackage_GetWebsiteMonitoringCyclesResponse,
+    responseDeserialize: deserialize_runtimePackage_GetWebsiteMonitoringCyclesResponse,
+  },
+  setNewMonitoringCycle: {
+    path: '/runtimePackage.Evaluations/SetNewMonitoringCycle',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.SetNewMonitoringCycleRequest,
+    responseType: evaluations_pb.SetNewMonitoringCycleResponse,
+    requestSerialize: serialize_runtimePackage_SetNewMonitoringCycleRequest,
+    requestDeserialize: deserialize_runtimePackage_SetNewMonitoringCycleRequest,
+    responseSerialize: serialize_runtimePackage_SetNewMonitoringCycleResponse,
+    responseDeserialize: deserialize_runtimePackage_SetNewMonitoringCycleResponse,
   },
 };
 

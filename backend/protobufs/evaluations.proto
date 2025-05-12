@@ -74,7 +74,8 @@ message AddEvaluationRequest {
     repeated Module modules = 11;
     int32 modules_quantity = 12;
     int32 monitored_website_id = 13;
-    bytes screenshot = 14;
+    int32 monitoring_cycle_id = 14;
+    bytes screenshot = 15;
 }
 
 message AddEvaluationResponse {
@@ -381,6 +382,29 @@ message MonitoringRegistry {
     int32 inapplicable = 15;
 }
 
+message GetWebsiteMonitoringCyclesRequest {
+    int32 monitoring_id = 1;
+}
+
+message GetWebsiteMonitoringCyclesResponse {
+    int32 status_code = 1;
+    repeated MonitoringCycle monitoring_cycles = 2;
+}
+
+message MonitoringCycle {
+    int32 id = 1;
+    EvalDate cycle_date = 2;
+}
+
+message SetNewMonitoringCycleRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message SetNewMonitoringCycleResponse {
+    int32 status_code = 1;
+    int32 monitoring_cycle_id = 2;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -403,4 +427,6 @@ service Evaluations {
     rpc GetResultElement (GetResultElementsRequest) returns (GetResultElementsResponse);
     rpc GetEvaluationHistory (GetEvaluationHistoryRequest) returns (GetEvaluationHistoryResponse);
     rpc GetUserMonitoringRegistries (GetUserMonitoringRegistriesRequest) returns (GetUserMonitoringRegistriesResponse);
+    rpc GetWebsiteMonitoringCycles (GetWebsiteMonitoringCyclesRequest) returns (GetWebsiteMonitoringCyclesResponse);
+    rpc SetNewMonitoringCycle (SetNewMonitoringCycleRequest) returns (SetNewMonitoringCycleResponse);
 }

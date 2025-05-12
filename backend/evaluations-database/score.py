@@ -28,6 +28,7 @@ def calculate_website_a3_score(
     
     # Calculate A3 score for each webpage
     webpage_scores = []
+    nr_webpages = 0
     for i, webpage in enumerate(webpages):
         bp = get_fails_for_webpage(cursor, webpage, assertion_codes)
 
@@ -38,13 +39,15 @@ def calculate_website_a3_score(
             bp
         )
         
-        if webpage_a3_score == -1:
-            return -1
-            
-        webpage_scores.append(webpage_a3_score)
+        if webpage_a3_score != -1:
+            webpage_scores.append(webpage_a3_score)
+            nr_webpages += 1
     
+    if nr_webpages == 0:
+        return -1
+
     # Calculate average score
-    website_score = sum(webpage_scores) / len(webpage_scores) if webpage_scores else -1
+    website_score = sum(webpage_scores) / nr_webpages if webpage_scores else -1
     
     # Store the result
     store_website_a3_score(cursor, monitoring_registry_id, website_score)
@@ -277,9 +280,10 @@ def get_fails_for_webpage(
     for assertion_code in assertion_codes:
         evaluation_id = get_most_recent_evaluation(cursor, webpage_url)
 
-        results = get_assertion_results(cursor, assertion_code, evaluation_id)
+        if evaluation_id != -1:
+            results = get_assertion_results(cursor, assertion_code, evaluation_id)
 
-        if results:
-            failed += results[2]
+            if results:
+                failed += results[2]
 
     return failed
