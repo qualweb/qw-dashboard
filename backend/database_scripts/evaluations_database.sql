@@ -17,11 +17,18 @@ CREATE TABLE MonitoringRegistry (
     is_landscape            BOOLEAN NOT NULL,
     display_width           INTEGER NOT NULL,
     display_height          INTEGER NOT NULL,
-    webpages                VARCHAR[] NOT NULL,
     latest_evaluation       TIMESTAMP,
     score                   FLOAT,
     user_id                 INTEGER NOT NULL,
     website_name            VARCHAR NOT NULL
+);
+
+CREATE TABLE Webpage (
+    id      SERIAL PRIMARY KEY,
+    url     VARCHAR NOT NULL,
+    monitoring_registry_id      INTEGER,
+
+    FOREIGN KEY (monitoring_registry_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Monitoring_Cycle (

@@ -68,16 +68,25 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             cursor.execute('''
                 INSERT INTO MonitoringRegistry (
-                    main_url, domain_name, is_mobile, is_landscape, display_width, display_height, webpages, user_id, website_name
+                    main_url, domain_name, is_mobile, is_landscape, display_width, display_height, user_id, website_name
                 ) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s, %s, %s, %s
                 ) RETURNING id
             ''', (
                 request.main_url, request.domain_name, request.is_mobile, request.is_landscape, 
-                request.display_width, request.display_height, list(request.webpages), request.user_id, request.website_name
+                request.display_width, request.display_height, request.user_id, request.website_name
             ))
 
             monitoring_registry_id = cursor.fetchone()[0]
+
+            for webpage in request.webpages:
+                cursor.execute('''
+                    INSERT INTO Webpage (
+                        url, monitoring_registry_id
+                    ) VALUES (
+                        %s, %s
+                    )
+                ''', (webpage, monitoring_registry_id))
 
             conn.commit()
             cursor.close()
@@ -347,15 +356,17 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
             
-            # Get all webpages from the monitoring registry
+            webpages = []
+
             cursor.execute('''
-                SELECT webpages FROM MonitoringRegistry
-                WHERE id = %s
+                SELECT url FROM Webpage
+                WHERE monitoring_registry_id = %s
             ''', (request.monitoring_registry_id, ))
 
-            webpages = cursor.fetchone()[0]
+            result = cursor.fetchall()
 
-            print(webpages, file=sys.stderr, flush=True)
+            for webpage in result:
+                webpages.append(webpage[0])
 
             score = calculate_website_a3_score(webpages, request.monitoring_registry_id, cursor)
 
@@ -433,40 +444,24 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
-            cursor.execute('''
-                SELECT webpages, domain_name FROM MonitoringRegistry
-                WHERE id = %s
-            ''', (request.monitoring_registry_id, ))
-
-            result = cursor.fetchone()
-            webpages = result[0]
-            domain = result[1]
-
             for webpage in request.webpages:
-                if webpage in webpages:
-                    return SetLatestEvaluationResponse(status_code=400)
-
-                # Check if the webpage is from the same domain as the monitoring registry
-                url = urlparse(webpage)
-                if url.hostname != domain:
-                    return SetLatestEvaluationResponse(status_code=400)
+                cursor.execute('''
+                    SELECT EXISTS (
+                        SELECT 1 FROM Webpage 
+                        WHERE monitoring_registry_id = %s
+                    )
+                ''', (request.monitoring_registry_id,))
                 
-                # Check if the webpage is accessible
-                try:
-                    response = requests.head(webpage, timeout=5)
+                exists_webpage = cursor.fetchone()[0]
 
-                    if response.status_code >= 400:
-                        return SetLatestEvaluationResponse(status_code=400)
-                except requests.RequestException as e:
-                    return SetLatestEvaluationResponse(status_code=400)
-                
-                webpages.append(webpage)
-
-            cursor.execute('''
-                UPDATE MonitoringRegistry
-                SET webpages = %s
-                WHERE id = %s
-            ''', (webpages, request.monitoring_registry_id))
+                if not exists_webpage:
+                    cursor.execute('''
+                        INSERT INTO Webpage (
+                            url, monitoring_registry_id
+                        ) VALUES (
+                            %s, %s
+                        )
+                    ''', (webpage, request.monitoring_registry_id))
 
             conn.commit()
             cursor.close()
@@ -517,13 +512,17 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             conn = connection_pool.getconn()
             cursor = conn.cursor()
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-
+            
             cursor.execute('''
-                SELECT webpages FROM MonitoringRegistry
-                WHERE id = %s
+                SELECT url FROM Webpage
+                WHERE monitoring_registry_id = %s
             ''', (request.monitoring_registry_id, ))
             
-            webpages = cursor.fetchone()[0]
+            result = cursor.fetchall()
+
+            webpages = []
+            for webpage in result:
+                webpages.append(webpage[0])
 
             current_warnings = []
 
@@ -722,8 +721,19 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             ''', (request.monitoring_registry_id, ))
 
             result = cursor.fetchone()
-            cursor.close()
 
+            cursor.execute('''
+                SELECT url FROM Webpage
+                WHERE monitoring_registry_id = %s
+            ''', (request.monitoring_registry_id, ))
+            
+            result_webpages = cursor.fetchall()
+
+            webpages = []
+            for webpage in result_webpages:
+                webpages.append(webpage[0])
+
+            cursor.close()
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
             if conn:
@@ -744,9 +754,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             is_landscape=result[5],
             display_width=result[6],
             display_height=result[7],
-            webpages=result[8],
-            latest_evaluation=str(result[9]),
-            accessibility_score=result[10]
+            webpages=webpages,
+            latest_evaluation=str(result[8]),
+            accessibility_score=result[9]
         )
     
     def GetIssuesStats(self, request, context):
@@ -758,11 +768,15 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
             cursor.execute('''
-                SELECT webpages FROM MonitoringRegistry
-                WHERE id = %s
+                SELECT url FROM Webpage
+                WHERE monitoring_registry_id = %s
             ''', (request.monitoring_registry_id, ))
             
-            webpages = cursor.fetchone()[0]
+            result = cursor.fetchall()
+
+            webpages = []
+            for webpage in result:
+                webpages.append(webpage[0])
 
             issues_stats = {
                 "passed": 0,
@@ -854,11 +868,15 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT webpages FROM MonitoringRegistry
-                WHERE id = %s
+                SELECT url FROM Webpage
+                WHERE monitoring_registry_id = %s
             ''', (request.monitoring_id, ))
             
-            webpages = cursor.fetchone()[0]
+            result = cursor.fetchall()
+
+            webpages = []
+            for webpage in result:
+                webpages.append(webpage[0])
 
             response = []
             for webpage in webpages:
@@ -1113,7 +1131,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor.execute('''
                 SELECT  id, accessibility_metric, website_name,
                         main_url, is_mobile, is_landscape, 
-                        display_width, display_height, webpages, 
+                        display_width, display_height, 
                         latest_evaluation, score FROM MonitoringRegistry
                 WHERE user_id = %s
             ''', (request.user_id, ))
@@ -1127,7 +1145,18 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 failed = 0
                 inapplicable = 0
 
-                for webpage in registry[8]:
+                cursor.execute('''
+                    SELECT url FROM Webpage
+                    WHERE monitoring_registry_id = %s
+                ''', (registry[0], ))
+                
+                result = cursor.fetchall()
+
+                webpages = []
+                for webpage in result:
+                    webpages.append(webpage[0])
+
+                for webpage in webpages:
                     cursor.execute('''
                         SELECT id 
                         FROM Evaluation
@@ -1164,13 +1193,13 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         is_landscape=registry[5],
                         display_width=registry[6],
                         display_height=registry[7],
-                        webpages=registry[8],
+                        webpages=webpages,
                         latest_evaluation=EvalDate(
-                            day=registry[9].day,
-                            month=registry[9].month,
-                            year=registry[9].year
+                            day=registry[8].day,
+                            month=registry[8].month,
+                            year=registry[8].year
                         ),
-                        score=registry[10],
+                        score=registry[9],
                         passed=passed,
                         warnings=warnings,
                         failed=failed,
