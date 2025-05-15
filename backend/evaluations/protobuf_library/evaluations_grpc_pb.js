@@ -92,6 +92,28 @@ function deserialize_runtimePackage_CalculateAccessibilityScoreResponse(buffer_a
   return evaluations_pb.CalculateAccessibilityScoreResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_DeleteWebpageRequest(arg) {
+  if (!(arg instanceof evaluations_pb.DeleteWebpageRequest)) {
+    throw new Error('Expected argument of type runtimePackage.DeleteWebpageRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_DeleteWebpageRequest(buffer_arg) {
+  return evaluations_pb.DeleteWebpageRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_DeleteWebpageResponse(arg) {
+  if (!(arg instanceof evaluations_pb.DeleteWebpageResponse)) {
+    throw new Error('Expected argument of type runtimePackage.DeleteWebpageResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_DeleteWebpageResponse(buffer_arg) {
+  return evaluations_pb.DeleteWebpageResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetAssertionResultsRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetAssertionResultsRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetAssertionResultsRequest');
@@ -830,6 +852,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_GetEvaluationInfoRequest,
     responseSerialize: serialize_runtimePackage_GetEvaluationInfoResponse,
     responseDeserialize: deserialize_runtimePackage_GetEvaluationInfoResponse,
+  },
+  deleteWebpage: {
+    path: '/runtimePackage.Evaluations/DeleteWebpage',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.DeleteWebpageRequest,
+    responseType: evaluations_pb.DeleteWebpageResponse,
+    requestSerialize: serialize_runtimePackage_DeleteWebpageRequest,
+    requestDeserialize: deserialize_runtimePackage_DeleteWebpageRequest,
+    responseSerialize: serialize_runtimePackage_DeleteWebpageResponse,
+    responseDeserialize: deserialize_runtimePackage_DeleteWebpageResponse,
   },
 };
 

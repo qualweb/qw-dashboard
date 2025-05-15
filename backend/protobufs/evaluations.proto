@@ -433,6 +433,14 @@ message GetEvaluationInfoResponse {
     string webpage_url = 6;
 }
 
+message DeleteWebpageRequest {
+    string webpage_id = 2;
+}
+
+message DeleteWebpageResponse {
+    int32 status_code = 1;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -459,4 +467,5 @@ service Evaluations {
     rpc SetNewMonitoringCycle (SetNewMonitoringCycleRequest) returns (SetNewMonitoringCycleResponse);
     rpc GetMonitoredWebpages (GetMonitoredWebpagesRequest) returns (GetMonitoredWebpagesResponse);
     rpc GetEvaluationInfo (GetEvaluationInfoRequest) returns (GetEvaluationInfoResponse);
+    rpc DeleteWebpage (DeleteWebpageRequest) returns (DeleteWebpageResponse);
 }

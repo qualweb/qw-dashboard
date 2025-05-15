@@ -283,3 +283,18 @@ export const addWebpages = async(
         throw new Error('Failed to add webpages.');
     }
 }
+
+export const deleteWebpage = async(
+    webpage_id: string
+) => {
+    const response = await fetch(`${MONITORING_API_URL}/webpage/${webpage_id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if(response.status != 200) {
+        throw new Error('Failed to delete webpage.');
+    }
+}

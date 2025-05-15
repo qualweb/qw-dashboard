@@ -43,7 +43,9 @@ import {
     GetMonitoredWebpagesRequest,
     GetMonitoredWebpagesResponse,
     GetEvaluationInfoRequest,
-    GetEvaluationInfoResponse
+    GetEvaluationInfoResponse,
+    DeleteWebpageRequest,
+    DeleteWebpageResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
@@ -841,6 +843,34 @@ app.get('/api/monitoring/:monitoring_id/monitored-webpages', async (req: Request
         });
     } catch (error) {
         console.error('Error fetching history:', error);
+        res.send(500);
+    }
+});
+
+app.delete('/api/monitoring/webpage/:webpage_id', async (req: Request, res: Response) => {
+    const webpage_id = req.params.webpage_id;
+
+    try {
+        const deleteWebpageRequest = new DeleteWebpageRequest();
+        deleteWebpageRequest.setWebpageId(webpage_id);
+
+        const response = await new Promise<DeleteWebpageResponse>((resolve, reject) => {
+            client.deleteWebpage(deleteWebpageRequest, (err: Error, callResponse: DeleteWebpageResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            message: 'Successfully deleted webpage'
+        });
+    } catch (error) {
+        console.error('Error deleting webpage:', error);
         res.send(500);
     }
 });

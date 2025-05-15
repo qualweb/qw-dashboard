@@ -45,7 +45,8 @@ from protobuf_library.evaluations_pb2 import (
     SetNewMonitoringCycleResponse,
     GetMonitoredWebpagesResponse,
     Webpage,
-    GetEvaluationInfoResponse
+    GetEvaluationInfoResponse,
+    DeleteWebpageResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -1379,6 +1380,33 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             is_landscape=response[3],
             webpage_url=webpage_url
         )
+    
+    def DeleteWebpage(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                DELETE FROM Webpage
+                WHERE id = %s
+            ''', (request.webpage_id, ))
+
+            conn.commit()
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return DeleteWebpageResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return DeleteWebpageResponse(status_code=200)
 
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

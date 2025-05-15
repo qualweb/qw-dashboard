@@ -1037,6 +1037,44 @@ app.get('/api/monitoring/:monitoring_id/monitored-webpages', function (req, res)
         }
     });
 }); });
+app.delete('/api/monitoring/webpage/:webpage_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var webpage_id, deleteWebpageRequest_1, response, error_22;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                webpage_id = req.params.webpage_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                deleteWebpageRequest_1 = new evaluations_pb_1.DeleteWebpageRequest();
+                deleteWebpageRequest_1.setWebpageId(webpage_id);
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.deleteWebpage(deleteWebpageRequest_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    message: 'Successfully deleted webpage'
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_22 = _a.sent();
+                console.error('Error deleting webpage:', error_22);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 app.listen(port, function () {
     console.log("Server is running on http://localhost:".concat(port));
 });

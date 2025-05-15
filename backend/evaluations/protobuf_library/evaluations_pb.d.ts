@@ -2073,3 +2073,43 @@ export namespace GetEvaluationInfoResponse {
   }
 }
 
+export class DeleteWebpageRequest extends jspb.Message {
+  getWebpageId(): string;
+  setWebpageId(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DeleteWebpageRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: DeleteWebpageRequest): DeleteWebpageRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: DeleteWebpageRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeleteWebpageRequest;
+  static deserializeBinaryFromReader(message: DeleteWebpageRequest, reader: jspb.BinaryReader): DeleteWebpageRequest;
+}
+
+export namespace DeleteWebpageRequest {
+  export type AsObject = {
+    webpageId: string,
+  }
+}
+
+export class DeleteWebpageResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DeleteWebpageResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: DeleteWebpageResponse): DeleteWebpageResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: DeleteWebpageResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeleteWebpageResponse;
+  static deserializeBinaryFromReader(message: DeleteWebpageResponse, reader: jspb.BinaryReader): DeleteWebpageResponse;
+}
+
+export namespace DeleteWebpageResponse {
+  export type AsObject = {
+    statusCode: number,
+  }
+}
+

@@ -6,7 +6,7 @@ import { Checkbox } from '@ark-ui/react/checkbox';
 import { Chart } from '../../assets/Icons';
 import { createListCollection } from '@ark-ui/react/collection';
 import { useEffect, useState } from 'react';
-import { getMonitoredWebpages, runEvaluation } from '../../services/EvaluationService';
+import { deleteWebpage, getMonitoredWebpages, runEvaluation } from '../../services/EvaluationService';
 import { Webpage } from '../Types/Types';
 import AddWebpages from '../AddWebpages/AddWebpages';
 
@@ -15,6 +15,11 @@ function Evaluate() {
 
     const webpagesToEval : string[] = [];
     const [monitoredWebpages, setMonitoredWepages] = useState([]);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    
+    const refreshWebpages = () => {
+        setRefreshTrigger(prev => prev + 1);
+    };
 
     useEffect(() => {
         const fetchMonitoredWebpages = async () => {
@@ -26,7 +31,7 @@ function Evaluate() {
         }
 
         fetchMonitoredWebpages();
-    }, [monitoring_id]);
+    }, [monitoring_id, refreshTrigger]);
 
     const items = createMonitoredWebpagesCollection(monitoredWebpages);
 
@@ -38,8 +43,15 @@ function Evaluate() {
         webpagesToEval.push(url);
     };
 
-    const removeWebpage = (urlToRemove: string): void => {
-        webpagesToEval.splice(webpagesToEval.indexOf(urlToRemove), 1);
+    const removeWebpage = async (webpage: string) => {
+        webpagesToEval.splice(webpagesToEval.indexOf(webpage), 1);
+
+        const removeWebpage = async () => {
+            await deleteWebpage(webpage);
+        }
+
+        await removeWebpage();
+        refreshWebpages();
     };
 
     const evaluateWebpages = async (): Promise<void> => {
@@ -83,7 +95,9 @@ function Evaluate() {
                                         <Checkbox.HiddenInput />
                                         <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
                                     </Checkbox.Root>
-                                    <button className='checkbox-webpage-trash-button'>
+                                    <button className='checkbox-webpage-trash-button' onClick={() => {
+                                        removeWebpage(item.value);
+                                    }}>
                                         <Trash2 />
                                     </button>
                                 </div>
