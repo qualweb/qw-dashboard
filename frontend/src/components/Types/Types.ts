@@ -174,3 +174,8 @@ export interface ResultElement {
     width: number;
     height: number;
 }
+
+export interface Webpage {
+    id: string | number;
+    url: string;
+}

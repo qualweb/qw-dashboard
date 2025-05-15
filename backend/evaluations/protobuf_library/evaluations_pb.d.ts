@@ -1939,3 +1939,137 @@ export namespace SetNewMonitoringCycleResponse {
   }
 }
 
+export class GetMonitoredWebpagesRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetMonitoredWebpagesRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetMonitoredWebpagesRequest): GetMonitoredWebpagesRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetMonitoredWebpagesRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetMonitoredWebpagesRequest;
+  static deserializeBinaryFromReader(message: GetMonitoredWebpagesRequest, reader: jspb.BinaryReader): GetMonitoredWebpagesRequest;
+}
+
+export namespace GetMonitoredWebpagesRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+  }
+}
+
+export class GetMonitoredWebpagesResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearMonitoredWebpagesList(): void;
+  getMonitoredWebpagesList(): Array<Webpage>;
+  setMonitoredWebpagesList(value: Array<Webpage>): void;
+  addMonitoredWebpages(value?: Webpage, index?: number): Webpage;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetMonitoredWebpagesResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetMonitoredWebpagesResponse): GetMonitoredWebpagesResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetMonitoredWebpagesResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetMonitoredWebpagesResponse;
+  static deserializeBinaryFromReader(message: GetMonitoredWebpagesResponse, reader: jspb.BinaryReader): GetMonitoredWebpagesResponse;
+}
+
+export namespace GetMonitoredWebpagesResponse {
+  export type AsObject = {
+    statusCode: number,
+    monitoredWebpagesList: Array<Webpage.AsObject>,
+  }
+}
+
+export class Webpage extends jspb.Message {
+  getId(): number;
+  setId(value: number): void;
+
+  getUrl(): string;
+  setUrl(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Webpage.AsObject;
+  static toObject(includeInstance: boolean, msg: Webpage): Webpage.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: Webpage, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Webpage;
+  static deserializeBinaryFromReader(message: Webpage, reader: jspb.BinaryReader): Webpage;
+}
+
+export namespace Webpage {
+  export type AsObject = {
+    id: number,
+    url: string,
+  }
+}
+
+export class GetEvaluationInfoRequest extends jspb.Message {
+  getMonitoringRegistryId(): number;
+  setMonitoringRegistryId(value: number): void;
+
+  getWebpageId(): number;
+  setWebpageId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetEvaluationInfoRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetEvaluationInfoRequest): GetEvaluationInfoRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetEvaluationInfoRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetEvaluationInfoRequest;
+  static deserializeBinaryFromReader(message: GetEvaluationInfoRequest, reader: jspb.BinaryReader): GetEvaluationInfoRequest;
+}
+
+export namespace GetEvaluationInfoRequest {
+  export type AsObject = {
+    monitoringRegistryId: number,
+    webpageId: number,
+  }
+}
+
+export class GetEvaluationInfoResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  getDisplayWidth(): number;
+  setDisplayWidth(value: number): void;
+
+  getDisplayHeight(): number;
+  setDisplayHeight(value: number): void;
+
+  getIsMobile(): boolean;
+  setIsMobile(value: boolean): void;
+
+  getIsLandscape(): boolean;
+  setIsLandscape(value: boolean): void;
+
+  getWebpageUrl(): string;
+  setWebpageUrl(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetEvaluationInfoResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetEvaluationInfoResponse): GetEvaluationInfoResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetEvaluationInfoResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetEvaluationInfoResponse;
+  static deserializeBinaryFromReader(message: GetEvaluationInfoResponse, reader: jspb.BinaryReader): GetEvaluationInfoResponse;
+}
+
+export namespace GetEvaluationInfoResponse {
+  export type AsObject = {
+    statusCode: number,
+    displayWidth: number,
+    displayHeight: number,
+    isMobile: boolean,
+    isLandscape: boolean,
+    webpageUrl: string,
+  }
+}
+

@@ -149,6 +149,16 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.SetNewMonitoringCycleRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.SetNewMonitoringCycleResponse.FromString,
                 _registered_method=True)
+        self.GetMonitoredWebpages = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetMonitoredWebpages',
+                request_serializer=evaluations__pb2.GetMonitoredWebpagesRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetMonitoredWebpagesResponse.FromString,
+                _registered_method=True)
+        self.GetEvaluationInfo = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetEvaluationInfo',
+                request_serializer=evaluations__pb2.GetEvaluationInfoRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetEvaluationInfoResponse.FromString,
+                _registered_method=True)
 
 
 class EvaluationsServicer(object):
@@ -292,6 +302,18 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetMonitoredWebpages(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetEvaluationInfo(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -409,6 +431,16 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     servicer.SetNewMonitoringCycle,
                     request_deserializer=evaluations__pb2.SetNewMonitoringCycleRequest.FromString,
                     response_serializer=evaluations__pb2.SetNewMonitoringCycleResponse.SerializeToString,
+            ),
+            'GetMonitoredWebpages': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMonitoredWebpages,
+                    request_deserializer=evaluations__pb2.GetMonitoredWebpagesRequest.FromString,
+                    response_serializer=evaluations__pb2.GetMonitoredWebpagesResponse.SerializeToString,
+            ),
+            'GetEvaluationInfo': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetEvaluationInfo,
+                    request_deserializer=evaluations__pb2.GetEvaluationInfoRequest.FromString,
+                    response_serializer=evaluations__pb2.GetEvaluationInfoResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1032,6 +1064,60 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/SetNewMonitoringCycle',
             evaluations__pb2.SetNewMonitoringCycleRequest.SerializeToString,
             evaluations__pb2.SetNewMonitoringCycleResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMonitoredWebpages(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetMonitoredWebpages',
+            evaluations__pb2.GetMonitoredWebpagesRequest.SerializeToString,
+            evaluations__pb2.GetMonitoredWebpagesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetEvaluationInfo(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/GetEvaluationInfo',
+            evaluations__pb2.GetEvaluationInfoRequest.SerializeToString,
+            evaluations__pb2.GetEvaluationInfoResponse.FromString,
             options,
             channel_credentials,
             insecure,

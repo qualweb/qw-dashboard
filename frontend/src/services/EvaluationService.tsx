@@ -37,7 +37,8 @@ export const runCrawler = async (
 };
 
 export const runEvaluation = async (
-    monitoring_registry_id : string
+    monitoring_registry_id : string,
+    webpage_id : string
 ) => {
     const response_1 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/monitoring-cycle`, {
         method: 'POST',
@@ -52,7 +53,7 @@ export const runEvaluation = async (
 
     const data = await response_1.json();
 
-    const response_2 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate/${data.monitoring_cycle_id}`, {
+    const response_2 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate/${data.monitoring_cycle_id}/${webpage_id}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -249,4 +250,36 @@ export const getWebsiteMonitoringCycles = async(
     console.log(data);
 
     return data.monitoring_cycles;
+}
+
+export const getMonitoredWebpages = async(
+    monitoring_id: string
+) => {
+    const monitored_webpages_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/monitored-webpages`);
+    const data = await monitored_webpages_response.json();
+
+    if(monitored_webpages_response.status != 200) {
+        throw new Error('Failed to fetch monitored webpages.');
+    }
+
+    return data.monitored_webpages;
+}
+
+export const addWebpages = async(
+    monitoring_id: string,
+    webpages: string[]
+) => {
+    const response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/add-webpages`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            urls: webpages
+        })
+    });
+
+    if(response.status != 200) {
+        throw new Error('Failed to add webpages.');
+    }
 }

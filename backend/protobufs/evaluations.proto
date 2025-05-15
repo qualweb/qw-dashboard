@@ -405,6 +405,34 @@ message SetNewMonitoringCycleResponse {
     int32 monitoring_cycle_id = 2;
 }
 
+message GetMonitoredWebpagesRequest {
+    int32 monitoring_registry_id = 1;
+}
+
+message GetMonitoredWebpagesResponse {
+    int32 status_code = 1;
+    repeated Webpage monitored_webpages = 2;
+}
+
+message Webpage {
+    int32 id = 1;
+    string url = 2;
+}
+
+message GetEvaluationInfoRequest {
+    int32 monitoring_registry_id = 1;
+    int32 webpage_id = 2;
+}
+
+message GetEvaluationInfoResponse {
+    int32 status_code = 1;
+    int32 display_width = 2;
+    int32 display_height = 3;
+    bool is_mobile = 4;
+    bool is_landscape = 5;
+    string webpage_url = 6;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -429,4 +457,6 @@ service Evaluations {
     rpc GetUserMonitoringRegistries (GetUserMonitoringRegistriesRequest) returns (GetUserMonitoringRegistriesResponse);
     rpc GetWebsiteMonitoringCycles (GetWebsiteMonitoringCyclesRequest) returns (GetWebsiteMonitoringCyclesResponse);
     rpc SetNewMonitoringCycle (SetNewMonitoringCycleRequest) returns (SetNewMonitoringCycleResponse);
+    rpc GetMonitoredWebpages (GetMonitoredWebpagesRequest) returns (GetMonitoredWebpagesResponse);
+    rpc GetEvaluationInfo (GetEvaluationInfoRequest) returns (GetEvaluationInfoResponse);
 }

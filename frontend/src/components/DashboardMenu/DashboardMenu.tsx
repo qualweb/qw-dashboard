@@ -1,8 +1,9 @@
-import { DashboardIcon, ScaleIcon, ManualIcon, SignOutIcon, TimeIcon, UserIcon, WarningIcon } from '../../assets/Icons';
+import { DashboardIcon, ScaleIcon, ManualIcon, SignOutIcon, TimeIcon, UserIcon, WarningIcon, Chart } from '../../assets/Icons';
 import WebsiteDashboardMenuItem from '../DashboardMenuItem/DashboardMenuItem';
 import './DashboardMenu.css';
 
 import { Menu } from '@ark-ui/react/menu'
+
 /*
 import { Portal } from '@ark-ui/react/portal'
 import { Select, createListCollection } from '@ark-ui/react/select'
@@ -89,6 +90,11 @@ function DashboardMenu (props: DashboardMenuProps) {
                     </li>
                     <li>
                         <div className='list-item'>
+                            <WebsiteDashboardMenuItem name="Evaluate" path={`/dashboard/${props.monitoring_id}/evaluate`}  icon={Chart} />
+                        </div>
+                    </li>
+                    <li>
+                        <div className='list-item'>
                             <WebsiteDashboardMenuItem name="Evaluation scheduler" path="/scheduler" icon={TimeIcon} />
                         </div>
                     </li>
@@ -99,7 +105,7 @@ function DashboardMenu (props: DashboardMenuProps) {
                     </li>
                     <li>
                         <div className='list-item'>
-                            <WebsiteDashboardMenuItem name="Compare Evaluations" path={`/compare-evaluations/${props.monitoring_id}`} icon={ScaleIcon} />
+                            <WebsiteDashboardMenuItem name="Compare Evaluations" path={`/dashboard/${props.monitoring_id}/compare-evaluations`} icon={ScaleIcon} />
                         </div>
                     </li>
                     <li>

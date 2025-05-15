@@ -20,8 +20,6 @@ import {
     GetMonitoredWebsitesResponse,
     GetWebsiteScoreRequest,
     GetWebsiteScoreResponse,
-    GetMonitoringRegistryRequest,
-    GetMonitoringRegistryResponse,
     GetIssuesStatsRequest,
     GetIssuesStatsResponse,
     GetWebpageScreenshotRequest,
@@ -41,11 +39,15 @@ import {
     GetWebsiteMonitoringCyclesRequest,
     GetWebsiteMonitoringCyclesResponse,
     SetNewMonitoringCycleRequest,
-    SetNewMonitoringCycleResponse
+    SetNewMonitoringCycleResponse,
+    GetMonitoredWebpagesRequest,
+    GetMonitoredWebpagesResponse,
+    GetEvaluationInfoRequest,
+    GetEvaluationInfoResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
-import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertMonitoringCycles, convertMonitoringRegistries, convertResultElement } from './convert';
+import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertMonitoredWebpages, convertMonitoringCycles, convertMonitoringRegistries, convertResultElement } from './convert';
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
@@ -208,75 +210,54 @@ app.post('/api/monitoring/set-accessibility-metric', async (req: Request, res: R
     res.send(200);
 });
 
-// This endpoint executes the evaluations
-app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id', async (req: Request, res: Response) => {
+app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id/:webpage_id', async (req: Request, res: Response) => {
     const monitoring_id = req.params.monitoring_id;
     const monitoring_cycle_id = req.params.monitoring_cycle_id;
+    const webpage_id = req.params.webpage_id;
 
     try {
-        const getWebpagesRequest = new GetMonitoringRegistryRequest();
-        getWebpagesRequest.setMonitoringRegistryId(Number(monitoring_id));
+        const getEvaluationInfoRequest = new GetEvaluationInfoRequest();
+        getEvaluationInfoRequest.setMonitoringRegistryId(Number(monitoring_id));
+        getEvaluationInfoRequest.setWebpageId(Number(webpage_id));
 
-        const response = await new Promise<GetMonitoringRegistryResponse>((resolve, reject) => {
-            client.getMonitoringRegistry(getWebpagesRequest, (err: Error, callResponse: GetMonitoringRegistryResponse) => {
+        const response = await new Promise<GetEvaluationInfoResponse>((resolve, reject) => {
+            client.getEvaluationInfo(getEvaluationInfoRequest, (err: Error, response : GetEvaluationInfoResponse) => {
                 if (err) reject(err);
-                else resolve(callResponse);
+                else resolve(response);
             });
         });
 
-        if (response.getStatusCode() !== 200) {
-            return res.send(response.getStatusCode());
-        }
-
-        const urls = response.getWebpagesList();
-
         const screen_width = response.getDisplayWidth();
         const screen_height = response.getDisplayHeight();
+        const webpage_url = response.getWebpageUrl();
+        const is_mobile = response.getIsMobile();
+        const is_landscape = response.getIsLandscape();
+
+        console.log(`Evaluating URL ${webpage_url}`);
+
+        let report = await evaluate(
+            webpage_url,
+            screen_width,
+            screen_height,
+            is_mobile,
+            is_landscape
+        );
         
-        type ReportMap = { [url: string]: any };
-        const reports: ReportMap = {};
+        if (report[webpage_url] !== undefined) {
+            report = report[webpage_url];
+            console.log(`Successfully evaluated URL ${webpage_url}`);
+        }
+        else {
+            console.error(`Error evaluating URL ${webpage_url}`);
 
-        for (const url of urls) {
-            const report = await evaluate(
-                url,
-                screen_width,
-                screen_height,
-                response.getIsMobile(),
-                response.getIsLandscape()
-            );
-            
-            console.log(`Successfully evaluated URL ${url}`);
-
-            if (report[url] !== undefined)
-                reports[url] = report[url];
-            
-            if (url !== urls[urls.length - 1]) {
-                await sleep(500);
-            }
+            return res.status(200).json({ 
+                message: 'Evaluation failed',
+                url: webpage_url
+            });
         }
 
-        console.log(reports);
-
-        const validReports = urls
-            .filter(url => reports[url])
-            .map(url => ({
-                url,
-                report: reports[url]
-        }));
-
-        console.log(validReports);
-
-        if (validReports.length === 0) {
-            return res.send(404);
-        }
-
-        if (validReports.length < urls.length) {
-            console.error('Some URLs could not be evaluated');
-        }
-
-        const processPromises = validReports.map(async ({ url, report }) => {
+        const result = await ( async () => {
             try {
-
                 const browser : Browser = await puppeteer.launch({
                     headless: true,
                     args: [
@@ -297,9 +278,9 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id', async (
                     deviceScaleFactor: 1,
                 });
                 
-                await page.goto(url, { waitUntil: 'networkidle0' });
+                await page.goto(webpage_url, { waitUntil: 'networkidle0' });
 
-                const screenshot = await takeWebpageScreenshot(url, screen_width, screen_height);
+                const screenshot = await takeWebpageScreenshot(webpage_url, screen_width, screen_height);
 
                 const evaluations_request = new AddEvaluationRequest();
                 evaluations_request.setQualwebVersion(report.system.version);
@@ -328,25 +309,18 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id', async (
                     });
                 });
                 
-                console.log(`Successfully added evaluation for URL ${url}`);
-                return { url, success: true, statusCode: response.getStatusCode() };
+                console.log(`Successfully added evaluation for URL ${webpage_url}`);
+                return { webpage_url, success: true, statusCode: response.getStatusCode() };
             } catch (error) {
-                console.error(`Error adding evaluation for URL ${url}:`, error);
-                return { url, success: false, error };
+                console.error(`Error adding evaluation for URL ${webpage_url}:`, error);
+                return { webpage_url, success: false, error };
             }
-        });
+        })();
         
-        const results = await Promise.all(processPromises);
-        
-        const successful = results.filter(result => result.success).length;
-        const failed = results.length - successful;
-        
-        console.log(`Processing complete. Successful: ${successful}, Failed: ${failed}`);
-        
-        if (successful === 0 && failed > 0) {
+        if (!result.success) {
             return res.status(500).json({ 
-                message: 'All evaluations failed',
-                results 
+                message: 'Evaluation failed',
+                result 
             });
         }
 
@@ -361,14 +335,16 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id', async (
         });
 
         if (setLatestEvalResponse.getStatusCode() !== 200) {
-            return res.send(setLatestEvalResponse.getStatusCode());
+            return res.status(setLatestEvalResponse.getStatusCode()).json({
+                message: 'Failed to set latest evaluation',
+                statusCode: setLatestEvalResponse.getStatusCode()
+            });
         }
 
         return res.status(200).json({ 
             message: 'Evaluation processing complete',
-            total: results.length,
-            successful,
-            failed
+            webpage_url,
+            success: true
         });
         
     } catch (error) {
@@ -401,6 +377,9 @@ app.post('/api/monitoring/:monitoring_id/calculate-score', async (req: Request, 
 app.post('/api/monitoring/:monitoring_id/add-webpages', async (req: Request, res: Response) => {
     const monitoring_id = req.params.monitoring_id;
     const urls = req.body.urls;
+
+    console.log('Monitoring ID:', monitoring_id);
+    console.log('Adding webpages:', urls);
 
     try {
         const add_webpages_request = new AddWebpagesRequest();
@@ -831,6 +810,34 @@ app.get('/api/monitoring/:monitoring_id/monitoring-cycles', async (req: Request,
 
         res.status(200).json({
             monitoring_cycles: convertMonitoringCycles(response.getMonitoringCyclesList())
+        });
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/monitoring/:monitoring_id/monitored-webpages', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
+
+    try {
+        const getWebpagesRequest = new GetMonitoredWebpagesRequest();
+        getWebpagesRequest.setMonitoringRegistryId(Number(monitoring_id));
+
+        const response = await new Promise<GetMonitoredWebpagesResponse>((resolve, reject) => {
+            client.getMonitoredWebpages(getWebpagesRequest, (err: Error, callResponse: GetMonitoredWebpagesResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            monitored_webpages: convertMonitoredWebpages(response.getMonitoredWebpagesList())
         });
     } catch (error) {
         console.error('Error fetching history:', error);

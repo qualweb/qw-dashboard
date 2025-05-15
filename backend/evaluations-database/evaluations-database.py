@@ -42,7 +42,10 @@ from protobuf_library.evaluations_pb2 import (
     GetUserMonitoringRegistriesResponse,
     GetWebsiteMonitoringCyclesResponse,
     MonitoringCycle,
-    SetNewMonitoringCycleResponse
+    SetNewMonitoringCycleResponse,
+    GetMonitoredWebpagesResponse,
+    Webpage,
+    GetEvaluationInfoResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -448,9 +451,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 cursor.execute('''
                     SELECT EXISTS (
                         SELECT 1 FROM Webpage 
-                        WHERE monitoring_registry_id = %s
+                        WHERE monitoring_registry_id = %s AND url = %s
                     )
-                ''', (request.monitoring_registry_id,))
+                ''', (request.monitoring_registry_id, webpage))
                 
                 exists_webpage = cursor.fetchone()[0]
 
@@ -1297,6 +1300,85 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return SetNewMonitoringCycleResponse(status_code=200, monitoring_cycle_id=monitoring_cycle_id)
+
+    def GetMonitoredWebpages(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT id, url FROM Webpage
+                WHERE monitoring_registry_id = %s
+            ''', (request.monitoring_registry_id, ))
+
+            response = cursor.fetchall()
+
+            webpages = []
+            for webpage in response:
+                webpages.append(
+                    Webpage(
+                        id=webpage[0],
+                        url=webpage[1]
+                    )
+                )
+
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetMonitoredWebpagesResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetMonitoredWebpagesResponse(status_code=200, monitored_webpages=webpages)
+
+    def GetEvaluationInfo(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT display_width, display_height, is_mobile, is_landscape
+                FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_registry_id, ))
+
+            response = cursor.fetchone()
+
+            cursor.execute('''
+                SELECT url 
+                FROM Webpage
+                WHERE id = %s
+            ''', (request.webpage_id, ))
+
+            webpage_url = cursor.fetchone()[0]
+
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetEvaluationInfoResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetEvaluationInfoResponse(
+            status_code=200, 
+            display_width=response[0],
+            display_height=response[1],
+            is_mobile=response[2],
+            is_landscape=response[3],
+            webpage_url=webpage_url
+        )
 
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

@@ -158,6 +158,28 @@ function deserialize_runtimePackage_GetEvaluationHistoryResponse(buffer_arg) {
   return evaluations_pb.GetEvaluationHistoryResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_GetEvaluationInfoRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetEvaluationInfoRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetEvaluationInfoRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetEvaluationInfoRequest(buffer_arg) {
+  return evaluations_pb.GetEvaluationInfoRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetEvaluationInfoResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetEvaluationInfoResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetEvaluationInfoResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetEvaluationInfoResponse(buffer_arg) {
+  return evaluations_pb.GetEvaluationInfoResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetIssuesStatsRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetIssuesStatsRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetIssuesStatsRequest');
@@ -266,6 +288,28 @@ function serialize_runtimePackage_GetLatestEvaluationsResponse(arg) {
 
 function deserialize_runtimePackage_GetLatestEvaluationsResponse(buffer_arg) {
   return evaluations_pb.GetLatestEvaluationsResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetMonitoredWebpagesRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetMonitoredWebpagesRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetMonitoredWebpagesRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetMonitoredWebpagesRequest(buffer_arg) {
+  return evaluations_pb.GetMonitoredWebpagesRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetMonitoredWebpagesResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetMonitoredWebpagesResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetMonitoredWebpagesResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetMonitoredWebpagesResponse(buffer_arg) {
+  return evaluations_pb.GetMonitoredWebpagesResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_runtimePackage_GetMonitoredWebsitesRequest(arg) {
@@ -764,6 +808,28 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_SetNewMonitoringCycleRequest,
     responseSerialize: serialize_runtimePackage_SetNewMonitoringCycleResponse,
     responseDeserialize: deserialize_runtimePackage_SetNewMonitoringCycleResponse,
+  },
+  getMonitoredWebpages: {
+    path: '/runtimePackage.Evaluations/GetMonitoredWebpages',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetMonitoredWebpagesRequest,
+    responseType: evaluations_pb.GetMonitoredWebpagesResponse,
+    requestSerialize: serialize_runtimePackage_GetMonitoredWebpagesRequest,
+    requestDeserialize: deserialize_runtimePackage_GetMonitoredWebpagesRequest,
+    responseSerialize: serialize_runtimePackage_GetMonitoredWebpagesResponse,
+    responseDeserialize: deserialize_runtimePackage_GetMonitoredWebpagesResponse,
+  },
+  getEvaluationInfo: {
+    path: '/runtimePackage.Evaluations/GetEvaluationInfo',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetEvaluationInfoRequest,
+    responseType: evaluations_pb.GetEvaluationInfoResponse,
+    requestSerialize: serialize_runtimePackage_GetEvaluationInfoRequest,
+    requestDeserialize: deserialize_runtimePackage_GetEvaluationInfoRequest,
+    responseSerialize: serialize_runtimePackage_GetEvaluationInfoResponse,
+    responseDeserialize: deserialize_runtimePackage_GetEvaluationInfoResponse,
   },
 };
 

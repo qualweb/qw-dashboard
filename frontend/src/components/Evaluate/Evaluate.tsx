@@ -1,0 +1,118 @@
+import { useParams } from 'react-router-dom';
+import DashboardMenu from '../DashboardMenu/DashboardMenu';
+import './Evaluate.css'
+import { CheckIcon, Trash2 } from 'lucide-react';
+import { Checkbox } from '@ark-ui/react/checkbox';
+import { Chart } from '../../assets/Icons';
+import { createListCollection } from '@ark-ui/react/collection';
+import { useEffect, useState } from 'react';
+import { getMonitoredWebpages, runEvaluation } from '../../services/EvaluationService';
+import { Webpage } from '../Types/Types';
+import AddWebpages from '../AddWebpages/AddWebpages';
+
+function Evaluate() {
+    const { monitoring_id } = useParams();
+
+    const webpagesToEval : string[] = [];
+    const [monitoredWebpages, setMonitoredWepages] = useState([]);
+
+    useEffect(() => {
+        const fetchMonitoredWebpages = async () => {
+            if (!monitoring_id) return;
+            
+            const data = await getMonitoredWebpages(monitoring_id);
+            setMonitoredWepages(data);
+            console.log(data);
+        }
+
+        fetchMonitoredWebpages();
+    }, [monitoring_id]);
+
+    const items = createMonitoredWebpagesCollection(monitoredWebpages);
+
+    const collection = createListCollection({
+        items: items,
+    });
+
+    const addWebpage = (url: string): void => {
+        webpagesToEval.push(url);
+    };
+
+    const removeWebpage = (urlToRemove: string): void => {
+        webpagesToEval.splice(webpagesToEval.indexOf(urlToRemove), 1);
+    };
+
+    const evaluateWebpages = async (): Promise<void> => {
+        if (!monitoring_id) return;
+
+        for (const webpage of webpagesToEval) {
+            await runEvaluation(monitoring_id, webpage);
+        }
+    };
+
+    return (
+        <div className='evaluate-wrapper'>
+            <DashboardMenu monitoring_id={String(monitoring_id)} />
+            {monitoring_id ? (
+                <div className='evaluate-container'>
+                    <div className='evaluate-title-container'>
+                        {Chart}
+                        <h2>Evaluate</h2>
+                    </div>
+                    <div className='add-webpages-container'>
+                        <AddWebpages monitoring_id={monitoring_id} />
+                    </div>
+                    <Checkbox.Group className='webpages-container' name="framework" onValueChange={console.log}>
+                        {collection.items.map((item) => (
+                            <div className='webpage-container'>
+                                <div className='checkbox-webpage-container'>
+                                    <Checkbox.Root className='checkbox-webpage' value={item.value} key={item.value}>
+                                        <Checkbox.Control className='checkbox-webpage-control' onClick={() => {
+                                            if (webpagesToEval.includes(item.value)) {
+                                                removeWebpage(item.value);
+                                                console.log(webpagesToEval)
+                                            } else {
+                                                addWebpage(item.value);
+                                                console.log(webpagesToEval)
+                                            }
+                                        }}>
+                                            <Checkbox.Indicator className='checkbox-webpage-indicator'>
+                                                <CheckIcon />
+                                            </Checkbox.Indicator>
+                                        </Checkbox.Control>
+                                        <Checkbox.HiddenInput />
+                                        <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
+                                    </Checkbox.Root>
+                                    <button className='checkbox-webpage-trash-button'>
+                                        <Trash2 />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </Checkbox.Group>
+                    <div className='evaluate-button-container'>
+                        <button className='evaluate-button' onClick={() => {
+                            evaluateWebpages()
+                        }}>Evaluate</button>
+                    </div>
+                </div>
+            ) : null}
+        </div>
+    );
+}
+
+export default Evaluate;
+
+
+function createMonitoredWebpagesCollection(monitoredWebpages: Webpage[]) {
+    const items: { label: string, value: string }[] = [];
+    
+    monitoredWebpages.forEach((webpage : Webpage) => {
+        items.push({ 
+            label: webpage.url, 
+            value: webpage.id.toString()
+        });
+    });
+    
+    return items;
+}

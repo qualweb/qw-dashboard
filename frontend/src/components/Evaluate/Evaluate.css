@@ -1,0 +1,106 @@
+.evaluate-wrapper {
+    margin-left: 21rem;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0rem 9rem;
+}
+
+.evaluate-container {
+    background-color: var(--secondary-color);
+    padding: 3rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    border-radius: 3rem;
+    width: 100%;
+}
+
+.evaluate-title-container > h2 {
+    margin: 0;
+}
+
+.evaluate-title-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.evaluate-title-container > svg {
+    stroke-width: 0.2rem;
+    color: white;
+}
+
+.add-webpages-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.webpages-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: var(--primary-color);
+    padding: 2rem;
+    border-radius: 3rem;
+    overflow-y: scroll;
+    height: 42vh
+}
+
+.checkbox-webpage-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--secondary-color);
+    padding: 1rem 2.5rem;
+    border-radius: 3rem;
+    text-align: left;
+}
+
+.checkbox-webpage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.checkbox-webpage-control {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+}
+
+.evaluate-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.evaluate-button {
+    background: #FF7C01;
+    color: var(--terciary-color);
+    border-radius: 3rem;
+    padding: 1rem 4rem;
+}
+
+.webpages-add-button-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.checkbox-webpage > span {
+    width: fit-content;
+    word-break: break-all;
+}
+
+.checkbox-webpage-trash-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3rem;
+    margin: 0;
+    padding: 0.7rem;
+}
