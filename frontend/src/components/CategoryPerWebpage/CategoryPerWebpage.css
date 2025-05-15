@@ -93,3 +93,8 @@
     align-items: center;
     width: 100%;
 }
+
+.category-title {
+    text-align: left;
+    word-break: break-all;
+}

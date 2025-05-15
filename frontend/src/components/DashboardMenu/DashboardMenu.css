@@ -1,6 +1,5 @@
 @media(max-width: 60rem) {
     body .sidebar {
-        display: none;
     }
 }
 
@@ -14,9 +13,6 @@
     height: 100vh;
     width: 21rem;
     background-color: var(--secondary-color);
-    position: fixed;
-    top: 0;
-    left: 0;
 }
 
 .sidebar h1 {
@@ -198,4 +194,45 @@ img {
 
 .list-item {
     width: 70%;
+}
+
+.sidebar-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 3rem;
+    background-color: var(--terciary-color);
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1000;
+}
+
+.menu-button {
+    color: white;
+}
+
+.close-menu-button {
+    position: fixed;
+    top: 1rem;
+    left: 16.5rem;
+    z-index: 1001;
+    background-color: var(--terciary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 3rem;
+}
+
+.close-menu-button > svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    rotate: 90deg;
 }

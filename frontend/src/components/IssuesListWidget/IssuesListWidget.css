@@ -14,6 +14,7 @@
     justify-content: space-between;
     min-height: 5rem;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .title-pill {
@@ -31,26 +32,23 @@
 .filter-pills {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .stats-pill {
     background-color: #1a1a1a;
     border-radius: 3rem;
-    padding: 1rem 1.5rem;
+    padding: 1.5rem 1.5rem;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 0.9rem;
+    flex-wrap: wrap;
 }
 
 .stat {
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-.stats-pill {
-    display: flex;
-    gap: 0.9rem;
 }
 
 .stats-pill svg {

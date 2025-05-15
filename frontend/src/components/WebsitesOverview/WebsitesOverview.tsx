@@ -67,7 +67,7 @@ function WebsitesOverview() {
                         </h1>
                         <LogoutButton />
                     </div>
-                    <div className='welcome'><h1>Welcome&nbsp;</h1><h1 className='username'>{user?.nickname} 👋</h1></div>
+                    <div className='welcome'><h1>Welcome&nbsp;</h1><h1 className='username'>{user?.name} 👋</h1></div>
                     <div className='your-websites'>
                         <div className='your-websites-header'>
                             <h2>Your Websites</h2>

@@ -104,3 +104,23 @@
     margin: 0;
     padding: 0.7rem;
 }
+
+@media (max-width: 60rem) {
+    .website-dashboard {
+        align-items: flex-start;
+    }
+
+    .evaluate-wrapper {
+        align-items: center;
+        justify-content: center;
+        margin-left: 0 !important;
+        height: 100vh;
+        padding: 0 6rem;
+    }
+}
+
+@media (max-width: 78rem) {
+    .evaluate-wrapper {
+        height: 100vh;
+    }
+}

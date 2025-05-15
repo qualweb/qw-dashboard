@@ -46,3 +46,8 @@
 .stat-warning {
     min-width: 2.5rem;
 }
+
+.tests-title {
+    text-align: left;
+    word-break: break-all;
+}

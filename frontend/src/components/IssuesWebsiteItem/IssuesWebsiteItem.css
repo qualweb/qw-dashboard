@@ -50,3 +50,7 @@
     width: 100%;
 }
 
+.issue-url {
+    word-break: break-all;
+    text-align: left;
+}

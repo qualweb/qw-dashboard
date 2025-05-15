@@ -44,7 +44,6 @@
 @media (max-width: 78rem) {
     .website-dashboard {
         height: 100vh;
-        align-items: flex-start;
     }
 
     .score-history-wrapper {
@@ -54,6 +53,5 @@
     .score-container {
         width: 100%;
     }
-
     
 }
