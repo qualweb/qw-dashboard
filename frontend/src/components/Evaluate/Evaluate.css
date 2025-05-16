@@ -1,12 +1,9 @@
 .evaluate-wrapper {
-    margin-left: 21rem;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0rem 9rem;
 }
 
 .evaluate-container {
@@ -17,6 +14,8 @@
     gap: 2.5rem;
     border-radius: 3rem;
     width: 100%;
+    margin: 0 3rem;
+
 }
 
 .evaluate-title-container > h2 {
@@ -106,21 +105,23 @@
 }
 
 @media (max-width: 60rem) {
+
     .website-dashboard {
         align-items: flex-start;
     }
 
-    .evaluate-wrapper {
-        align-items: center;
-        justify-content: center;
+    .wrapper {
+        justify-content: flex-start;
         margin-left: 0 !important;
         height: 100vh;
-        padding: 0 6rem;
     }
+
 }
 
 @media (max-width: 78rem) {
-    .evaluate-wrapper {
+    .website-dashboard {
         height: 100vh;
+        align-items: flex-start;
     }
+
 }

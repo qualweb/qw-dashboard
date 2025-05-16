@@ -164,6 +164,11 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.DeleteWebpageRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.DeleteWebpageResponse.FromString,
                 _registered_method=True)
+        self.AddLatestEvaluationsToMonitoringCycle = channel.unary_unary(
+                '/runtimePackage.Evaluations/AddLatestEvaluationsToMonitoringCycle',
+                request_serializer=evaluations__pb2.AddLatestEvaluationsToMonitoringCycleRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.AddLatestEvaluationsToMonitoringCycleResponse.FromString,
+                _registered_method=True)
 
 
 class EvaluationsServicer(object):
@@ -325,6 +330,12 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AddLatestEvaluationsToMonitoringCycle(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_EvaluationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -457,6 +468,11 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     servicer.DeleteWebpage,
                     request_deserializer=evaluations__pb2.DeleteWebpageRequest.FromString,
                     response_serializer=evaluations__pb2.DeleteWebpageResponse.SerializeToString,
+            ),
+            'AddLatestEvaluationsToMonitoringCycle': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddLatestEvaluationsToMonitoringCycle,
+                    request_deserializer=evaluations__pb2.AddLatestEvaluationsToMonitoringCycleRequest.FromString,
+                    response_serializer=evaluations__pb2.AddLatestEvaluationsToMonitoringCycleResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1161,6 +1177,33 @@ class Evaluations(object):
             '/runtimePackage.Evaluations/DeleteWebpage',
             evaluations__pb2.DeleteWebpageRequest.SerializeToString,
             evaluations__pb2.DeleteWebpageResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AddLatestEvaluationsToMonitoringCycle(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/runtimePackage.Evaluations/AddLatestEvaluationsToMonitoringCycle',
+            evaluations__pb2.AddLatestEvaluationsToMonitoringCycleRequest.SerializeToString,
+            evaluations__pb2.AddLatestEvaluationsToMonitoringCycleResponse.FromString,
             options,
             channel_credentials,
             insecure,

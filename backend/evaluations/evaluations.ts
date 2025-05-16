@@ -45,7 +45,9 @@ import {
     GetEvaluationInfoRequest,
     GetEvaluationInfoResponse,
     DeleteWebpageRequest,
-    DeleteWebpageResponse
+    DeleteWebpageResponse,
+    AddLatestEvaluationsToMonitoringCycleRequest,
+    AddLatestEvaluationsToMonitoringCycleResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
@@ -212,9 +214,8 @@ app.post('/api/monitoring/set-accessibility-metric', async (req: Request, res: R
     res.send(200);
 });
 
-app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id/:webpage_id', async (req: Request, res: Response) => {
+app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', async (req: Request, res: Response) => {
     const monitoring_id = req.params.monitoring_id;
-    const monitoring_cycle_id = req.params.monitoring_cycle_id;
     const webpage_id = req.params.webpage_id;
 
     try {
@@ -298,7 +299,6 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id/:webpage_
                 evaluations_request.setModulesList(await getModules(report, page));
                 evaluations_request.setModulesQuantity(2);
                 evaluations_request.setMonitoredWebsiteId(Number(monitoring_id));
-                evaluations_request.setMonitoringCycleId(Number(monitoring_cycle_id));
 
                 if (screenshot) {
                     evaluations_request.setScreenshot(screenshot);
@@ -871,6 +871,34 @@ app.delete('/api/monitoring/webpage/:webpage_id', async (req: Request, res: Resp
         });
     } catch (error) {
         console.error('Error deleting webpage:', error);
+        res.send(500);
+    }
+});
+
+app.post('/api/monitoring/monitoring-cycle/:monitoring_cycle_id/evaluations', async (req: Request, res: Response) => {
+    const monitoring_cycle_id = req.params.monitoring_cycle_id;
+
+    try {
+        const addLatestEvaluationsToMonitoringCycle = new AddLatestEvaluationsToMonitoringCycleRequest();
+        addLatestEvaluationsToMonitoringCycle.setMonitoringCycleId(Number(monitoring_cycle_id));
+        
+        const response = await new Promise<AddLatestEvaluationsToMonitoringCycleResponse>((resolve, reject) => {
+            client.addLatestEvaluationsToMonitoringCycle(addLatestEvaluationsToMonitoringCycle, (err: Error, callResponse: AddLatestEvaluationsToMonitoringCycleResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            message: 'Successfully set latest evaluations'
+        });
+    } catch (error) {
+        console.error('Error setting latest evaluations:', error);
         res.send(500);
     }
 });

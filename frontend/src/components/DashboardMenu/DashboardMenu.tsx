@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { DashboardIcon, ScaleIcon, SignOutIcon, TimeIcon, UserIcon, WarningIcon, Chart } from '../../assets/Icons';
+import { DashboardIcon, ScaleIcon, SignOutIcon, TimeIcon, UserIcon, WarningIcon, Chart, ListIcon } from '../../assets/Icons';
 import WebsiteDashboardMenuItem from '../DashboardMenuItem/DashboardMenuItem';
 import './DashboardMenu.css';
 
@@ -7,7 +7,6 @@ import { Menu } from '@ark-ui/react/menu'
 import { useState } from 'react';
 
 import { MenuIcon } from '../../assets/Icons';
-import { X } from 'lucide-react';
 
 /*
 import { Portal } from '@ark-ui/react/portal'
@@ -22,26 +21,6 @@ interface DashboardMenuProps {
 }
 
 function DashboardMenu (props: DashboardMenuProps) {
-    /*
-    const [monitoredWebsites, setMonitoredWebsites] = useState([]);
-
-    useEffect(() => {
-        const fetchMonitoredWebsites = async () => {
-            const data = await getMonitoredWebsites();
-            setMonitoredWebsites(data);
-        }
-
-        fetchMonitoredWebsites();
-    }, [props.monitoring_id]);
-
-    
-    const items = createWebpagesCollection(monitoredWebsites);
-
-    const collection = createListCollection({
-        items: items,
-    });
-    */
-
     const { user, logout } = useAuth0();
     
     const [isOpen, setIsOpen] = useState(false);
@@ -53,12 +32,12 @@ function DashboardMenu (props: DashboardMenuProps) {
     return (
         <div className='sidebar-container'>
             {!isOpen && (
-                <button className='menu-button' onClick={toggleMenu}>
+                <button className='menu-button' aria-label={isOpen ? "Close menu" : "Open menu"} onClick={toggleMenu}>
                     {MenuIcon}
                 </button>
             )}
             {isOpen && (
-                <button className='close-menu-button' onClick={toggleMenu}>
+                <button className='close-menu-button' aria-label={isOpen ? "Close menu" : "Open menu"} onClick={toggleMenu}>
                     {MenuIcon}
                 </button>
             )}
@@ -72,38 +51,14 @@ function DashboardMenu (props: DashboardMenuProps) {
                     </h1>
                     <nav className='sidebar-menu'>
                         <ul>
-                            { /*<li>
-                                <Select.Root collection={collection}>
-                                    <Select.Label className='select-website-label'>
-                                        <strong>Current website</strong>
-                                    </Select.Label>
-                                    <Select.Control>
-                                        <Select.Trigger>
-                                            <Select.ValueText placeholder="Select a website" />
-                                            <Select.Indicator>
-                                                <ChevronDownIcon />
-                                            </Select.Indicator>
-                                        </Select.Trigger>
-                                    </Select.Control>
-                                    <Portal>
-                                        <Select.Positioner>
-                                            <Select.Content>
-                                                <Select.ItemGroup>
-                                                    {collection.items.map((item) => (
-                                                        <Select.Item key={item.value} item={item}>
-                                                            <Select.ItemText>{item.label}</Select.ItemText>
-                                                        </Select.Item>
-                                                    ))}
-                                                </Select.ItemGroup>
-                                            </Select.Content>
-                                        </Select.Positioner>
-                                    </Portal>
-                                    <Select.HiddenSelect />
-                                </Select.Root>
-                            </li> */}
                             <li>
                                 <div className='list-item'>
-                                    <WebsiteDashboardMenuItem name="Websites overview" path={`/websites-overview`}  icon={DashboardIcon} />
+                                    <WebsiteDashboardMenuItem name="Websites overview" path={`/websites-overview`}  icon={ListIcon} />
+                                </div>
+                            </li>
+                            <li>
+                                <div className='list-item'>
+                                    <WebsiteDashboardMenuItem name="Dashboard" path={`/dashboard/${props.monitoring_id}`} icon={DashboardIcon} />
                                 </div>
                             </li>
                             <li>

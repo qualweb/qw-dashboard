@@ -315,9 +315,6 @@ export class AddEvaluationRequest extends jspb.Message {
   getMonitoredWebsiteId(): number;
   setMonitoredWebsiteId(value: number): void;
 
-  getMonitoringCycleId(): number;
-  setMonitoringCycleId(value: number): void;
-
   getScreenshot(): Uint8Array | string;
   getScreenshot_asU8(): Uint8Array;
   getScreenshot_asB64(): string;
@@ -348,7 +345,6 @@ export namespace AddEvaluationRequest {
     modulesList: Array<Module.AsObject>,
     modulesQuantity: number,
     monitoredWebsiteId: number,
-    monitoringCycleId: number,
     screenshot: Uint8Array | string,
   }
 }
@@ -2108,6 +2104,46 @@ export class DeleteWebpageResponse extends jspb.Message {
 }
 
 export namespace DeleteWebpageResponse {
+  export type AsObject = {
+    statusCode: number,
+  }
+}
+
+export class AddLatestEvaluationsToMonitoringCycleRequest extends jspb.Message {
+  getMonitoringCycleId(): number;
+  setMonitoringCycleId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AddLatestEvaluationsToMonitoringCycleRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: AddLatestEvaluationsToMonitoringCycleRequest): AddLatestEvaluationsToMonitoringCycleRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: AddLatestEvaluationsToMonitoringCycleRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AddLatestEvaluationsToMonitoringCycleRequest;
+  static deserializeBinaryFromReader(message: AddLatestEvaluationsToMonitoringCycleRequest, reader: jspb.BinaryReader): AddLatestEvaluationsToMonitoringCycleRequest;
+}
+
+export namespace AddLatestEvaluationsToMonitoringCycleRequest {
+  export type AsObject = {
+    monitoringCycleId: number,
+  }
+}
+
+export class AddLatestEvaluationsToMonitoringCycleResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AddLatestEvaluationsToMonitoringCycleResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: AddLatestEvaluationsToMonitoringCycleResponse): AddLatestEvaluationsToMonitoringCycleResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: AddLatestEvaluationsToMonitoringCycleResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AddLatestEvaluationsToMonitoringCycleResponse;
+  static deserializeBinaryFromReader(message: AddLatestEvaluationsToMonitoringCycleResponse, reader: jspb.BinaryReader): AddLatestEvaluationsToMonitoringCycleResponse;
+}
+
+export namespace AddLatestEvaluationsToMonitoringCycleResponse {
   export type AsObject = {
     statusCode: number,
   }

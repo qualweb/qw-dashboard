@@ -55,10 +55,8 @@ CREATE TABLE Evaluation (
     inapplicable            INTEGER NOT NULL,
     score                   FLOAT,
     screenshot              BYTEA,
-    evaluation_cycle_id     INTEGER NOT NULL,
 
-    FOREIGN KEY (monitored_website_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE,
-    FOREIGN KEY (evaluation_cycle_id) REFERENCES Monitoring_Cycle(id) ON DELETE CASCADE
+    FOREIGN KEY (monitored_website_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Monitoring_Cycle_Evaluation (

@@ -6,7 +6,7 @@ import { Checkbox } from '@ark-ui/react/checkbox';
 import { Chart } from '../../assets/Icons';
 import { createListCollection } from '@ark-ui/react/collection';
 import { useEffect, useState } from 'react';
-import { deleteWebpage, getMonitoredWebpages, runEvaluation } from '../../services/EvaluationService';
+import { addLatestEvalsMonitoringCycle, calculateScores, createMonitoringCycle, deleteWebpage, getMonitoredWebpages, runEvaluation } from '../../services/EvaluationService';
 import { Webpage } from '../Types/Types';
 import AddWebpages from '../AddWebpages/AddWebpages';
 
@@ -25,9 +25,12 @@ function Evaluate() {
         const fetchMonitoredWebpages = async () => {
             if (!monitoring_id) return;
             
-            const data = await getMonitoredWebpages(monitoring_id);
-            setMonitoredWepages(data);
-            console.log(data);
+            try {
+                const data = await getMonitoredWebpages(monitoring_id);
+                setMonitoredWepages(data);
+            } catch (error) {
+                console.error('Error fetching monitored webpages:', error);
+            }
         }
 
         fetchMonitoredWebpages();
@@ -57,9 +60,15 @@ function Evaluate() {
     const evaluateWebpages = async (): Promise<void> => {
         if (!monitoring_id) return;
 
+        const monitoring_cycle_id = await createMonitoringCycle(monitoring_id);
+
         for (const webpage of webpagesToEval) {
             await runEvaluation(monitoring_id, webpage);
         }
+
+        await addLatestEvalsMonitoringCycle(monitoring_cycle_id);
+    
+        await calculateScores(monitoring_id);
     };
 
     return (

@@ -46,7 +46,8 @@ from protobuf_library.evaluations_pb2 import (
     GetMonitoredWebpagesResponse,
     Webpage,
     GetEvaluationInfoResponse,
-    DeleteWebpageResponse
+    DeleteWebpageResponse,
+    AddLatestEvaluationsToMonitoringCycleResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -122,18 +123,18 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 INSERT INTO Evaluation (
                     qualweb_version, monitored_website_id, input_url,
                     complete_url,
-                    dom, title, element_count, passed, warning, failed, inapplicable, screenshot, evaluation_cycle_id
+                    dom, title, element_count, passed, warning, failed, inapplicable, screenshot
                 ) VALUES (
                     %s, %s, %s,
                     %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s, %s, %s, %s
                 ) RETURNING id
             ''', (
                 str(request.qualweb_version), str(request.monitored_website_id), str(request.input_url), 
                 str(request.complete_url),
                 str(request.dom), str(request.title), str(request.element_count), 
                 str(int(request.passed)), str(int(request.warning)), str(int(request.failed)), str(int(request.inapplicable)),
-                request.screenshot, request.monitoring_cycle_id
+                request.screenshot
             ))
 
             print("Hello", file=sys.stderr, flush=True)
@@ -1407,7 +1408,63 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return DeleteWebpageResponse(status_code=200)
+    
+    def AddLatestEvaluationsToMonitoringCycle(self, request, context):
+        conn = None
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
+            cursor.execute('''
+                SELECT monitoring_registry_id FROM Monitoring_Cycle 
+                WHERE id = %s
+            ''', (request.monitoring_cycle_id, ))
+
+            monitoring_registry_id = cursor.fetchone()[0]
+
+            if monitoring_registry_id:
+                cursor.execute('''
+                SELECT url FROM Webpage
+                WHERE monitoring_registry_id = %s
+                ''', (monitoring_registry_id, ))
+
+                webpages = cursor.fetchall()
+
+                for webpage in webpages:
+                    cursor.execute('''
+                        SELECT id FROM Evaluation
+                        WHERE monitored_website_id = %s
+                        AND input_url = %s
+                        ORDER BY evaluation_date DESC
+                        LIMIT 1
+                    ''', (monitoring_registry_id, webpage[0]))
+
+                    evaluation_id = cursor.fetchone()
+
+                    if evaluation_id:
+                        cursor.execute('''
+                            INSERT INTO Monitoring_Cycle_Evaluation (
+                                monitoring_cycle_id, evaluation_id
+                            ) VALUES (
+                                %s, %s
+                            )
+                        ''', (request.monitoring_cycle_id, evaluation_id))
+
+            conn.commit()
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return AddLatestEvaluationsToMonitoringCycleResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return AddLatestEvaluationsToMonitoringCycleResponse(status_code=200)
+            
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]
     server = grpc.server(

@@ -26,6 +26,28 @@ function deserialize_runtimePackage_AddEvaluationResponse(buffer_arg) {
   return evaluations_pb.AddEvaluationResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_AddLatestEvaluationsToMonitoringCycleRequest(arg) {
+  if (!(arg instanceof evaluations_pb.AddLatestEvaluationsToMonitoringCycleRequest)) {
+    throw new Error('Expected argument of type runtimePackage.AddLatestEvaluationsToMonitoringCycleRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_AddLatestEvaluationsToMonitoringCycleRequest(buffer_arg) {
+  return evaluations_pb.AddLatestEvaluationsToMonitoringCycleRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_AddLatestEvaluationsToMonitoringCycleResponse(arg) {
+  if (!(arg instanceof evaluations_pb.AddLatestEvaluationsToMonitoringCycleResponse)) {
+    throw new Error('Expected argument of type runtimePackage.AddLatestEvaluationsToMonitoringCycleResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_AddLatestEvaluationsToMonitoringCycleResponse(buffer_arg) {
+  return evaluations_pb.AddLatestEvaluationsToMonitoringCycleResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_AddMonitoringRegistryRequest(arg) {
   if (!(arg instanceof evaluations_pb.AddMonitoringRegistryRequest)) {
     throw new Error('Expected argument of type runtimePackage.AddMonitoringRegistryRequest');
@@ -863,6 +885,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_DeleteWebpageRequest,
     responseSerialize: serialize_runtimePackage_DeleteWebpageResponse,
     responseDeserialize: deserialize_runtimePackage_DeleteWebpageResponse,
+  },
+  addLatestEvaluationsToMonitoringCycle: {
+    path: '/runtimePackage.Evaluations/AddLatestEvaluationsToMonitoringCycle',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.AddLatestEvaluationsToMonitoringCycleRequest,
+    responseType: evaluations_pb.AddLatestEvaluationsToMonitoringCycleResponse,
+    requestSerialize: serialize_runtimePackage_AddLatestEvaluationsToMonitoringCycleRequest,
+    requestDeserialize: deserialize_runtimePackage_AddLatestEvaluationsToMonitoringCycleRequest,
+    responseSerialize: serialize_runtimePackage_AddLatestEvaluationsToMonitoringCycleResponse,
+    responseDeserialize: deserialize_runtimePackage_AddLatestEvaluationsToMonitoringCycleResponse,
   },
 };
 

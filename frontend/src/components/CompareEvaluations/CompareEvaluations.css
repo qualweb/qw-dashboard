@@ -27,7 +27,6 @@
 }
 
 .compare-evaluations-separator {
-    margin-left: 21rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -42,7 +41,7 @@
     background-color: var(--terciary-color);
     padding: 3rem 5rem;
     border-radius: 3rem;
-    width: 100%;
+    width: 50%;
     gap: 3rem;
 }
 

@@ -226,13 +226,12 @@ app.post('/api/monitoring/set-accessibility-metric', function (req, res) { retur
         }
     });
 }); });
-app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id/:webpage_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, monitoring_cycle_id, webpage_id, getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, report_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
+app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, webpage_id, getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, report_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 monitoring_id = req.params.monitoring_id;
-                monitoring_cycle_id = req.params.monitoring_cycle_id;
                 webpage_id = req.params.webpage_id;
                 _a.label = 1;
             case 1:
@@ -324,7 +323,6 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:monitoring_cycle_id/:webpage_
                                     _b.apply(_a, [_j.sent()]);
                                     evaluations_request_1.setModulesQuantity(2);
                                     evaluations_request_1.setMonitoredWebsiteId(Number(monitoring_id));
-                                    evaluations_request_1.setMonitoringCycleId(Number(monitoring_cycle_id));
                                     if (screenshot) {
                                         evaluations_request_1.setScreenshot(screenshot);
                                     }
@@ -1069,6 +1067,44 @@ app.delete('/api/monitoring/webpage/:webpage_id', function (req, res) { return _
             case 3:
                 error_22 = _a.sent();
                 console.error('Error deleting webpage:', error_22);
+                res.send(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+app.post('/api/monitoring/monitoring-cycle/:monitoring_cycle_id/evaluations', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_cycle_id, addLatestEvaluationsToMonitoringCycle_1, response, error_23;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_cycle_id = req.params.monitoring_cycle_id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                addLatestEvaluationsToMonitoringCycle_1 = new evaluations_pb_1.AddLatestEvaluationsToMonitoringCycleRequest();
+                addLatestEvaluationsToMonitoringCycle_1.setMonitoringCycleId(Number(monitoring_cycle_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.addLatestEvaluationsToMonitoringCycle(addLatestEvaluationsToMonitoringCycle_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response = _a.sent();
+                if (response.getStatusCode() !== 200) {
+                    res.send(response.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    message: 'Successfully set latest evaluations'
+                });
+                return [3 /*break*/, 4];
+            case 3:
+                error_23 = _a.sent();
+                console.error('Error setting latest evaluations:', error_23);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];

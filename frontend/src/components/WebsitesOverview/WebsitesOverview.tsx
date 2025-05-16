@@ -15,8 +15,12 @@ function WebsitesOverview() {
 
     const fetchWebsites = async (user_id: number) => {
         if (user_id > -1) {
-            const websitesData = await getUserWebsites(String(user_id));
-            setWebsites(websitesData['monitoring_registries']);
+            try {
+                const websitesData = await getUserWebsites(String(user_id));
+                setWebsites(websitesData['monitoring_registries']);
+            } catch (error) {
+                console.error('Error fetching websites:', error);
+            }
         }
     };
 
@@ -44,9 +48,12 @@ function WebsitesOverview() {
             }
 
             if (user_id > -1) {
-                const websites = await getUserWebsites(String(user_id));
-
-                setWebsites(websites);
+                try {
+                    const websites = await getUserWebsites(String(user_id));
+                    setWebsites(websites);
+                } catch (error) {
+                    console.error('Error fetching websites:', error);
+                }
             }
         }
 

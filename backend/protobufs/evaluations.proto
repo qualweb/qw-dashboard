@@ -74,8 +74,7 @@ message AddEvaluationRequest {
     repeated Module modules = 11;
     int32 modules_quantity = 12;
     int32 monitored_website_id = 13;
-    int32 monitoring_cycle_id = 14;
-    bytes screenshot = 15;
+    bytes screenshot = 14;
 }
 
 message AddEvaluationResponse {
@@ -441,6 +440,14 @@ message DeleteWebpageResponse {
     int32 status_code = 1;
 }
 
+message AddLatestEvaluationsToMonitoringCycleRequest {
+    int32 monitoring_cycle_id = 1;
+}
+
+message AddLatestEvaluationsToMonitoringCycleResponse {
+    int32 status_code = 1;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -468,4 +475,5 @@ service Evaluations {
     rpc GetMonitoredWebpages (GetMonitoredWebpagesRequest) returns (GetMonitoredWebpagesResponse);
     rpc GetEvaluationInfo (GetEvaluationInfoRequest) returns (GetEvaluationInfoResponse);
     rpc DeleteWebpage (DeleteWebpageRequest) returns (DeleteWebpageResponse);
+    rpc AddLatestEvaluationsToMonitoringCycle (AddLatestEvaluationsToMonitoringCycleRequest) returns (AddLatestEvaluationsToMonitoringCycleResponse);
 }

@@ -36,44 +36,68 @@ export const runCrawler = async (
     throw new Error('It was not possible to crawl the website.');
 };
 
+export const createMonitoringCycle = async (
+    monitoring_registry_id : string
+) => {
+    const response = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/monitoring-cycle`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status !== 200) {
+        throw new Error('It was not possible to create a monitoring cycle.');
+    }
+
+    const data = await response.json();
+
+    return data.monitoring_cycle_id;
+}
+
 export const runEvaluation = async (
     monitoring_registry_id : string,
     webpage_id : string
 ) => {
-    const response_1 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/monitoring-cycle`, {
+    const response_2 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate/${webpage_id}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         }
     });
-
-    if (response_1.status !== 200) {
-        throw new Error('It was not possible to run the evaluation.');
-    }
-
-    const data = await response_1.json();
-
-    const response_2 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate/${data.monitoring_cycle_id}/${webpage_id}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-
     
     if (response_2.status !== 200) {
         throw new Error('It was not possible to evaluate the website.');
     }
-    
-    const response_calculate = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/calculate-score`, {
+}
+
+export const addLatestEvalsMonitoringCycle = async (
+    monitoring_cycle_id : string
+) => {
+    const response = await fetch(`${MONITORING_API_URL}/monitoring-cycle/${monitoring_cycle_id}/evaluations`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         }
     });
 
-    if (response_calculate.status !== 200) {
-        throw new Error('It was not possible to evaluate the website.');
+    if (response.status !== 200) {
+        throw new Error('It was not possible to set the evaluations.');
+    }
+}
+
+export const calculateScores = async (
+    monitoring_id : string
+) => {
+    const response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/calculate-score`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status !== 200) {
+        throw new Error('It was not possible to calculate the scores.');
     }
 }
 
@@ -215,7 +239,7 @@ export const getUserWebsites = async(
     const response = await fetch(`${MONITORING_API_URL}/${user_id}`);
     const data = await response.json();
 
-    if(response.status != 200) {
+    if(response.status !== 200) {
         throw new Error('Failed to fetch history.');
     }
 
@@ -258,7 +282,7 @@ export const getMonitoredWebpages = async(
     const monitored_webpages_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/monitored-webpages`);
     const data = await monitored_webpages_response.json();
 
-    if(monitored_webpages_response.status != 200) {
+    if(monitored_webpages_response.status !== 200) {
         throw new Error('Failed to fetch monitored webpages.');
     }
 

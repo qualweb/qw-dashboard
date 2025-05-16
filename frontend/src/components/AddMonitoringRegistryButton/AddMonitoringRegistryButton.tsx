@@ -4,7 +4,7 @@ import { Portal } from '@ark-ui/react/portal';
 import { createListCollection, Select } from '@ark-ui/react/select';
 import { ChevronDownIcon, X, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { getMonitoredWebpages, runCrawler, runEvaluation } from '../../services/EvaluationService';
+import { addLatestEvalsMonitoringCycle, calculateScores, createMonitoringCycle, getMonitoredWebpages, runCrawler, runEvaluation } from '../../services/EvaluationService';
 
 interface AddMonitoringRegistryButtonProps {
     user_id: number;
@@ -90,9 +90,15 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
             console.log('Monitoring registry ID:', monitoring_registry_id);
 
             if (monitoring_registry_id) {
+                const monitoring_cycle_id = await createMonitoringCycle(String(monitoring_registry_id));
+
                 for (const webpage of webpages) {
                     await runEvaluation(String(monitoring_registry_id), webpage['id']);
                 }
+
+                await addLatestEvalsMonitoringCycle(monitoring_cycle_id);
+            
+                await calculateScores(String(monitoring_registry_id));
 
                 props.onWebsiteAdded();
             }
