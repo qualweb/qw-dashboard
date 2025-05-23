@@ -16,8 +16,6 @@ import {
     SetAccessibilityMetricAllWebsitesRequest,
     GetCurrentWarningsRequest,
     GetCurrentWarningsResponse,
-    GetMonitoredWebsitesRequest,
-    GetMonitoredWebsitesResponse,
     GetWebsiteScoreRequest,
     GetWebsiteScoreResponse,
     GetIssuesStatsRequest,
@@ -47,11 +45,17 @@ import {
     DeleteWebpageRequest,
     DeleteWebpageResponse,
     AddLatestEvaluationsToMonitoringCycleRequest,
-    AddLatestEvaluationsToMonitoringCycleResponse
+    AddLatestEvaluationsToMonitoringCycleResponse,
+    GetMonitoringRegistryRequest,
+    GetMonitoringRegistryResponse,
+    GetMonitoringCycleRequest,
+    GetMonitoringCycleResponse,
+    GetWebpageComparisonDataRequest,
+    GetWebpageComparisonDataResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
-import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertMonitoredWebpages, convertMonitoringCycles, convertMonitoringRegistries, convertResultElement } from './convert';
+import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertMonitoredWebpages, convertMonitoringCycle, convertMonitoringCycles, convertMonitoringRegistries, convertMonitoringRegistry, convertResultElement, convertWebpageComparisonData } from './convert';
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
@@ -97,11 +101,6 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
     const website_name = req.body.website_name;
     const user_id = req.body.user_id;
 
-    const puppeteerOptions = {
-        headless: true,
-        args: ['--no-sandbox']
-    };
-
     async function run(urlToCrawl: string) {
         const urls: string[] = [];
         
@@ -111,10 +110,8 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
         const crawler = new PuppeteerCrawler({
             requestQueue,
             async requestHandler({ request, page, enqueueLinks, log }) {
-                // Get the final URL after any redirects
                 const finalUrl = page.url();
                 
-                // Only add URLs we haven't seen before
                 if (!seenUrls.has(finalUrl)) {
                     urls.push(finalUrl);
                     seenUrls.add(finalUrl);
@@ -304,6 +301,8 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', async (req: Requ
                     evaluations_request.setScreenshot(screenshot);
                 }
 
+                browser.close(); 
+
                 const response = await new Promise<AddEvaluationResponse>((resolve, reject) => {
                     client.addEvaluation(evaluations_request, (err: Error, response: AddEvaluationResponse) => {
                         if (err) reject(err);
@@ -433,31 +432,6 @@ app.post('/api/monitoring/set-accessibility-metric-all-websites', async (req: Re
     }
     catch (error) {
         console.error('Error setting accessibility metric:', error);
-        res.send(500);
-    }
-});
-
-app.get('/api/monitoring/monitored-websites', async (req: Request, res: Response) => {
-    try {
-        const getWebpagesRequest = new GetMonitoredWebsitesRequest();
-
-        const response = await new Promise<GetMonitoredWebsitesResponse>((resolve, reject) => {
-            client.getMonitoredWebsites(getWebpagesRequest, (err: Error, callResponse: GetMonitoredWebsitesResponse) => {
-                if (err) reject(err);
-                else resolve(callResponse);
-            });
-        });
-
-        if (response.getStatusCode() !== 200) {
-            res.send(response.getStatusCode());
-            return;
-        }
-
-        res.status(200).json({
-            websites: response.getWebsitesList()
-        });
-    } catch (error) {
-        console.error('Error fetching monitoring registry:', error);
         res.send(500);
     }
 });
@@ -899,6 +873,110 @@ app.post('/api/monitoring/monitoring-cycle/:monitoring_cycle_id/evaluations', as
         });
     } catch (error) {
         console.error('Error setting latest evaluations:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/monitoring/:monitoring_id/monitoring-registry/', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
+
+    try {
+        const getMonitoringRegistryRequest = new GetMonitoringRegistryRequest();
+        getMonitoringRegistryRequest.setMonitoringRegistryId(Number(monitoring_id));
+
+        const response = await new Promise<GetMonitoringRegistryResponse>((resolve, reject) => {
+            client.getMonitoringRegistry(getMonitoringRegistryRequest, (err: Error, callResponse: GetMonitoringRegistryResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            monitoring_registry: convertMonitoringRegistry(response)
+        });
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.send(500);
+    }
+});
+
+app.get('/api/monitoring/monitoring-cycle/:cycle', async (req: Request, res: Response) => {
+    const cycle = req.params.cycle;
+
+    try {
+        const getMonitoringCycleRequest = new GetMonitoringCycleRequest();
+        getMonitoringCycleRequest.setMonitoringCycleId(Number(cycle));
+
+        const response = await new Promise<GetMonitoringCycleResponse>((resolve, reject) => {
+            client.getMonitoringCycle(getMonitoringCycleRequest, (err: Error, callResponse: GetMonitoringCycleResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response.getStatusCode() !== 200) {
+            res.send(response.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            monitoring_cycle: convertMonitoringCycle(response)
+        });
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.send(500);
+    }
+});
+
+app.get ('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cycle', async (req: Request, res: Response) => {
+    const webpage_id = req.params.webpage_id;
+    const first_cycle_id = req.params.first_cycle;
+    const second_cycle_id = req.params.second_cycle;
+
+    try {
+        const getWebpageComparisonDataFirstCycleRequest = new GetWebpageComparisonDataRequest();
+        getWebpageComparisonDataFirstCycleRequest.setWebpageId(Number(webpage_id));
+        getWebpageComparisonDataFirstCycleRequest.setCycleId(Number(first_cycle_id));
+
+        const response1 = await new Promise<GetWebpageComparisonDataResponse>((resolve, reject) => {
+            client.getWebpageComparisonData(getWebpageComparisonDataFirstCycleRequest, (err: Error, callResponse: GetWebpageComparisonDataResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response1.getStatusCode() !== 200) {
+            res.send(response1.getStatusCode());
+            return;
+        }
+
+        const getWebpageComparisonDataSecondCycleRequest = new GetWebpageComparisonDataRequest();
+        getWebpageComparisonDataSecondCycleRequest.setWebpageId(Number(webpage_id));
+        getWebpageComparisonDataSecondCycleRequest.setCycleId(Number(second_cycle_id));
+
+        const response2 = await new Promise<GetWebpageComparisonDataResponse>((resolve, reject) => {
+            client.getWebpageComparisonData(getWebpageComparisonDataSecondCycleRequest, (err: Error, callResponse: GetWebpageComparisonDataResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response2.getStatusCode() !== 200) {
+            res.send(response2.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            first_cycle: convertWebpageComparisonData(response1),
+            second_cycle: convertWebpageComparisonData(response2)
+        });
+    } catch (error) {
+        console.error('Error fetching comparison data:', error);
         res.send(500);
     }
 });

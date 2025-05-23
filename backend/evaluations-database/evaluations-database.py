@@ -21,11 +21,8 @@ from protobuf_library.evaluations_pb2 import (
     SuccessCriteria,
     IssueElementResponse,
     IssueResponse,
-    GetLatestAssertionsByTestResponse,
     GetCurrentWarningsResponse,
-    GetMonitoredWebsitesResponse,
     GetWebsiteScoreResponse,
-    GetMonitoringRegistryResponse,
     GetIssuesStatsResponse,
     GetWebpageScreenshotResponse,
     EvaluationIdUrl,
@@ -47,7 +44,10 @@ from protobuf_library.evaluations_pb2 import (
     Webpage,
     GetEvaluationInfoResponse,
     DeleteWebpageResponse,
-    AddLatestEvaluationsToMonitoringCycleResponse
+    AddLatestEvaluationsToMonitoringCycleResponse,
+    GetMonitoringRegistryResponse,
+    GetMonitoringCycleResponse,
+    GetWebpageComparisonDataResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -287,42 +287,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
         return AddEvaluationResponse(status_code=200)
     
-    def GetMonitoredWebsites(self, request, context):
-        conn = None
-
-        try:
-            conn = connection_pool.getconn()
-            cursor = conn.cursor()
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-
-            cursor.execute('''
-                SELECT main_url FROM MonitoringRegistry
-            ''')
-
-            websites = cursor.fetchall()
-
-            websites_response = list()
-            for website in websites:
-                print(website, file=sys.stderr, flush=True)
-                print(website[0], file=sys.stderr, flush=True)
-                websites_response.append(website[0])
-
-            cursor.close()
-        except Exception as e:
-            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
-            if conn:
-                conn.rollback()
-
-            return GetMonitoredWebsitesResponse(status_code=500)
-        finally:
-            if conn:
-                connection_pool.putconn(conn)
-        
-        return GetMonitoredWebsitesResponse(
-            status_code=200,
-            websites=websites_response
-        )
-    
     def SetAccessibilityMetric(self, request, context):
         conn = None
 
@@ -544,7 +508,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 evaluation_id = cursor.fetchone()
 
                 if evaluation_id is None:
-                    return GetLatestAssertionsByTestResponse(status_code=404)
+                    return GetCurrentWarningsResponse(status_code=404)
                 else:
                     cursor.execute('''
                         SELECT * FROM Module
@@ -555,7 +519,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                     result = cursor.fetchone()
 
                     if result is None:
-                        return GetLatestAssertionsByTestResponse(status_code=404)
+                        return GetCurrentWarningsResponse(status_code=404)
                     
                     cursor.execute('''
                         SELECT * FROM Assertion
@@ -711,58 +675,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return GetWebsiteScoreResponse(status_code=200, score=score)
-    
-    def GetMonitoringRegistry(self, request, context):
-        conn = None
-
-        try:
-            conn = connection_pool.getconn()
-            cursor = conn.cursor()
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-
-            cursor.execute('''
-                SELECT * FROM MonitoringRegistry
-                WHERE id = %s
-            ''', (request.monitoring_registry_id, ))
-
-            result = cursor.fetchone()
-
-            cursor.execute('''
-                SELECT url FROM Webpage
-                WHERE monitoring_registry_id = %s
-            ''', (request.monitoring_registry_id, ))
-            
-            result_webpages = cursor.fetchall()
-
-            webpages = []
-            for webpage in result_webpages:
-                webpages.append(webpage[0])
-
-            cursor.close()
-        except Exception as e:
-            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
-            if conn:
-                conn.rollback()
-
-            return GetMonitoringRegistryResponse(status_code=500)
-        finally:
-            if conn:
-                connection_pool.putconn(conn)
-        
-        return GetMonitoringRegistryResponse(
-            status_code=200,
-            id=result[0],
-            accessibility_metric=result[1],
-            main_url=result[2],
-            domain_name=result[3],
-            is_mobile=result[4],
-            is_landscape=result[5],
-            display_width=result[6],
-            display_height=result[7],
-            webpages=webpages,
-            latest_evaluation=str(result[8]),
-            accessibility_score=result[9]
-        )
     
     def GetIssuesStats(self, request, context):
         conn = None
@@ -1106,7 +1018,10 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         eval_date=EvalDate(
                             day=eval[4].day,
                             month=eval[4].month,
-                            year=eval[4].year
+                            year=eval[4].year,
+                            hour=eval[4].hour,
+                            minute=eval[4].minute,
+                            second=eval[4].second
                         )
                     )
                 )
@@ -1202,7 +1117,10 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         latest_evaluation=EvalDate(
                             day=registry[8].day,
                             month=registry[8].month,
-                            year=registry[8].year
+                            year=registry[8].year,
+                            hour=registry[8].hour,
+                            minute=registry[8].minute,
+                            second=registry[8].second
                         ),
                         score=registry[9],
                         passed=passed,
@@ -1251,7 +1169,10 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         cycle_date=EvalDate(
                             day=cycle[1].day,
                             month=cycle[1].month,
-                            year=cycle[1].year
+                            year=cycle[1].year,
+                            hour=cycle[1].hour,
+                            minute=cycle[1].minute,
+                            second=cycle[1].second
                         )
                     )
                 )
@@ -1464,6 +1385,156 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return AddLatestEvaluationsToMonitoringCycleResponse(status_code=200)
+
+    def GetMonitoringRegistry(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT accessibility_metric, website_name,
+                        main_url, is_mobile, is_landscape, 
+                        display_width, display_height, 
+                        latest_evaluation, score FROM MonitoringRegistry
+                WHERE id = %s
+            ''', (request.monitoring_registry_id, ))
+
+            registry = cursor.fetchone()
+
+            cursor.close()
+
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetMonitoringRegistryResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetMonitoringRegistryResponse(
+            status_code=200,
+            accessibility_metric=registry[0],
+            name=registry[1],
+            main_url=registry[2],
+            is_mobile=registry[3],
+            is_landscape=registry[4],
+            display_width=registry[5],
+            display_height=registry[6],
+            latest_evaluation=EvalDate(
+                day=registry[7].day,
+                month=registry[7].month,
+                year=registry[7].year,
+                hour=registry[7].hour,
+                minute=registry[7].minute,
+                second=registry[7].second
+            ),
+            score=registry[8]
+        )
+    
+    def GetMonitoringCycle(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT * FROM Monitoring_Cycle
+                WHERE id = %s
+            ''', (request.monitoring_cycle_id, ))
+
+            cycle = cursor.fetchone()
+
+            cursor.close()
+
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetMonitoringCycleResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetMonitoringCycleResponse(
+            status_code=200,
+            id=cycle[0],
+            monitoring_registry_id=cycle[1],
+            cycle_date=EvalDate(
+                day=cycle[2].day,
+                month=cycle[2].month,
+                year=cycle[2].year,
+                hour=cycle[2].hour,
+                minute=cycle[2].minute,
+                second=cycle[2].second
+            )
+        )
+    
+    def GetWebpageComparisonData(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT url FROM Webpage
+                WHERE id = %s
+            ''', (request.webpage_id, ))
+
+            url = cursor.fetchone()
+
+            if url:
+                cursor.execute('''
+                    SELECT evaluation_id FROM Monitoring_Cycle_Evaluation
+                    WHERE monitoring_cycle_id = %s
+                ''', (request.cycle_id, ))
+
+                evaluation_ids = cursor.fetchall()
+
+                evaluation = -1
+                score = 0.0
+                total_fails = 0
+
+                for evaluation_id in evaluation_ids:
+                    cursor.execute('''
+                        SELECT id, score FROM Evaluation
+                        WHERE id = %s AND input_url = %s
+                    ''', (evaluation_id[0], url[0] ))
+
+                    result = cursor.fetchone()
+
+                    if result:
+                        evaluation = result[0]
+                        score = result[1]
+                        break
+
+                cursor.execute('''
+                    SELECT failed FROM Module
+                    WHERE evaluation_id = %s
+                    AND module_type = 'act-rules'
+                ''', (evaluation, ))
+
+                total_fails = cursor.fetchone()[0]
+
+            cursor.close()
+
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetWebpageComparisonDataResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetWebpageComparisonDataResponse(status_code=200, score=score, total_fails=total_fails)
             
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

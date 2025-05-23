@@ -1,0 +1,25 @@
+.website-identifier {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.website-identifier-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background-color: var(--secondary-color);
+    width: fit-content;
+    border-radius: 3rem;
+}
+
+.website-identifier-container > img {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.website-identifier-container > h3 {
+    margin: 0;
+}

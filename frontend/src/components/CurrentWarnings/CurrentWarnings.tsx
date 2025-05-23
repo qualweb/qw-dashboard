@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import "./CurrentWarnings.css"
 import DashboardMenu from "../DashboardMenu/DashboardMenu";
 import WarningsListWidget from "../WarningsListWidget/WarningsListWidget";
+import WebsiteIdentifier from "../WebsiteIdentifier/WebsiteIdentifier";
 
 
 function CurrentWarnings() {
@@ -13,6 +14,7 @@ function CurrentWarnings() {
                 <>
                     <DashboardMenu monitoring_id={monitoring_id} />
                     <div className="wrapper-warnings-list">
+                        <WebsiteIdentifier monitoring_id={monitoring_id} />
                         <WarningsListWidget monitoring_id={monitoring_id} />
                     </div>
                 </>

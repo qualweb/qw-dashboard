@@ -101,17 +101,6 @@ export const calculateScores = async (
     }
 }
 
-export const getMonitoredWebsites = async () => {
-    const response = await fetch(`${MONITORING_API_URL}/monitored-websites`);
-    const data = await response.json();
-
-    if (response.status !== 200) {
-        throw new Error('Failed to fetch evaluation data.');
-    }
-
-    return data.websites;
-}
-
 export const getAccessibilityScore = async (
     monitoring_id : string
 ) => {
@@ -321,4 +310,62 @@ export const deleteWebpage = async(
     if(response.status != 200) {
         throw new Error('Failed to delete webpage.');
     }
+}
+
+export const getMonitoringRegistry = async(
+    monitoring_id: string
+) => {
+    const monitoring_registry_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/monitoring-registry`);
+    const data = await monitoring_registry_response.json();
+
+    if(monitoring_registry_response.status != 200) {
+        throw new Error('Failed to fetch monitoring registry.');
+    }
+
+    return data.monitoring_registry;
+}
+
+export const getWebsiteMonitoringCycle = async(
+    cycle: string
+) => {
+    const monitoring_cycles_response = await fetch(`${MONITORING_API_URL}/monitoring-cycle/${cycle}`);
+    const data = await monitoring_cycles_response.json();
+
+    if(monitoring_cycles_response.status != 200) {
+        throw new Error('Failed to fetch monitoring cycles.');
+    }
+
+    return data.monitoring_cycle;
+}
+
+export const getWebpageComparisonData = async(
+    webpage_id: string,
+    first_cycle: string,
+    second_cycle: string
+) => {
+    const comparison_response = await fetch(`${MONITORING_API_URL}/webpage/${webpage_id}/comparison/${first_cycle}/${second_cycle}`);
+    const data = await comparison_response.json();
+
+    if(comparison_response.status != 200) {
+        throw new Error('Failed to fetch comparison data.');
+    }
+
+    return data;
+}
+
+export const getAssertionsNumberByStateAndLevelPerWebpage = async(
+    webpage_id: string,
+    first_cycle: string,
+    second_cycle: string,
+    sc_level: string,
+    state: string,
+) => {
+    const assertions_response = await fetch(`${MONITORING_API_URL}/webpage/${webpage_id}/assertions/${first_cycle}/${second_cycle}?sc_level=${sc_level}&state=${state}`);
+    const data = await assertions_response.json();
+
+    if(assertions_response.status != 200) {
+        throw new Error('Failed to fetch assertions.');
+    }
+
+    return data;
 }

@@ -1,87 +1,66 @@
+html, body {
+    height: 100%;
+    overflow: auto;
+  }
+
+.compare-evaluations {
+    display: flex;
+}
+
+.compare-evaluations-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 3rem;
+    gap: 3rem;
+    overflow-y: auto;
+}
+
+.compare-evaluations-container h2 {
+    padding: 1rem 2rem;
+    background-color: var(--secondary-color);
+    text-align: left;
+    width: fit-content;
+    border-radius: 3rem;
+    margin: 0;
+}
+
+.website-level, .webpage-level {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.from-to {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    background-color: var(--secondary-color);
+    width: fit-content;
+    padding: 1.2rem 2rem;
+    border-radius: 3rem;
+}
+
+.website-identifier-dates-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
 @media (max-width: 60rem) {
 
-    .compare-evaluations {
-        height: 100vh;
-        align-items: flex-start;
+    .website-level, .webpage-level {
+        align-items: center;
     }
 
-    .compare-evaluations-wrapper {
-        justify-content: flex-start;
-        margin-left: 0 !important;
+    .compare-website-stats {
+        justify-content: center;
     }
+
 }
 
 @media (max-width: 78rem) {
-    .compare-evaluations {
-        height: 100vh;
-        align-items: flex-start;
-    }
     
-}
-
-.compare-evaluations {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: space-around;
-}
-
-.compare-evaluations-separator {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-grow: 1;
-    justify-content: center;
-    padding: 10rem;
-}
-
-.compare-evaluations-wrapper {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--terciary-color);
-    padding: 3rem 5rem;
-    border-radius: 3rem;
-    width: 50%;
-    gap: 3rem;
-}
-
-.compare-evaluations-wrapper > h3 {
-    margin: 0;
-    text-align: left;
-}
-
-.evaluation-1 {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.evaluation-2 {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.evaluations-selection {
-    display: flex;
-    justify-content: space-around;
-}
-
-.evaluation-1 > h4, .evaluation-2 > h4 {
-    margin: 0;
-    text-align: left;
-}
-
-.evaluations-selection-button-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-}
-
-.compare-evaluations-button-wrapper > button {
-    width: 30%;
-    background-color: #FF7C01;
-    color: var(--terciary-color);
-    border-radius: 3rem;
-    height: 3.5rem;
 }

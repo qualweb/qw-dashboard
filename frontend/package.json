@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ark-ui/react": "^4.9.1",
+    "@feedzai/autovizua11y": "^2.0.4",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "formik": "^2.4.6",

@@ -1,4 +1,4 @@
-import { AssertionResponse, ElementResponse, EvalDate, MonitoringCycle, EvaluationHistory, EvaluationIdUrl, MonitoringRegistry, ResultResponse, Webpage } from "./protobuf_library/evaluations_pb";
+import { AssertionResponse, ElementResponse, EvalDate, MonitoringCycle, EvaluationHistory, EvaluationIdUrl, MonitoringRegistry, ResultResponse, Webpage, GetMonitoringRegistryResponse, GetMonitoringCycleResponse, GetWebpageComparisonDataResponse } from "./protobuf_library/evaluations_pb";
 
 export function convertLatestEvals(latestEvals: EvaluationIdUrl[]) {
   return latestEvals.map(element => ({
@@ -59,7 +59,10 @@ export function convertDate(date: EvalDate | undefined) {
   return {
     day: date.getDay(),
     month: date.getMonth(),
-    year: date.getYear()
+    year: date.getYear(),
+    hour: date.getHour(),
+    minute: date.getMinute(),
+    second: date.getSecond()
   }
 }
 
@@ -95,4 +98,33 @@ export function convertMonitoredWebpages(webpages: Webpage[]) {
     id: element.getId(),
     url: element.getUrl()
   }))
+}
+
+export const convertMonitoringRegistry = (monitoringRegistry: GetMonitoringRegistryResponse) => {
+  return {
+    accessibility_metric: monitoringRegistry.getAccessibilityMetric(),
+    name: monitoringRegistry.getName(),
+    main_url: monitoringRegistry.getMainUrl(),
+    is_mobile: monitoringRegistry.getIsMobile(),
+    is_landscape: monitoringRegistry.getIsLandscape(),
+    display_width: monitoringRegistry.getDisplayWidth(),
+    display_height: monitoringRegistry.getDisplayHeight(),
+    latest_evaluation: convertDate(monitoringRegistry.getLatestEvaluation()),
+    score: monitoringRegistry.getScore(),
+  }
+}
+
+export const convertMonitoringCycle = (monitoringCycle: GetMonitoringCycleResponse) => {
+  return {
+    id: monitoringCycle.getId(),
+    monitoring_registry_id: monitoringCycle.getMonitoringRegistryId(),
+    cycle_date: convertDate(monitoringCycle.getCycleDate()),
+  }
+}
+
+export const convertWebpageComparisonData = (webpage: GetWebpageComparisonDataResponse) => {
+  return {
+    score: webpage.getScore(),
+    total_fails: webpage.getTotalFails(),
+  }
 }

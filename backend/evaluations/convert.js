@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.convertWebpageComparisonData = exports.convertMonitoringCycle = exports.convertMonitoringRegistry = void 0;
 exports.convertLatestEvals = convertLatestEvals;
 exports.convertLatestACTAssertions = convertLatestACTAssertions;
 exports.convertAssertionResults = convertAssertionResults;
@@ -61,7 +62,10 @@ function convertDate(date) {
     return {
         day: date.getDay(),
         month: date.getMonth(),
-        year: date.getYear()
+        year: date.getYear(),
+        hour: date.getHour(),
+        minute: date.getMinute(),
+        second: date.getSecond()
     };
 }
 function convertMonitoringRegistries(monitoringRegistries) {
@@ -95,3 +99,32 @@ function convertMonitoredWebpages(webpages) {
         url: element.getUrl()
     }); });
 }
+var convertMonitoringRegistry = function (monitoringRegistry) {
+    return {
+        accessibility_metric: monitoringRegistry.getAccessibilityMetric(),
+        name: monitoringRegistry.getName(),
+        main_url: monitoringRegistry.getMainUrl(),
+        is_mobile: monitoringRegistry.getIsMobile(),
+        is_landscape: monitoringRegistry.getIsLandscape(),
+        display_width: monitoringRegistry.getDisplayWidth(),
+        display_height: monitoringRegistry.getDisplayHeight(),
+        latest_evaluation: convertDate(monitoringRegistry.getLatestEvaluation()),
+        score: monitoringRegistry.getScore(),
+    };
+};
+exports.convertMonitoringRegistry = convertMonitoringRegistry;
+var convertMonitoringCycle = function (monitoringCycle) {
+    return {
+        id: monitoringCycle.getId(),
+        monitoring_registry_id: monitoringCycle.getMonitoringRegistryId(),
+        cycle_date: convertDate(monitoringCycle.getCycleDate()),
+    };
+};
+exports.convertMonitoringCycle = convertMonitoringCycle;
+var convertWebpageComparisonData = function (webpage) {
+    return {
+        score: webpage.getScore(),
+        total_fails: webpage.getTotalFails(),
+    };
+};
+exports.convertWebpageComparisonData = convertWebpageComparisonData;

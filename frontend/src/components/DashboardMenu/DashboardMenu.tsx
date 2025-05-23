@@ -78,7 +78,7 @@ function DashboardMenu (props: DashboardMenuProps) {
                             </li>
                             <li>
                                 <div className='list-item'>
-                                    <WebsiteDashboardMenuItem name="Compare Evaluations" path={`/dashboard/${props.monitoring_id}/compare-evaluations`} icon={ScaleIcon} />
+                                    <WebsiteDashboardMenuItem name="Compare Evaluations" path={`/dashboard/${props.monitoring_id}/select-evaluations`} icon={ScaleIcon} />
                                 </div>
                             </li>
                             <li>

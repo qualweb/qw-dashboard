@@ -1,0 +1,44 @@
+.webpage-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 1.5rem 2rem;
+    background-color: var(--terciary-color);
+    border-radius: 3rem;
+
+}
+
+.webpage-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.webpage-item-header h3 {
+    margin: 0;
+    word-break: break-all;
+}
+
+.webpage-icon-url {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.see-comparison {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--secondary-color);
+    padding: 0.5rem 1.5rem;
+    border-radius: 3rem;
+}
+
+.webpage-icon-url h3 {
+    text-align: left;
+    word-break: break-all;
+}
+
+.see-comparison {
+    text-align: left;
+}

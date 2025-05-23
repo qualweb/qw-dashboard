@@ -1,0 +1,41 @@
+.compare-website-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 2rem;
+}
+
+.compare-website-stat {
+    display: flex;
+    flex-direction: column;
+    padding: 2.5rem;
+    background-color: var(--secondary-color);
+    border-radius: 3rem;
+    width: 10rem;
+    height: 10rem;
+    justify-content: space-between;
+}
+
+.compare-website-stat h3 {
+    text-align: left;
+    margin: 0;
+}
+
+.stat-value {
+    font-size: 4rem;
+    position: relative;
+}
+
+.stat-diff {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    top: 0;
+    right: 0.5rem;
+}
+
+.stat-diff > span {
+    font-size: 1rem;
+}
+

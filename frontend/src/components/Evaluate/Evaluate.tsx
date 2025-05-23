@@ -60,12 +60,12 @@ function Evaluate() {
     const evaluateWebpages = async (): Promise<void> => {
         if (!monitoring_id) return;
 
-        const monitoring_cycle_id = await createMonitoringCycle(monitoring_id);
-
         for (const webpage of webpagesToEval) {
             await runEvaluation(monitoring_id, webpage);
         }
-
+        
+        const monitoring_cycle_id = await createMonitoringCycle(monitoring_id);
+        
         await addLatestEvalsMonitoringCycle(monitoring_cycle_id);
     
         await calculateScores(monitoring_id);
@@ -85,7 +85,7 @@ function Evaluate() {
                     </div>
                     <Checkbox.Group className='webpages-container' name="framework" onValueChange={console.log}>
                         {collection.items.map((item) => (
-                            <div className='webpage-container'>
+                            <div className='webpage-container' key={item.value}>
                                 <div className='checkbox-webpage-container'>
                                     <Checkbox.Root className='checkbox-webpage' value={item.value} key={item.value}>
                                         <Checkbox.Control className='checkbox-webpage-control' onClick={() => {
