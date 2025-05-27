@@ -90,11 +90,12 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
             console.log('Monitoring registry ID:', monitoring_registry_id);
 
             if (monitoring_registry_id) {
-                const monitoring_cycle_id = await createMonitoringCycle(String(monitoring_registry_id));
-
+                
                 for (const webpage of webpages) {
                     await runEvaluation(String(monitoring_registry_id), webpage['id']);
                 }
+                
+                const monitoring_cycle_id = await createMonitoringCycle(String(monitoring_registry_id));
 
                 await addLatestEvalsMonitoringCycle(monitoring_cycle_id);
             

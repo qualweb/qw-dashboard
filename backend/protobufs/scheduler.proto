@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package runtimePackage;
+
+message AddScheduleRequest {
+    int32 monitoring_id = 1;
+    repeated int32 webpages_ids = 2;
+    string schedule_type = 3;
+    string day = 4;
+    string month = 5;
+    string year = 6;
+    string hour = 7;
+    string minute = 8;
+    string second = 9;
+    string day_of_week = 10;
+}
+
+message AddScheduleResponse {
+    int32 status_code = 1;
+    int32 schedule_id = 2;
+}
+
+message GetSchedulesRequest {
+}
+
+message Schedule {
+    int32 id = 1;
+    int32 monitoring_id = 2;
+    repeated int32 webpages_ids = 3;
+    string schedule_type = 4;
+    string day = 5;
+    string month = 6;
+    string year = 7;
+    string hour = 8;
+    string minute = 9;
+    string second = 10;
+    string day_of_week = 11;
+}
+
+message GetSchedulesResponse {
+    int32 status_code = 1;
+    repeated Schedule schedules = 2;
+}
+
+message GetWebsiteSchedulesRequest {
+    int32 monitoring_id = 1;
+}
+
+message GetWebsiteSchedulesResponse {
+    int32 status_code = 1;
+    repeated Schedule schedules = 2;
+}
+
+message DeleteWebsiteScheduleRequest {
+    int32 schedule_id = 1;
+}
+
+message DeleteWebsiteScheduleResponse {
+    int32 status_code = 1;
+}
+
+message GetScheduleRequest {
+    int32 schedule_id = 1;
+}
+
+message GetScheduleResponse {
+    int32 status_code = 1;
+    Schedule schedule = 2;
+}
+
+service Scheduler {
+    rpc AddSchedule (AddScheduleRequest) returns (AddScheduleResponse);
+    rpc GetSchedules (GetSchedulesRequest) returns (GetSchedulesResponse);
+    rpc GetWebsiteSchedules (GetWebsiteSchedulesRequest) returns (GetWebsiteSchedulesResponse);
+    rpc DeleteWebsiteSchedule (DeleteWebsiteScheduleRequest) returns (DeleteWebsiteScheduleResponse);
+    rpc GetSchedule (GetScheduleRequest) returns (GetScheduleResponse);
+}
