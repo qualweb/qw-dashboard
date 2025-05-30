@@ -72,12 +72,19 @@ class Scheduler:
             func=self.evaluate,
             args=[schedule.monitoring_id, schedule.webpages_ids],
             trigger=trigger,
-            id=str(schedule.monitoring_id),
+            id=str(schedule.id),
             replace_existing=True
         )
 
         print(f"Job added for monitoring_id: {schedule.monitoring_id} with webpages_ids: {schedule.webpages_ids}", file=sys.stderr, flush=True)
         print(f"Job details: {self.scheduler.get_job(str(schedule.monitoring_id))}", file=sys.stderr, flush=True)
+
+    def remove_job(self, schedule_id):
+        if self.scheduler.get_job(str(schedule_id)):
+            self.scheduler.remove_job(str(schedule_id))
+            print(f"Job with id {schedule_id} removed successfully", file=sys.stderr, flush=True)
+        else:
+            print(f"No job found with id {schedule_id}", file=sys.stderr, flush=True)
 
     def evaluate(self, monitoring_id, webpage_ids):
         print(f"Evaluating monitoring_id: {monitoring_id} with webpages_ids: {webpage_ids}", file=sys.stderr, flush=True)

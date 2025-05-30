@@ -7,6 +7,7 @@ import WebsitesOverview from './components/WebsitesOverview/WebsitesOverview';
 import Evaluate from './components/Evaluate/Evaluate';
 import SelectEvaluations from './components/SelectEvaluations/SelectEvaluations';
 import CompareEvaluations from './components/CompareEvaluations/CompareEvaluations';
+import Schedule from './components/Schedule/Schedule';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path='/dashboard/:monitoring_id/select-evaluations' element={<SelectEvaluations />} />
           <Route path='/dashboard/:monitoring_id/compare-evaluations/:first_cycle/:second_cycle' element={<CompareEvaluations  />} />
           <Route path='/dashboard/:monitoring_id/evaluate' element={<Evaluate />} />
+          <Route path='/dashboard/:monitoring_id/scheduler' element={<Schedule />} />
         </Routes>
       </Router>
     </>

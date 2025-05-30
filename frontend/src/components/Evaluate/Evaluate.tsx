@@ -48,14 +48,16 @@ function Evaluate() {
 
     const removeWebpage = async (webpage: string) => {
         webpagesToEval.splice(webpagesToEval.indexOf(webpage), 1);
-
+    };
+    
+    const stopMonitoringWebpage = async (webpage: string) => {
         const removeWebpage = async () => {
             await deleteWebpage(webpage);
         }
-
+    
         await removeWebpage();
         refreshWebpages();
-    };
+    }
 
     const evaluateWebpages = async (): Promise<void> => {
         if (!monitoring_id) return;
@@ -105,7 +107,7 @@ function Evaluate() {
                                         <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
                                     </Checkbox.Root>
                                     <button className='checkbox-webpage-trash-button' onClick={() => {
-                                        removeWebpage(item.value);
+                                        stopMonitoringWebpage(item.value);
                                     }}>
                                         <Trash2 />
                                     </button>

@@ -14,8 +14,6 @@
     gap: 2.5rem;
     border-radius: 3rem;
     width: 100%;
-    margin: 0 3rem;
-
 }
 
 .evaluate-title-container > h2 {
@@ -42,7 +40,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    background: var(--primary-color);
+    background: var(--secondary-color);
     padding: 2rem;
     border-radius: 3rem;
     overflow-y: scroll;
@@ -53,7 +51,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--secondary-color);
+    background: var(--terciary-color);
     padding: 1rem 2.5rem;
     border-radius: 3rem;
     text-align: left;

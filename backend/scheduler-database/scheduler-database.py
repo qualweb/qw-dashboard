@@ -11,7 +11,7 @@ import protobuf_library.scheduler_pb2_grpc as scheduler_pb2_grpc
 
 from protobuf_library.scheduler_pb2 import (
     AddScheduleResponse,
-    GetSchedulesResponse,
+    LoadSchedulesResponse,
     GetWebsiteSchedulesResponse,
     DeleteWebsiteScheduleResponse,
     Schedule,
@@ -64,7 +64,7 @@ class SchedulerDatabaseService(scheduler_pb2_grpc.SchedulerServicer):
         
         return AddScheduleResponse(status_code=200, schedule_id=schedule_id)
     
-    def GetSchedules(self, request, context):
+    def LoadSchedules(self, request, context):
         conn = None
         schedules = []
 
@@ -96,16 +96,16 @@ class SchedulerDatabaseService(scheduler_pb2_grpc.SchedulerServicer):
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
             if conn:
                 conn.rollback()
-            return GetSchedulesResponse(status_code=500)
+            return LoadSchedulesResponse(status_code=500)
         finally:
             if conn:
                 connection_pool.putconn(conn)
 
-        return GetSchedulesResponse(status_code=200, schedules=schedules)
+        return LoadSchedulesResponse(status_code=200, schedules=schedules)
     
     def GetWebsiteSchedules(self, request, context):
         conn = None
-        schedules = []
+        schedules_ids = []
 
         try:
             conn = connection_pool.getconn()
@@ -113,25 +113,13 @@ class SchedulerDatabaseService(scheduler_pb2_grpc.SchedulerServicer):
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
             cursor.execute('''
-                SELECT * FROM Schedule
+                SELECT id FROM Schedule
                 WHERE monitoring_id = %s
             ''', (request.monitoring_id, ))
             rows = cursor.fetchall()
 
             for row in rows:
-                schedules.append(Schedule(
-                    id=row[0],
-                    schedule_type=row[1],
-                    monitoring_id=row[2],
-                    webpages_ids=row[3],
-                    day=row[4],
-                    month=row[5],
-                    year=row[6],
-                    hour=row[7],
-                    minute=row[8],
-                    second=row[9],
-                    day_of_week=row[10]
-                ))
+                schedules_ids.append(row[0])
 
             cursor.close()
         except Exception as e:
@@ -143,7 +131,7 @@ class SchedulerDatabaseService(scheduler_pb2_grpc.SchedulerServicer):
             if conn:
                 connection_pool.putconn(conn)
 
-        return GetWebsiteSchedulesResponse(status_code=200, schedules=schedules)
+        return GetWebsiteSchedulesResponse(status_code=200, schedules_ids=schedules_ids)
     
     def DeleteWebsiteSchedule(self, request, context):
         conn = None
@@ -156,7 +144,10 @@ class SchedulerDatabaseService(scheduler_pb2_grpc.SchedulerServicer):
             cursor.execute('''
                 DELETE FROM Schedule
                 WHERE id = %s
+                RETURNING id
             ''', (request.schedule_id, ))
+
+            schedule_id = cursor.fetchone()[0]
 
             if cursor.rowcount == 0:
                 return DeleteWebsiteScheduleResponse(status_code=404)
@@ -173,7 +164,7 @@ class SchedulerDatabaseService(scheduler_pb2_grpc.SchedulerServicer):
             if conn:
                 connection_pool.putconn(conn)
 
-        return DeleteWebsiteScheduleResponse(status_code=200)
+        return DeleteWebsiteScheduleResponse(status_code=200, schedule_id=schedule_id)
     
     def GetSchedule(self, request, context):
         conn = None

@@ -1,0 +1,8 @@
+.select-group-item-schedule-type {
+    max-height: 20rem;
+    overflow-y: auto;
+}
+
+.select-schedule-type-positioner {
+    max-width: fit-content;
+}

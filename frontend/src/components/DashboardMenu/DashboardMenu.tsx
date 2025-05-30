@@ -73,7 +73,7 @@ function DashboardMenu (props: DashboardMenuProps) {
                             </li>
                             <li>
                                 <div className='list-item'>
-                                    <WebsiteDashboardMenuItem name="Evaluation scheduler" path="/scheduler" icon={TimeIcon} />
+                                    <WebsiteDashboardMenuItem name="Evaluation scheduler" path={`/dashboard/${props.monitoring_id}/scheduler`} icon={TimeIcon} />
                                 </div>
                             </li>
                             <li>

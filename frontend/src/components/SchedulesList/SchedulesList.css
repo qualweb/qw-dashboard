@@ -1,0 +1,22 @@
+.schedules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+    background-color: var(--secondary-color);
+    border-radius: 3rem;
+    padding: 3rem;
+}
+
+.schedules-list-title > h2 {
+    margin: 0;
+    text-align: left;
+}
+
+.schedules-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+    overflow-y: auto;
+}

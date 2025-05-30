@@ -39,10 +39,10 @@ class SchedulerStub(object):
                 request_serializer=scheduler__pb2.AddScheduleRequest.SerializeToString,
                 response_deserializer=scheduler__pb2.AddScheduleResponse.FromString,
                 _registered_method=True)
-        self.GetSchedules = channel.unary_unary(
-                '/runtimePackage.Scheduler/GetSchedules',
-                request_serializer=scheduler__pb2.GetSchedulesRequest.SerializeToString,
-                response_deserializer=scheduler__pb2.GetSchedulesResponse.FromString,
+        self.LoadSchedules = channel.unary_unary(
+                '/runtimePackage.Scheduler/LoadSchedules',
+                request_serializer=scheduler__pb2.LoadSchedulesRequest.SerializeToString,
+                response_deserializer=scheduler__pb2.LoadSchedulesResponse.FromString,
                 _registered_method=True)
         self.GetWebsiteSchedules = channel.unary_unary(
                 '/runtimePackage.Scheduler/GetWebsiteSchedules',
@@ -70,7 +70,7 @@ class SchedulerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetSchedules(self, request, context):
+    def LoadSchedules(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -102,10 +102,10 @@ def add_SchedulerServicer_to_server(servicer, server):
                     request_deserializer=scheduler__pb2.AddScheduleRequest.FromString,
                     response_serializer=scheduler__pb2.AddScheduleResponse.SerializeToString,
             ),
-            'GetSchedules': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetSchedules,
-                    request_deserializer=scheduler__pb2.GetSchedulesRequest.FromString,
-                    response_serializer=scheduler__pb2.GetSchedulesResponse.SerializeToString,
+            'LoadSchedules': grpc.unary_unary_rpc_method_handler(
+                    servicer.LoadSchedules,
+                    request_deserializer=scheduler__pb2.LoadSchedulesRequest.FromString,
+                    response_serializer=scheduler__pb2.LoadSchedulesResponse.SerializeToString,
             ),
             'GetWebsiteSchedules': grpc.unary_unary_rpc_method_handler(
                     servicer.GetWebsiteSchedules,
@@ -161,7 +161,7 @@ class Scheduler(object):
             _registered_method=True)
 
     @staticmethod
-    def GetSchedules(request,
+    def LoadSchedules(request,
             target,
             options=(),
             channel_credentials=None,
@@ -174,9 +174,9 @@ class Scheduler(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/runtimePackage.Scheduler/GetSchedules',
-            scheduler__pb2.GetSchedulesRequest.SerializeToString,
-            scheduler__pb2.GetSchedulesResponse.FromString,
+            '/runtimePackage.Scheduler/LoadSchedules',
+            scheduler__pb2.LoadSchedulesRequest.SerializeToString,
+            scheduler__pb2.LoadSchedulesResponse.FromString,
             options,
             channel_credentials,
             insecure,

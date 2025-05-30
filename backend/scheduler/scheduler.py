@@ -7,9 +7,10 @@ from SchedulerHelper import Scheduler
 
 from protobuf_library.scheduler_pb2 import (
     AddScheduleRequest,
-    GetSchedulesRequest,
+    LoadSchedulesRequest,
     GetWebsiteSchedulesRequest,
-    GetScheduleRequest
+    GetScheduleRequest,
+    DeleteWebsiteScheduleRequest
 )
 from protobuf_library.scheduler_pb2_grpc import SchedulerStub
 
@@ -23,7 +24,7 @@ scheduler = None
 def load_schedules():
     global scheduler
     try:
-        get_schedules_response = scheduler_database_client.GetSchedules(GetSchedulesRequest())
+        get_schedules_response = scheduler_database_client.LoadSchedules(LoadSchedulesRequest())
         scheduler = Scheduler(get_schedules_response.schedules)
 
         return "Successfully loaded schedules", 200
@@ -43,17 +44,19 @@ def add_schedule():
 
     request_body = request.json
 
+    print(f"Received request body: {request_body}", flush=True)
+
     add_schedule_request = AddScheduleRequest(
-        schedule_type=request_body.get('schedule_type', ''),
-        monitoring_id=request_body.get('monitoring_id', ''),
+        monitoring_id=int(request_body.get('monitoring_id', -1)),
         webpages_ids=request_body.get('webpages_ids', []),
-        day=request_body.get('day', ''),
-        month=request_body.get('month', ''),
-        year=request_body.get('year', ''),
-        hour=request_body.get('hour', ''),
-        minute=request_body.get('minute', ''),
-        second=request_body.get('second', ''),
-        day_of_week=request_body.get('day_of_week', '')
+        day=request_body.get('day', -1),
+        month=request_body.get('month', -1),
+        year=request_body.get('year', -1),
+        hour=request_body.get('hour', -1),
+        minute=request_body.get('minute', -1),
+        second=request_body.get('second', -1),
+        day_of_week=request_body.get('day_of_week', -1),
+        schedule_type=request_body.get('schedule_type', '')
     )
 
     response = scheduler_database_client.AddSchedule(add_schedule_request)
@@ -73,25 +76,51 @@ def add_schedule():
     else:
         return jsonify({"error": "Failed to add schedule"}), 500
     
-    
 @app.route("/api/scheduler/<monitoring_id>", methods=["GET"])
 def get_website_schedules(monitoring_id):
     response = scheduler_database_client.GetWebsiteSchedules(GetWebsiteSchedulesRequest(
-        monitoring_id=monitoring_id
+        monitoring_id=int(monitoring_id)
     ))
     
     if response.status_code == 200:
-        return jsonify(response.schedules), 200
+        return jsonify(list(response.schedules_ids)), 200
     else:
         return jsonify({"error": "An error occurred"}), response.status_code
     
-@app.route("/api/scheduler/<schedule_id>", methods=["DELETE"])
-def delete_schedule(schedule_id):
-    delete_schedule_request = scheduler_database_client.DeleteWebsiteScheduleRequest(schedule_id=schedule_id)
-
-    response = scheduler_database_client.DeleteWebsiteSchedule(delete_schedule_request)
+@app.route("/api/scheduler/schedules/<schedule_id>", methods=["GET"])
+def get_schedule(schedule_id):
+    response = scheduler_database_client.GetSchedule(GetScheduleRequest(
+        schedule_id=int(schedule_id)
+    ))
     
     if response.status_code == 200:
+        return jsonify({
+            "id": response.schedule.id,
+            "monitoring_id": response.schedule.monitoring_id,
+            "webpages_ids": list(response.schedule.webpages_ids),
+            "day": response.schedule.day,
+            "month": response.schedule.month,
+            "year": response.schedule.year,
+            "hour": response.schedule.hour,
+            "minute": response.schedule.minute,
+            "second": response.schedule.second,
+            "day_of_week": response.schedule.day_of_week,
+            "schedule_type": response.schedule.schedule_type
+        }), 200
+    else:
+        return jsonify({"error": "An error occurred"}), response.status_code
+
+@app.route("/api/scheduler/<schedule_id>", methods=["DELETE"])
+def delete_schedule(schedule_id):
+
+    response = scheduler_database_client.DeleteWebsiteSchedule(DeleteWebsiteScheduleRequest(
+        schedule_id=int(schedule_id)
+    ))
+
+    if response.status_code == 200:
+        scheduler.remove_job(str(response.schedule_id))
+
         return jsonify({"message": "Schedule deleted successfully"}), 200
     else:
         return jsonify({"error": "An error occurred"}), response.status_code
+    

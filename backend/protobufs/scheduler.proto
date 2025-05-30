@@ -6,13 +6,13 @@ message AddScheduleRequest {
     int32 monitoring_id = 1;
     repeated int32 webpages_ids = 2;
     string schedule_type = 3;
-    string day = 4;
-    string month = 5;
-    string year = 6;
-    string hour = 7;
-    string minute = 8;
-    string second = 9;
-    string day_of_week = 10;
+    int32 day = 4;
+    int32 month = 5;
+    int32 year = 6;
+    int32 hour = 7;
+    int32 minute = 8;
+    int32 second = 9;
+    int32 day_of_week = 10;
 }
 
 message AddScheduleResponse {
@@ -20,7 +20,7 @@ message AddScheduleResponse {
     int32 schedule_id = 2;
 }
 
-message GetSchedulesRequest {
+message LoadSchedulesRequest {
 }
 
 message Schedule {
@@ -28,16 +28,16 @@ message Schedule {
     int32 monitoring_id = 2;
     repeated int32 webpages_ids = 3;
     string schedule_type = 4;
-    string day = 5;
-    string month = 6;
-    string year = 7;
-    string hour = 8;
-    string minute = 9;
-    string second = 10;
-    string day_of_week = 11;
+    int32 day = 5;
+    int32 month = 6;
+    int32 year = 7;
+    int32 hour = 8;
+    int32 minute = 9;
+    int32 second = 10;
+    int32 day_of_week = 11;
 }
 
-message GetSchedulesResponse {
+message LoadSchedulesResponse {
     int32 status_code = 1;
     repeated Schedule schedules = 2;
 }
@@ -48,7 +48,7 @@ message GetWebsiteSchedulesRequest {
 
 message GetWebsiteSchedulesResponse {
     int32 status_code = 1;
-    repeated Schedule schedules = 2;
+    repeated int32 schedules_ids = 2;
 }
 
 message DeleteWebsiteScheduleRequest {
@@ -57,6 +57,7 @@ message DeleteWebsiteScheduleRequest {
 
 message DeleteWebsiteScheduleResponse {
     int32 status_code = 1;
+    int32 schedule_id = 2;
 }
 
 message GetScheduleRequest {
@@ -70,7 +71,7 @@ message GetScheduleResponse {
 
 service Scheduler {
     rpc AddSchedule (AddScheduleRequest) returns (AddScheduleResponse);
-    rpc GetSchedules (GetSchedulesRequest) returns (GetSchedulesResponse);
+    rpc LoadSchedules (LoadSchedulesRequest) returns (LoadSchedulesResponse);
     rpc GetWebsiteSchedules (GetWebsiteSchedulesRequest) returns (GetWebsiteSchedulesResponse);
     rpc DeleteWebsiteSchedule (DeleteWebsiteScheduleRequest) returns (DeleteWebsiteScheduleResponse);
     rpc GetSchedule (GetScheduleRequest) returns (GetScheduleResponse);

@@ -11,11 +11,11 @@ CREATE TABLE Schedule (
     schedule_type       ScheduleType NOT NULL,
     monitoring_id       INTEGER,
     webpages_ids        INTEGER[],
-    day                 VARCHAR NOT NULL,
-    month               VARCHAR NOT NULL,
-    year                VARCHAR NOT NULL,
-    hour                VARCHAR NOT NULL,
-    minute              VARCHAR NOT NULL,
-    second              VARCHAR NOT NULL,
-    day_of_week         VARCHAR NOT NULL
+    day                 INTEGER NOT NULL,
+    month               INTEGER NOT NULL,
+    year                INTEGER NOT NULL,
+    hour                INTEGER NOT NULL,
+    minute              INTEGER NOT NULL,
+    second              INTEGER NOT NULL,
+    day_of_week         INTEGER NOT NULL
 );

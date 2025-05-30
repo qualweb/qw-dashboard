@@ -1,0 +1,188 @@
+
+.schedule-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.select-schedule-type-trigger {
+    width: 100%;
+    background-color: var(--primary-color);
+}
+
+.schedule-content {
+    width: 100%;
+}
+
+.schedule-options {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem
+}
+
+.select-group-item-schedule-type {
+    width: 100%;
+}
+
+.select-schedule-type-content {
+    width: 100%;
+}
+
+.select-schedule-type-positioner {
+    width: 50%;
+}
+
+.select-schedule-type-label {
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.date-picker-control {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    gap: 1rem;
+}
+
+.schedule-date {
+    width: fit-content;
+}
+
+.one-time-options {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.schedule-config {
+    width: 100%;
+}
+
+.date-picker-input {
+    border-radius: 1rem;
+    border: 1px solid white;
+    padding-left: 1rem;
+    background-color: var(--secondary-color);
+}
+
+.date-picker-input::placeholder {
+    color: white;
+}
+
+.date-picker-trigger {
+    border-radius: 1rem;
+    border: 1px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.date-picker-content {
+    background-color: var(--terciary-color);
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.date-picker-month-year {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.date-picker-view-control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.date-picker-table-head {
+    width: 100%;
+}
+
+.date-picker-table-row {
+    width: 100%;
+}
+
+.date-picker-table {
+    width: 100%;
+}
+
+.date-picker-table-cell-trigger {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+.date-picker-table-cell-trigger:hover {
+    background-color: var(--primary-color);
+    cursor: pointer;
+    border-radius: 1rem;
+}
+
+.schedule-time {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.one-time-options {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    gap: 1rem
+}
+
+.weekly-options, .monthly-options, .yearly-options {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 3rem;
+}
+
+.schedule-button-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.schedule-check-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.scheduler-container-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 1;
+    gap: 4rem;
+    padding: 3rem;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.schedule {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.schedule-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: var(--secondary-color);
+    border-radius: 3rem;
+    width: 100%;
+    padding: 3rem;
+}

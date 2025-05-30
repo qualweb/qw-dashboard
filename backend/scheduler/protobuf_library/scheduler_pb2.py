@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fscheduler.proto\x12\x0eruntimePackage\"\xc5\x01\n\x12\x41\x64\x64ScheduleRequest\x12\x15\n\rmonitoring_id\x18\x01 \x01(\x05\x12\x14\n\x0cwebpages_ids\x18\x02 \x03(\x05\x12\x15\n\rschedule_type\x18\x03 \x01(\t\x12\x0b\n\x03\x64\x61y\x18\x04 \x01(\t\x12\r\n\x05month\x18\x05 \x01(\t\x12\x0c\n\x04year\x18\x06 \x01(\t\x12\x0c\n\x04hour\x18\x07 \x01(\t\x12\x0e\n\x06minute\x18\x08 \x01(\t\x12\x0e\n\x06second\x18\t \x01(\t\x12\x13\n\x0b\x64\x61y_of_week\x18\n \x01(\t\"?\n\x13\x41\x64\x64ScheduleResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x12\x13\n\x0bschedule_id\x18\x02 \x01(\x05\"\x15\n\x13GetSchedulesRequest\"\xc7\x01\n\x08Schedule\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x15\n\rmonitoring_id\x18\x02 \x01(\x05\x12\x14\n\x0cwebpages_ids\x18\x03 \x03(\x05\x12\x15\n\rschedule_type\x18\x04 \x01(\t\x12\x0b\n\x03\x64\x61y\x18\x05 \x01(\t\x12\r\n\x05month\x18\x06 \x01(\t\x12\x0c\n\x04year\x18\x07 \x01(\t\x12\x0c\n\x04hour\x18\x08 \x01(\t\x12\x0e\n\x06minute\x18\t \x01(\t\x12\x0e\n\x06second\x18\n \x01(\t\x12\x13\n\x0b\x64\x61y_of_week\x18\x0b \x01(\t\"X\n\x14GetSchedulesResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x12+\n\tschedules\x18\x02 \x03(\x0b\x32\x18.runtimePackage.Schedule\"3\n\x1aGetWebsiteSchedulesRequest\x12\x15\n\rmonitoring_id\x18\x01 \x01(\x05\"_\n\x1bGetWebsiteSchedulesResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x12+\n\tschedules\x18\x02 \x03(\x0b\x32\x18.runtimePackage.Schedule\"3\n\x1c\x44\x65leteWebsiteScheduleRequest\x12\x13\n\x0bschedule_id\x18\x01 \x01(\x05\"4\n\x1d\x44\x65leteWebsiteScheduleResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\")\n\x12GetScheduleRequest\x12\x13\n\x0bschedule_id\x18\x01 \x01(\x05\"V\n\x13GetScheduleResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x12*\n\x08schedule\x18\x02 \x01(\x0b\x32\x18.runtimePackage.Schedule2\xfc\x03\n\tScheduler\x12V\n\x0b\x41\x64\x64Schedule\x12\".runtimePackage.AddScheduleRequest\x1a#.runtimePackage.AddScheduleResponse\x12Y\n\x0cGetSchedules\x12#.runtimePackage.GetSchedulesRequest\x1a$.runtimePackage.GetSchedulesResponse\x12n\n\x13GetWebsiteSchedules\x12*.runtimePackage.GetWebsiteSchedulesRequest\x1a+.runtimePackage.GetWebsiteSchedulesResponse\x12t\n\x15\x44\x65leteWebsiteSchedule\x12,.runtimePackage.DeleteWebsiteScheduleRequest\x1a-.runtimePackage.DeleteWebsiteScheduleResponse\x12V\n\x0bGetSchedule\x12\".runtimePackage.GetScheduleRequest\x1a#.runtimePackage.GetScheduleResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fscheduler.proto\x12\x0eruntimePackage\"\xc5\x01\n\x12\x41\x64\x64ScheduleRequest\x12\x15\n\rmonitoring_id\x18\x01 \x01(\x05\x12\x14\n\x0cwebpages_ids\x18\x02 \x03(\x05\x12\x15\n\rschedule_type\x18\x03 \x01(\t\x12\x0b\n\x03\x64\x61y\x18\x04 \x01(\x05\x12\r\n\x05month\x18\x05 \x01(\x05\x12\x0c\n\x04year\x18\x06 \x01(\x05\x12\x0c\n\x04hour\x18\x07 \x01(\x05\x12\x0e\n\x06minute\x18\x08 \x01(\x05\x12\x0e\n\x06second\x18\t \x01(\x05\x12\x13\n\x0b\x64\x61y_of_week\x18\n \x01(\x05\"?\n\x13\x41\x64\x64ScheduleResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x12\x13\n\x0bschedule_id\x18\x02 \x01(\x05\"\x16\n\x14LoadSchedulesRequest\"\xc7\x01\n\x08Schedule\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x15\n\rmonitoring_id\x18\x02 \x01(\x05\x12\x14\n\x0cwebpages_ids\x18\x03 \x03(\x05\x12\x15\n\rschedule_type\x18\x04 \x01(\t\x12\x0b\n\x03\x64\x61y\x18\x05 \x01(\x05\x12\r\n\x05month\x18\x06 \x01(\x05\x12\x0c\n\x04year\x18\x07 \x01(\x05\x12\x0c\n\x04hour\x18\x08 \x01(\x05\x12\x0e\n\x06minute\x18\t \x01(\x05\x12\x0e\n\x06second\x18\n \x01(\x05\x12\x13\n\x0b\x64\x61y_of_week\x18\x0b \x01(\x05\"Y\n\x15LoadSchedulesResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x12+\n\tschedules\x18\x02 \x03(\x0b\x32\x18.runtimePackage.Schedule\"3\n\x1aGetWebsiteSchedulesRequest\x12\x15\n\rmonitoring_id\x18\x01 \x01(\x05\"I\n\x1bGetWebsiteSchedulesResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x12\x15\n\rschedules_ids\x18\x02 \x03(\x05\"3\n\x1c\x44\x65leteWebsiteScheduleRequest\x12\x13\n\x0bschedule_id\x18\x01 \x01(\x05\"I\n\x1d\x44\x65leteWebsiteScheduleResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x12\x13\n\x0bschedule_id\x18\x02 \x01(\x05\")\n\x12GetScheduleRequest\x12\x13\n\x0bschedule_id\x18\x01 \x01(\x05\"V\n\x13GetScheduleResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x12*\n\x08schedule\x18\x02 \x01(\x0b\x32\x18.runtimePackage.Schedule2\xff\x03\n\tScheduler\x12V\n\x0b\x41\x64\x64Schedule\x12\".runtimePackage.AddScheduleRequest\x1a#.runtimePackage.AddScheduleResponse\x12\\\n\rLoadSchedules\x12$.runtimePackage.LoadSchedulesRequest\x1a%.runtimePackage.LoadSchedulesResponse\x12n\n\x13GetWebsiteSchedules\x12*.runtimePackage.GetWebsiteSchedulesRequest\x1a+.runtimePackage.GetWebsiteSchedulesResponse\x12t\n\x15\x44\x65leteWebsiteSchedule\x12,.runtimePackage.DeleteWebsiteScheduleRequest\x1a-.runtimePackage.DeleteWebsiteScheduleResponse\x12V\n\x0bGetSchedule\x12\".runtimePackage.GetScheduleRequest\x1a#.runtimePackage.GetScheduleResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,24 +35,24 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_ADDSCHEDULEREQUEST']._serialized_end=233
   _globals['_ADDSCHEDULERESPONSE']._serialized_start=235
   _globals['_ADDSCHEDULERESPONSE']._serialized_end=298
-  _globals['_GETSCHEDULESREQUEST']._serialized_start=300
-  _globals['_GETSCHEDULESREQUEST']._serialized_end=321
-  _globals['_SCHEDULE']._serialized_start=324
-  _globals['_SCHEDULE']._serialized_end=523
-  _globals['_GETSCHEDULESRESPONSE']._serialized_start=525
-  _globals['_GETSCHEDULESRESPONSE']._serialized_end=613
-  _globals['_GETWEBSITESCHEDULESREQUEST']._serialized_start=615
-  _globals['_GETWEBSITESCHEDULESREQUEST']._serialized_end=666
-  _globals['_GETWEBSITESCHEDULESRESPONSE']._serialized_start=668
-  _globals['_GETWEBSITESCHEDULESRESPONSE']._serialized_end=763
-  _globals['_DELETEWEBSITESCHEDULEREQUEST']._serialized_start=765
-  _globals['_DELETEWEBSITESCHEDULEREQUEST']._serialized_end=816
-  _globals['_DELETEWEBSITESCHEDULERESPONSE']._serialized_start=818
-  _globals['_DELETEWEBSITESCHEDULERESPONSE']._serialized_end=870
-  _globals['_GETSCHEDULEREQUEST']._serialized_start=872
-  _globals['_GETSCHEDULEREQUEST']._serialized_end=913
-  _globals['_GETSCHEDULERESPONSE']._serialized_start=915
-  _globals['_GETSCHEDULERESPONSE']._serialized_end=1001
-  _globals['_SCHEDULER']._serialized_start=1004
-  _globals['_SCHEDULER']._serialized_end=1512
+  _globals['_LOADSCHEDULESREQUEST']._serialized_start=300
+  _globals['_LOADSCHEDULESREQUEST']._serialized_end=322
+  _globals['_SCHEDULE']._serialized_start=325
+  _globals['_SCHEDULE']._serialized_end=524
+  _globals['_LOADSCHEDULESRESPONSE']._serialized_start=526
+  _globals['_LOADSCHEDULESRESPONSE']._serialized_end=615
+  _globals['_GETWEBSITESCHEDULESREQUEST']._serialized_start=617
+  _globals['_GETWEBSITESCHEDULESREQUEST']._serialized_end=668
+  _globals['_GETWEBSITESCHEDULESRESPONSE']._serialized_start=670
+  _globals['_GETWEBSITESCHEDULESRESPONSE']._serialized_end=743
+  _globals['_DELETEWEBSITESCHEDULEREQUEST']._serialized_start=745
+  _globals['_DELETEWEBSITESCHEDULEREQUEST']._serialized_end=796
+  _globals['_DELETEWEBSITESCHEDULERESPONSE']._serialized_start=798
+  _globals['_DELETEWEBSITESCHEDULERESPONSE']._serialized_end=871
+  _globals['_GETSCHEDULEREQUEST']._serialized_start=873
+  _globals['_GETSCHEDULEREQUEST']._serialized_end=914
+  _globals['_GETSCHEDULERESPONSE']._serialized_start=916
+  _globals['_GETSCHEDULERESPONSE']._serialized_end=1002
+  _globals['_SCHEDULER']._serialized_start=1005
+  _globals['_SCHEDULER']._serialized_end=1516
 # @@protoc_insertion_point(module_scope)

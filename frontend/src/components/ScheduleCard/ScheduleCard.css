@@ -1,0 +1,31 @@
+.schedule-card {
+    background-color: var(--terciary-color);
+    padding-left: 5rem;
+    padding-right: 3rem;
+    border-radius: 6rem;
+    width: 100%;
+}
+
+.schedule-card-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.schedule-type-info {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.delete-schedule-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    padding: 1rem;
+    border-radius: 5rem;
+}
