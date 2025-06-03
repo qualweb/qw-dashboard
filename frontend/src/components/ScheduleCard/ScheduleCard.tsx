@@ -41,7 +41,7 @@ function ScheduleCard(props: ScheduleCardProps) {
     }
 
     return (
-        <button className='schedule-card'>
+        <div className='schedule-card'>
             {scheduleDetails && scheduleDetails['schedule_type'] === 'one-time' ? (
                 <div className='schedule-card-details'>
                     <div className="schedule-type-info">
@@ -83,7 +83,7 @@ function ScheduleCard(props: ScheduleCardProps) {
                     <button className='delete-schedule-button' onClick={() => {handleScheduleDelete(scheduleDetails['id'])}} ><Trash2 /></button>
                 </div>
             ) : null }
-        </button>
+        </div>
     );
 }
 

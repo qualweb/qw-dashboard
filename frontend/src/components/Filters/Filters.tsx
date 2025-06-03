@@ -5,10 +5,13 @@ import { Portal } from '@ark-ui/react/portal';
 import { Checkbox } from '@ark-ui/react/checkbox'
 import { CheckIcon } from 'lucide-react'
 import { useEffect, useState } from 'react';
+import wcagGuidelinesJson from './wcag_guidelines.json'
 
 interface FiltersProps {
+    wcagGuidelines: string[];
     wcagLevels: string[];
     status: string[];
+    setGuidelineFilter: React.Dispatch<React.SetStateAction<string[]>>;
     setStatusFilter: React.Dispatch<React.SetStateAction<string[]>>;
     setWcagLevelFilter: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -18,13 +21,19 @@ function Filters(props: FiltersProps) {
     const states = ["passed", "warning", "failed", "inapplicable"];
     const wcagLevels = ["A", "AA", "AAA"];
 
+    const guidelines = extractGuidelines(wcagGuidelinesJson);
+
+    console.log('wcagGuidelines', guidelines);
+
     const [wcagLevelFilter, setWcagLevelFilter] = useState<string[]>([]);
     const [statusFilter, setStatusFilter] = useState<string[]>([]);
+    const [guidelineFilter, setGuidelineFilter] = useState<string[]>([]);
 
     useEffect(() => {
         setStatusFilter(props.status);
         setWcagLevelFilter(props.wcagLevels);
-    }, [props.status, props.wcagLevels]);
+        setGuidelineFilter(props.wcagGuidelines);
+    }, [props.status, props.wcagLevels, props.wcagGuidelines]);
 
     const toggleWcagLevelFilter = (filter: string) => {
         setWcagLevelFilter(prev => 
@@ -36,6 +45,14 @@ function Filters(props: FiltersProps) {
     
     const toggleStatusFilter = (filter: string) => {
         setStatusFilter(prev => 
+            prev.includes(filter)
+                ? prev.filter(item => item !== filter)
+                : [...prev, filter]
+        );
+    };
+
+    const toggleGuidelineFilter = (filter: string) => {
+        setGuidelineFilter(prev => 
             prev.includes(filter)
                 ? prev.filter(item => item !== filter)
                 : [...prev, filter]
@@ -58,35 +75,53 @@ function Filters(props: FiltersProps) {
                             <Dialog.CloseTrigger className="dialog-close-trigger"><X size={18} /></Dialog.CloseTrigger>
                         </div>
                         
-                        <div className='filters-wrapper'>
-                            <div className='by-wcag-level'>
-                                <h3>WCAG Level</h3>
-                                <div className='wrapper-filters-options'>
-                                    {wcagLevels.map((level) => (
-                                        <Checkbox.Root key={level} checked={wcagLevelFilter.includes(level)}>
-                                            <Checkbox.Control onClick={() => {toggleWcagLevelFilter(level)}}>
-                                                <Checkbox.Indicator>
-                                                    <CheckIcon />
-                                                </Checkbox.Indicator>
-                                            </Checkbox.Control>
-                                            <Checkbox.Label>{level}</Checkbox.Label>
-                                            <Checkbox.HiddenInput className='checkbox-hidden-input'/>
-                                        </Checkbox.Root>
-                                    ))}
+                        <div className="filters-wrapper-2">
+                            <div className='filters-wrapper'>
+                                <div className='by-wcag-level'>
+                                    <h3>WCAG Level</h3>
+                                    <div className='wrapper-filters-options'>
+                                        {wcagLevels.map((level) => (
+                                            <Checkbox.Root key={level} checked={wcagLevelFilter.includes(level)}>
+                                                <Checkbox.Control onClick={() => {toggleWcagLevelFilter(level)}}>
+                                                    <Checkbox.Indicator>
+                                                        <CheckIcon />
+                                                    </Checkbox.Indicator>
+                                                </Checkbox.Control>
+                                                <Checkbox.Label>{level}</Checkbox.Label>
+                                                <Checkbox.HiddenInput className='checkbox-hidden-input'/>
+                                            </Checkbox.Root>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className='by-state'>
+                                    <h3>State</h3>
+                                    <div className='wrapper-filters-options'>
+                                        {states.map((state) => (
+                                            <Checkbox.Root key={state} checked={statusFilter.includes(state)}>
+                                                <Checkbox.Control onClick={() => {toggleStatusFilter(state)}}>
+                                                    <Checkbox.Indicator>
+                                                        <CheckIcon />
+                                                    </Checkbox.Indicator>
+                                                </Checkbox.Control>
+                                                <Checkbox.Label>{state.charAt(0).toUpperCase() + state.slice(1)}</Checkbox.Label>
+                                                <Checkbox.HiddenInput />
+                                            </Checkbox.Root>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                            <div className='by-state'>
-                                <h3>State</h3>
-                                <div className='wrapper-filters-options'>
-                                    {states.map((state) => (
-                                        <Checkbox.Root key={state} checked={statusFilter.includes(state)}>
-                                            <Checkbox.Control onClick={() => {toggleStatusFilter(state)}}>
+                            <div className="by-guideline">
+                                <h3>WCAG Guideline</h3>
+                                <div className='wrapper-by-guideline'>
+                                    {guidelines.map((guideline) => (
+                                        <Checkbox.Root key={guideline.handle} checked={guidelineFilter.includes(guideline.num)}>
+                                            <Checkbox.Control onClick={() => {toggleGuidelineFilter(guideline.num)}}>
                                                 <Checkbox.Indicator>
                                                     <CheckIcon />
                                                 </Checkbox.Indicator>
                                             </Checkbox.Control>
-                                            <Checkbox.Label>{state.charAt(0).toUpperCase() + state.slice(1)}</Checkbox.Label>
-                                            <Checkbox.HiddenInput />
+                                            <Checkbox.Label>{guideline.num} - {guideline.handle}</Checkbox.Label>
+                                            <Checkbox.HiddenInput className='checkbox-hidden-input'/>
                                         </Checkbox.Root>
                                     ))}
                                 </div>
@@ -96,10 +131,12 @@ function Filters(props: FiltersProps) {
                             <button className='dialog-button' onClick={() => {
                                 props.setStatusFilter(statusFilter);
                                 props.setWcagLevelFilter(wcagLevelFilter);
+                                props.setGuidelineFilter(guidelineFilter);
                             }}>Apply</button>
                             <button className='dialog-button' onClick={() => {
                                 setStatusFilter([]);
                                 setWcagLevelFilter([]);
+                                setGuidelineFilter([]);
                             }}>Clear</button>
                         </div>
                     </Dialog.Content>
@@ -111,3 +148,22 @@ function Filters(props: FiltersProps) {
 }
 
 export default Filters;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractGuidelines(wcagData: any): any[] {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const guidelines : any[] = [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    wcagData.principles.forEach((principle : any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        principle.guidelines.forEach((guideline : any) => {
+        guidelines.push({
+            handle: guideline.handle,
+            num: guideline.num
+        });
+        });
+    });
+
+    return guidelines;
+}

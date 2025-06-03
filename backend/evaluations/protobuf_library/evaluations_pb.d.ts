@@ -584,6 +584,18 @@ export class AddWebpagesRequest extends jspb.Message {
   setWebpagesList(value: Array<string>): void;
   addWebpages(value: string, index?: number): string;
 
+  getNeedsAuthentication(): boolean;
+  setNeedsAuthentication(value: boolean): void;
+
+  getUsernameFieldSelector(): string;
+  setUsernameFieldSelector(value: string): void;
+
+  getPasswordFieldSelector(): string;
+  setPasswordFieldSelector(value: string): void;
+
+  getLoginButtonSelector(): string;
+  setLoginButtonSelector(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AddWebpagesRequest.AsObject;
   static toObject(includeInstance: boolean, msg: AddWebpagesRequest): AddWebpagesRequest.AsObject;
@@ -598,6 +610,10 @@ export namespace AddWebpagesRequest {
   export type AsObject = {
     monitoringRegistryId: number,
     webpagesList: Array<string>,
+    needsAuthentication: boolean,
+    usernameFieldSelector: string,
+    passwordFieldSelector: string,
+    loginButtonSelector: string,
   }
 }
 
@@ -1105,9 +1121,17 @@ export namespace EvaluationIdUrl {
   }
 }
 
-export class GetLatestACTAssertionsRequest extends jspb.Message {
+export class GetLatestAssertionsRequest extends jspb.Message {
   getEvaluationId(): number;
   setEvaluationId(value: number): void;
+
+  getModuleType(): string;
+  setModuleType(value: string): void;
+
+  clearWcagguidelinesfiltersList(): void;
+  getWcagguidelinesfiltersList(): Array<string>;
+  setWcagguidelinesfiltersList(value: Array<string>): void;
+  addWcagguidelinesfilters(value: string, index?: number): string;
 
   clearWcaglevelfiltersList(): void;
   getWcaglevelfiltersList(): Array<string>;
@@ -1118,24 +1142,26 @@ export class GetLatestACTAssertionsRequest extends jspb.Message {
   setOutcome(value: string): void;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): GetLatestACTAssertionsRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: GetLatestACTAssertionsRequest): GetLatestACTAssertionsRequest.AsObject;
+  toObject(includeInstance?: boolean): GetLatestAssertionsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetLatestAssertionsRequest): GetLatestAssertionsRequest.AsObject;
   static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: GetLatestACTAssertionsRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): GetLatestACTAssertionsRequest;
-  static deserializeBinaryFromReader(message: GetLatestACTAssertionsRequest, reader: jspb.BinaryReader): GetLatestACTAssertionsRequest;
+  static serializeBinaryToWriter(message: GetLatestAssertionsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetLatestAssertionsRequest;
+  static deserializeBinaryFromReader(message: GetLatestAssertionsRequest, reader: jspb.BinaryReader): GetLatestAssertionsRequest;
 }
 
-export namespace GetLatestACTAssertionsRequest {
+export namespace GetLatestAssertionsRequest {
   export type AsObject = {
     evaluationId: number,
+    moduleType: string,
+    wcagguidelinesfiltersList: Array<string>,
     wcaglevelfiltersList: Array<string>,
     outcome: string,
   }
 }
 
-export class GetLatestACTAssertionsResponse extends jspb.Message {
+export class GetLatestAssertionsResponse extends jspb.Message {
   getStatusCode(): number;
   setStatusCode(value: number): void;
 
@@ -1145,16 +1171,16 @@ export class GetLatestACTAssertionsResponse extends jspb.Message {
   addAssertions(value?: AssertionResponse, index?: number): AssertionResponse;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): GetLatestACTAssertionsResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: GetLatestACTAssertionsResponse): GetLatestACTAssertionsResponse.AsObject;
+  toObject(includeInstance?: boolean): GetLatestAssertionsResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetLatestAssertionsResponse): GetLatestAssertionsResponse.AsObject;
   static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: GetLatestACTAssertionsResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): GetLatestACTAssertionsResponse;
-  static deserializeBinaryFromReader(message: GetLatestACTAssertionsResponse, reader: jspb.BinaryReader): GetLatestACTAssertionsResponse;
+  static serializeBinaryToWriter(message: GetLatestAssertionsResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetLatestAssertionsResponse;
+  static deserializeBinaryFromReader(message: GetLatestAssertionsResponse, reader: jspb.BinaryReader): GetLatestAssertionsResponse;
 }
 
-export namespace GetLatestACTAssertionsResponse {
+export namespace GetLatestAssertionsResponse {
   export type AsObject = {
     statusCode: number,
     assertionsList: Array<AssertionResponse.AsObject>,
@@ -1780,6 +1806,9 @@ export class Webpage extends jspb.Message {
   getUrl(): string;
   setUrl(value: string): void;
 
+  getNeedsAuthentication(): boolean;
+  setNeedsAuthentication(value: boolean): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Webpage.AsObject;
   static toObject(includeInstance: boolean, msg: Webpage): Webpage.AsObject;
@@ -1794,6 +1823,7 @@ export namespace Webpage {
   export type AsObject = {
     id: number,
     url: string,
+    needsAuthentication: boolean,
   }
 }
 
@@ -1840,6 +1870,18 @@ export class GetEvaluationInfoResponse extends jspb.Message {
   getWebpageUrl(): string;
   setWebpageUrl(value: string): void;
 
+  getNeedsAuthentication(): boolean;
+  setNeedsAuthentication(value: boolean): void;
+
+  getUsernameFieldSelector(): string;
+  setUsernameFieldSelector(value: string): void;
+
+  getPasswordFieldSelector(): string;
+  setPasswordFieldSelector(value: string): void;
+
+  getLoginButtonSelector(): string;
+  setLoginButtonSelector(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetEvaluationInfoResponse.AsObject;
   static toObject(includeInstance: boolean, msg: GetEvaluationInfoResponse): GetEvaluationInfoResponse.AsObject;
@@ -1858,6 +1900,10 @@ export namespace GetEvaluationInfoResponse {
     isMobile: boolean,
     isLandscape: boolean,
     webpageUrl: string,
+    needsAuthentication: boolean,
+    usernameFieldSelector: string,
+    passwordFieldSelector: string,
+    loginButtonSelector: string,
   }
 }
 

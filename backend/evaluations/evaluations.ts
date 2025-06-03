@@ -24,8 +24,8 @@ import {
     GetWebpageScreenshotResponse,
     GetLatestEvaluationsRequest,
     GetLatestEvaluationsResponse,
-    GetLatestACTAssertionsRequest,
-    GetLatestACTAssertionsResponse,
+    GetLatestAssertionsRequest,
+    GetLatestAssertionsResponse,
     GetAssertionResultsRequest,
     GetAssertionResultsResponse,
     GetResultElementsRequest,
@@ -54,7 +54,7 @@ import {
     GetWebpageComparisonDataResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
-import { PuppeteerCrawler, RequestQueue, sleep } from 'crawlee';
+import { PuppeteerCrawler, RequestQueue } from 'crawlee';
 import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertMonitoredWebpages, convertMonitoringCycle, convertMonitoringCycles, convertMonitoringRegistries, convertMonitoringRegistry, convertResultElement, convertWebpageComparisonData } from './convert';
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
@@ -214,6 +214,8 @@ app.post('/api/monitoring/set-accessibility-metric', async (req: Request, res: R
 app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', async (req: Request, res: Response) => {
     const monitoring_id = req.params.monitoring_id;
     const webpage_id = req.params.webpage_id;
+    const username = req.body.username;
+    const password = req.body.password;
 
     try {
         const getEvaluationInfoRequest = new GetEvaluationInfoRequest();
@@ -233,6 +235,32 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', async (req: Requ
         const is_mobile = response.getIsMobile();
         const is_landscape = response.getIsLandscape();
 
+        const needs_authentication = response.getNeedsAuthentication();
+        const username_field_selector = response.getUsernameFieldSelector();
+        const password_field_selector = response.getPasswordFieldSelector();
+        const login_button_selector = response.getLoginButtonSelector();
+
+
+        const browser : Browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--disable-gpu',
+                '--no-sandbox',
+                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+              ],
+            timeout: 5000,
+        });
+        
+        const page : Page = await browser.newPage();
+
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
+
+        await page.setViewport({
+            width: screen_width,
+            height: screen_height,
+            deviceScaleFactor: 1,
+        });
+
         console.log(`Evaluating URL ${webpage_url}`);
 
         let report = await evaluate(
@@ -240,12 +268,22 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', async (req: Requ
             screen_width,
             screen_height,
             is_mobile,
-            is_landscape
+            is_landscape,
+            needs_authentication,
+            username_field_selector,
+            password_field_selector,
+            login_button_selector,
+            username,
+            password
         );
         
-        if (report[webpage_url] !== undefined) {
+        if (!needs_authentication && report[webpage_url] !== undefined) {
             report = report[webpage_url];
             console.log(`Successfully evaluated URL ${webpage_url}`);
+        }
+        else if (needs_authentication && report.customHtml !== undefined) {
+            report = report.customHtml;
+            console.log(`Successfully evaluated URL ${webpage_url} behind authentication`);
         }
         else {
             console.error(`Error evaluating URL ${webpage_url}`);
@@ -277,14 +315,27 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', async (req: Requ
                     height: screen_height,
                     deviceScaleFactor: 1,
                 });
-                
-                await page.goto(webpage_url, { waitUntil: 'networkidle0' });
 
-                const screenshot = await takeWebpageScreenshot(webpage_url, screen_width, screen_height);
+                if (needs_authentication) {
+                    await page.goto(webpage_url, { waitUntil: 'networkidle0' });
+        
+                    await bypassLogin(
+                        page, 
+                        username_field_selector, 
+                        password_field_selector, 
+                        login_button_selector,
+                        username,
+                        password
+                    );
+                } else {
+                    await page.goto(webpage_url, { waitUntil: 'networkidle0' });
+                }
+                
+                const screenshot = await takeWebpageScreenshot(page, screen_width, screen_height);
 
                 const evaluations_request = new AddEvaluationRequest();
                 evaluations_request.setQualwebVersion(report.system.version);
-                evaluations_request.setInputUrl(report.system.url?.inputUrl ?? "");
+                evaluations_request.setInputUrl(!needs_authentication ? (report.system.url?.inputUrl ?? "") : webpage_url);
                 evaluations_request.setCompleteUrl(report.system.url?.completeUrl ?? "");
                 evaluations_request.setDom(report.system.page.dom.html);
                 evaluations_request.setTitle(report.system.page.dom.title ?? "");
@@ -378,6 +429,10 @@ app.post('/api/monitoring/:monitoring_id/calculate-score', async (req: Request, 
 app.post('/api/monitoring/:monitoring_id/add-webpages', async (req: Request, res: Response) => {
     const monitoring_id = req.params.monitoring_id;
     const urls = req.body.urls;
+    const needs_authentication = req.body.needs_authentication;
+    const username_field_selector = req.body.username_field_selector;
+    const password_field_selector = req.body.password_field_selector;
+    const login_button_selector = req.body.login_button_selector;
 
     console.log('Monitoring ID:', monitoring_id);
     console.log('Adding webpages:', urls);
@@ -387,6 +442,10 @@ app.post('/api/monitoring/:monitoring_id/add-webpages', async (req: Request, res
         
         add_webpages_request.setMonitoringRegistryId(Number(monitoring_id));
         add_webpages_request.setWebpagesList(urls);
+        add_webpages_request.setNeedsAuthentication(needs_authentication);
+        add_webpages_request.setUsernameFieldSelector(username_field_selector);
+        add_webpages_request.setPasswordFieldSelector(password_field_selector);
+        add_webpages_request.setLoginButtonSelector(login_button_selector);
 
         const response = await new Promise<AddWebpagesResponse>((resolve, reject) => {
             client.addWebpages(add_webpages_request, (err : Error, response : AddWebpagesResponse) => {
@@ -584,26 +643,37 @@ app.get('/api/monitoring/:monitoring_id/latest-evaluations', async (req: Request
     }
 });
 
-app.get('/api/monitoring/evaluations/:evaluation_id/latest-act-assertions', async (req: Request, res: Response) => {
+app.get('/api/monitoring/evaluations/:evaluation_id/latest-assertions', async (req: Request, res: Response) => {
     const evaluation_id = req.params.evaluation_id;
     
     try {
+        const moduleType = String(req.query.moduleType);
+        const wcagGuidelinesFilters = req.query.wcagGuidelinesFilters;
         const wcagLevelFilters = req.query.wcagLevelFilters;
-        const outcome = req.query.outcome;
+        const outcome = String(req.query.outcome);
 
         let wcagLevels: string[] = [];
+        let wcagGuidelines: string[] = [];
+
+        if (typeof wcagGuidelinesFilters === 'string' && wcagGuidelinesFilters.trim() !== '') {
+            wcagGuidelines = wcagGuidelinesFilters.split(',');
+        }
 
         if (typeof wcagLevelFilters === 'string' && wcagLevelFilters.trim() !== '') {
             wcagLevels = wcagLevelFilters.split(',');
         }
-        
-        const getLatestACTAssertionsRequest = new GetLatestACTAssertionsRequest();
-        getLatestACTAssertionsRequest.setEvaluationId(Number(evaluation_id));
-        getLatestACTAssertionsRequest.setWcaglevelfiltersList(wcagLevels);
-        getLatestACTAssertionsRequest.setOutcome(outcome as string);
 
-        const reponse = await new Promise<GetLatestACTAssertionsResponse>((resolve, reject) => {
-            client.getLatestACTAssertions(getLatestACTAssertionsRequest, (err: Error, callResponse: GetLatestACTAssertionsResponse) => {
+        console.log(wcagGuidelines);
+        
+        const getLatestAssertionsRequest = new GetLatestAssertionsRequest();
+        getLatestAssertionsRequest.setEvaluationId(Number(evaluation_id));
+        getLatestAssertionsRequest.setModuleType(moduleType);
+        getLatestAssertionsRequest.setWcagguidelinesfiltersList(wcagGuidelines);
+        getLatestAssertionsRequest.setWcaglevelfiltersList(wcagLevels);
+        getLatestAssertionsRequest.setOutcome(outcome);
+
+        const reponse = await new Promise<GetLatestAssertionsResponse>((resolve, reject) => {
+            client.getLatestAssertions(getLatestAssertionsRequest, (err: Error, callResponse: GetLatestAssertionsResponse) => {
                 if (err) reject(err);
                 else resolve(callResponse);
             });
@@ -984,3 +1054,32 @@ app.get ('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cy
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+async function bypassLogin(
+    page: Page, 
+    usernameFieldSelector: string, 
+    passwordFieldSelector: string, 
+    loginButtonSelector: string, 
+    username: string, 
+    password: string
+) {
+    // Fill and submit login form
+    await page.evaluate((usernameFieldSelector, passwordFieldSelector, loginButtonSelector, username, password) => {
+        const usernameField = document.querySelector(usernameFieldSelector) as HTMLInputElement;
+        const passwordField = document.querySelector(passwordFieldSelector) as HTMLInputElement;
+        const loginButton = document.querySelector(loginButtonSelector) as HTMLButtonElement;
+
+        if (usernameField && passwordField && loginButton) {
+            usernameField.value = username;
+            passwordField.value = password;
+            loginButton.click();
+        } else {
+            throw new Error('Could not find required login elements');
+        }
+    }, usernameFieldSelector, passwordFieldSelector, loginButtonSelector, username, password);
+
+    // Wait for navigation to complete (login successful)
+    await page.waitForNavigation({ waitUntil: 'networkidle0' });
+    
+    return { success: true, message: "Login completed and navigated to protected page" };
+}

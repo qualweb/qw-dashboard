@@ -96,7 +96,8 @@ export function convertMonitoringCycles(cycles: MonitoringCycle[]) {
 export function convertMonitoredWebpages(webpages: Webpage[]) {
   return webpages.map(element => ({
     id: element.getId(),
-    url: element.getUrl()
+    url: element.getUrl(),
+    needs_authentication: element.getNeedsAuthentication(),
   }))
 }
 

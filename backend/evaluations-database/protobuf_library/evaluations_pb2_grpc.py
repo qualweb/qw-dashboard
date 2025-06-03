@@ -94,10 +94,10 @@ class EvaluationsStub(object):
                 request_serializer=evaluations__pb2.GetLatestEvaluationsRequest.SerializeToString,
                 response_deserializer=evaluations__pb2.GetLatestEvaluationsResponse.FromString,
                 _registered_method=True)
-        self.GetLatestACTAssertions = channel.unary_unary(
-                '/runtimePackage.Evaluations/GetLatestACTAssertions',
-                request_serializer=evaluations__pb2.GetLatestACTAssertionsRequest.SerializeToString,
-                response_deserializer=evaluations__pb2.GetLatestACTAssertionsResponse.FromString,
+        self.GetLatestAssertions = channel.unary_unary(
+                '/runtimePackage.Evaluations/GetLatestAssertions',
+                request_serializer=evaluations__pb2.GetLatestAssertionsRequest.SerializeToString,
+                response_deserializer=evaluations__pb2.GetLatestAssertionsResponse.FromString,
                 _registered_method=True)
         self.GetAssertionResults = channel.unary_unary(
                 '/runtimePackage.Evaluations/GetAssertionResults',
@@ -241,7 +241,7 @@ class EvaluationsServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetLatestACTAssertions(self, request, context):
+    def GetLatestAssertions(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -388,10 +388,10 @@ def add_EvaluationsServicer_to_server(servicer, server):
                     request_deserializer=evaluations__pb2.GetLatestEvaluationsRequest.FromString,
                     response_serializer=evaluations__pb2.GetLatestEvaluationsResponse.SerializeToString,
             ),
-            'GetLatestACTAssertions': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetLatestACTAssertions,
-                    request_deserializer=evaluations__pb2.GetLatestACTAssertionsRequest.FromString,
-                    response_serializer=evaluations__pb2.GetLatestACTAssertionsResponse.SerializeToString,
+            'GetLatestAssertions': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetLatestAssertions,
+                    request_deserializer=evaluations__pb2.GetLatestAssertionsRequest.FromString,
+                    response_serializer=evaluations__pb2.GetLatestAssertionsResponse.SerializeToString,
             ),
             'GetAssertionResults': grpc.unary_unary_rpc_method_handler(
                     servicer.GetAssertionResults,
@@ -794,7 +794,7 @@ class Evaluations(object):
             _registered_method=True)
 
     @staticmethod
-    def GetLatestACTAssertions(request,
+    def GetLatestAssertions(request,
             target,
             options=(),
             channel_credentials=None,
@@ -807,9 +807,9 @@ class Evaluations(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/runtimePackage.Evaluations/GetLatestACTAssertions',
-            evaluations__pb2.GetLatestACTAssertionsRequest.SerializeToString,
-            evaluations__pb2.GetLatestACTAssertionsResponse.FromString,
+            '/runtimePackage.Evaluations/GetLatestAssertions',
+            evaluations__pb2.GetLatestAssertionsRequest.SerializeToString,
+            evaluations__pb2.GetLatestAssertionsResponse.FromString,
             options,
             channel_credentials,
             insecure,

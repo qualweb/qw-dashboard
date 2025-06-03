@@ -96,7 +96,8 @@ function convertMonitoringCycles(cycles) {
 function convertMonitoredWebpages(webpages) {
     return webpages.map(function (element) { return ({
         id: element.getId(),
-        url: element.getUrl()
+        url: element.getUrl(),
+        needs_authentication: element.getNeedsAuthentication(),
     }); });
 }
 var convertMonitoringRegistry = function (monitoringRegistry) {

@@ -14,6 +14,7 @@
     gap: 2.5rem;
     border-radius: 3rem;
     width: 100%;
+    margin: 0 3rem;
 }
 
 .evaluate-title-container > h2 {
@@ -71,8 +72,14 @@
 
 .evaluate-button-container {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+}
+
+.evaluate-button-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .evaluate-button {
@@ -80,6 +87,9 @@
     color: var(--terciary-color);
     border-radius: 3rem;
     padding: 1rem 4rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .webpages-add-button-container {
@@ -100,6 +110,42 @@
     border-radius: 3rem;
     margin: 0;
     padding: 0.7rem;
+    background: var(--secondary-color);
+}
+
+.delete-auth {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.field-selector {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.user-pass-login-bypass {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    padding: 3rem;
+}
+
+.user-pass-login-bypass-input {
+    height: 3rem;
+    padding-left: 1rem;
+    border-radius: 3rem;
+    border: 1px solid var(--border-color);
+}
+
+.login-bypass-title-close {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 @media (max-width: 60rem) {
@@ -122,4 +168,20 @@
         align-items: flex-start;
     }
 
+}
+
+.loading-spinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    animation: spin 1s linear infinite;
+    border: none;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }

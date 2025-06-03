@@ -230,21 +230,8 @@ async function getResults(assertion: QualwebAssertion, page: Page): Promise<[Res
     return [results, results_counter];
 }
 
-export async function takeWebpageScreenshot(webpage_url: string, width: number, height: number) {
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: [
-            '--disable-gpu',
-            '--no-sandbox',
-            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-          ]
-    });
-
+export async function takeWebpageScreenshot(page: Page, width: number, height: number) {
     try {
-        const page = await browser.newPage();
-
-        await page.goto(webpage_url, { waitUntil: 'networkidle0' });
-        
         const fullHeight = await page.evaluate(() => document.documentElement.scrollHeight);
 
         await page.setViewport({
@@ -254,14 +241,12 @@ export async function takeWebpageScreenshot(webpage_url: string, width: number, 
         });
         
         const screenshot = await page.screenshot({ 
-            fullPage: false
+            fullPage: true
         });
         
         return screenshot;
     } catch (error) {
         console.error('Error taking screenshot:', error);
         return null;
-    } finally {
-        await browser.close();
     }
 }

@@ -60,7 +60,7 @@
     overflow-y: scroll;
     padding: 1rem;
     border-radius: 3rem;
-    border: 1px solid #222222;
+    border: 1px solid white;
 }
 
 .add-webpages-dialog-header {
@@ -76,6 +76,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 3rem;
+    background-color: var(--secondary-color);
 }
 
 .add-webpages-dialog-add-button {
@@ -83,4 +84,16 @@
     color: var(--terciary-color);
     border-radius: 3rem;
     padding: 1rem 2rem;
+}
+
+.add-webpages-require-authentication {
+    width: 100%;
+}
+
+.add-webpages-require-authentication-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
 }

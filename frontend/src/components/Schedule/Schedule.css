@@ -78,6 +78,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: var(--secondary-color);
 }
 
 .date-picker-content {
@@ -163,6 +164,7 @@
 
 .scheduler-container-wrapper {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     flex-grow: 1;
     gap: 4rem;
@@ -185,4 +187,33 @@
     border-radius: 3rem;
     width: 100%;
     padding: 3rem;
+    gap: 2.5rem;
+}
+
+.schduler-webpage-auth {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.checkbox-webpage {
+    width: 100%;
+}
+
+.checkbox-webpage-label {
+    word-break: break-all;
+}
+
+.webpage-auth-info {
+    color: red;
+}
+
+.evaluate-button-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-picker-trigger {
+    background-color: var(--secondary-color);
 }

@@ -12,21 +12,11 @@ function WebsitesOverview() {
 
     const [websites, setWebsites] = useState([]);
     const [user_id, setUser_id] = useState(-1);
+    const [refresh, setRefresh] = useState(false);
 
-    const fetchWebsites = async (user_id: number) => {
-        if (user_id > -1) {
-            try {
-                const websitesData = await getUserWebsites(String(user_id));
-                setWebsites(websitesData['monitoring_registries']);
-            } catch (error) {
-                console.error('Error fetching websites:', error);
-            }
-        }
-    };
-
-    const handleWebsiteAdded = () => {
-        fetchWebsites(user_id);
-    };
+    const regreshTrigger = () => {
+        setRefresh(!refresh);
+    }
 
     useEffect(() => {
         const checkRegister = async () => {
@@ -58,7 +48,7 @@ function WebsitesOverview() {
         }
 
         checkRegister();
-    }, [user, user_id]);
+    }, [user, user_id, refresh]);
 
     
     return (
@@ -80,7 +70,7 @@ function WebsitesOverview() {
                             <h2>Your Websites</h2>
                             <AddMonitoringRegistryButton 
                                 user_id={user_id}
-                                onWebsiteAdded={handleWebsiteAdded}
+                                onChange={regreshTrigger}
                             />
                         </div>
                         <ul className='your-websites-list'>

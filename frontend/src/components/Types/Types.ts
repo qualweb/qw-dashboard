@@ -178,4 +178,5 @@ export interface ResultElement {
 export interface Webpage {
     id: string | number;
     url: string;
+    needs_authentication: boolean;
 }

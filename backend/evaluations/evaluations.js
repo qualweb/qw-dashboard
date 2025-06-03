@@ -222,15 +222,17 @@ app.post('/api/monitoring/set-accessibility-metric', function (req, res) { retur
     });
 }); });
 app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, webpage_id, getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, report_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
+    var monitoring_id, webpage_id, username, password, getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, browser_1, page, report_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 monitoring_id = req.params.monitoring_id;
                 webpage_id = req.params.webpage_id;
+                username = req.body.username;
+                password = req.body.password;
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 6, , 7]);
+                _a.trys.push([1, 10, , 11]);
                 getEvaluationInfoRequest_1 = new evaluations_pb_1.GetEvaluationInfoRequest();
                 getEvaluationInfoRequest_1.setMonitoringRegistryId(Number(monitoring_id));
                 getEvaluationInfoRequest_1.setWebpageId(Number(webpage_id));
@@ -249,13 +251,45 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, r
                 webpage_url_1 = response.getWebpageUrl();
                 is_mobile = response.getIsMobile();
                 is_landscape = response.getIsLandscape();
-                console.log("Evaluating URL ".concat(webpage_url_1));
-                return [4 /*yield*/, evaluate(webpage_url_1, screen_width_1, screen_height_1, is_mobile, is_landscape)];
+                needs_authentication_1 = response.getNeedsAuthentication();
+                username_field_selector_1 = response.getUsernameFieldSelector();
+                password_field_selector_1 = response.getPasswordFieldSelector();
+                login_button_selector_1 = response.getLoginButtonSelector();
+                return [4 /*yield*/, puppeteer_1.default.launch({
+                        headless: true,
+                        args: [
+                            '--disable-gpu',
+                            '--no-sandbox',
+                            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+                        ],
+                        timeout: 5000,
+                    })];
             case 3:
+                browser_1 = _a.sent();
+                return [4 /*yield*/, browser_1.newPage()];
+            case 4:
+                page = _a.sent();
+                return [4 /*yield*/, page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
+            case 5:
+                _a.sent();
+                return [4 /*yield*/, page.setViewport({
+                        width: screen_width_1,
+                        height: screen_height_1,
+                        deviceScaleFactor: 1,
+                    })];
+            case 6:
+                _a.sent();
+                console.log("Evaluating URL ".concat(webpage_url_1));
+                return [4 /*yield*/, evaluate(webpage_url_1, screen_width_1, screen_height_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
+            case 7:
                 report_1 = _a.sent();
-                if (report_1[webpage_url_1] !== undefined) {
+                if (!needs_authentication_1 && report_1[webpage_url_1] !== undefined) {
                     report_1 = report_1[webpage_url_1];
                     console.log("Successfully evaluated URL ".concat(webpage_url_1));
+                }
+                else if (needs_authentication_1 && report_1.customHtml !== undefined) {
+                    report_1 = report_1.customHtml;
+                    console.log("Successfully evaluated URL ".concat(webpage_url_1, " behind authentication"));
                 }
                 else {
                     console.error("Error evaluating URL ".concat(webpage_url_1));
@@ -265,12 +299,12 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, r
                         })];
                 }
                 return [4 /*yield*/, (function () { return __awaiter(void 0, void 0, void 0, function () {
-                        var browser_1, page, screenshot, evaluations_request_1, _a, _b, response_1, error_4;
+                        var browser_2, page_1, screenshot, evaluations_request_1, _a, _b, response_1, error_4;
                         var _c, _d, _e, _f, _g, _h;
                         return __generator(this, function (_j) {
                             switch (_j.label) {
                                 case 0:
-                                    _j.trys.push([0, 9, , 10]);
+                                    _j.trys.push([0, 13, , 14]);
                                     return [4 /*yield*/, puppeteer_1.default.launch({
                                             headless: true,
                                             args: [
@@ -281,29 +315,38 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, r
                                             timeout: 5000,
                                         })];
                                 case 1:
-                                    browser_1 = _j.sent();
-                                    return [4 /*yield*/, browser_1.newPage()];
+                                    browser_2 = _j.sent();
+                                    return [4 /*yield*/, browser_2.newPage()];
                                 case 2:
-                                    page = _j.sent();
-                                    return [4 /*yield*/, page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
+                                    page_1 = _j.sent();
+                                    return [4 /*yield*/, page_1.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
                                 case 3:
                                     _j.sent();
-                                    return [4 /*yield*/, page.setViewport({
+                                    return [4 /*yield*/, page_1.setViewport({
                                             width: screen_width_1,
                                             height: screen_height_1,
                                             deviceScaleFactor: 1,
                                         })];
                                 case 4:
                                     _j.sent();
-                                    return [4 /*yield*/, page.goto(webpage_url_1, { waitUntil: 'networkidle0' })];
+                                    if (!needs_authentication_1) return [3 /*break*/, 7];
+                                    return [4 /*yield*/, page_1.goto(webpage_url_1, { waitUntil: 'networkidle0' })];
                                 case 5:
                                     _j.sent();
-                                    return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(webpage_url_1, screen_width_1, screen_height_1)];
+                                    return [4 /*yield*/, bypassLogin(page_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
                                 case 6:
+                                    _j.sent();
+                                    return [3 /*break*/, 9];
+                                case 7: return [4 /*yield*/, page_1.goto(webpage_url_1, { waitUntil: 'networkidle0' })];
+                                case 8:
+                                    _j.sent();
+                                    _j.label = 9;
+                                case 9: return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(page_1, screen_width_1, screen_height_1)];
+                                case 10:
                                     screenshot = _j.sent();
                                     evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
                                     evaluations_request_1.setQualwebVersion(report_1.system.version);
-                                    evaluations_request_1.setInputUrl((_d = (_c = report_1.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "");
+                                    evaluations_request_1.setInputUrl(!needs_authentication_1 ? ((_d = (_c = report_1.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "") : webpage_url_1);
                                     evaluations_request_1.setCompleteUrl((_f = (_e = report_1.system.url) === null || _e === void 0 ? void 0 : _e.completeUrl) !== null && _f !== void 0 ? _f : "");
                                     evaluations_request_1.setDom(report_1.system.page.dom.html);
                                     evaluations_request_1.setTitle((_g = report_1.system.page.dom.title) !== null && _g !== void 0 ? _g : "");
@@ -313,15 +356,15 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, r
                                     evaluations_request_1.setFailed(report_1.metadata.failed);
                                     evaluations_request_1.setInapplicable(report_1.metadata.inapplicable);
                                     _b = (_a = evaluations_request_1).setModulesList;
-                                    return [4 /*yield*/, (0, process_evals_1.default)(report_1, page)];
-                                case 7:
+                                    return [4 /*yield*/, (0, process_evals_1.default)(report_1, page_1)];
+                                case 11:
                                     _b.apply(_a, [_j.sent()]);
                                     evaluations_request_1.setModulesQuantity(2);
                                     evaluations_request_1.setMonitoredWebsiteId(Number(monitoring_id));
                                     if (screenshot) {
                                         evaluations_request_1.setScreenshot(screenshot);
                                     }
-                                    browser_1.close();
+                                    browser_2.close();
                                     return [4 /*yield*/, new Promise(function (resolve, reject) {
                                             client.addEvaluation(evaluations_request_1, function (err, response) {
                                                 if (err)
@@ -330,19 +373,19 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, r
                                                     resolve(response);
                                             });
                                         })];
-                                case 8:
+                                case 12:
                                     response_1 = _j.sent();
                                     console.log("Successfully added evaluation for URL ".concat(webpage_url_1));
                                     return [2 /*return*/, { webpage_url: webpage_url_1, success: true, statusCode: response_1.getStatusCode() }];
-                                case 9:
+                                case 13:
                                     error_4 = _j.sent();
                                     console.error("Error adding evaluation for URL ".concat(webpage_url_1, ":"), error_4);
                                     return [2 /*return*/, { webpage_url: webpage_url_1, success: false, error: error_4 }];
-                                case 10: return [2 /*return*/];
+                                case 14: return [2 /*return*/];
                             }
                         });
                     }); })()];
-            case 4:
+            case 8:
                 result = _a.sent();
                 if (!result.success) {
                     return [2 /*return*/, res.status(500).json({
@@ -360,7 +403,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, r
                                 resolve(callResponse);
                         });
                     })];
-            case 5:
+            case 9:
                 setLatestEvalResponse = _a.sent();
                 if (setLatestEvalResponse.getStatusCode() !== 200) {
                     return [2 /*return*/, res.status(setLatestEvalResponse.getStatusCode()).json({
@@ -373,12 +416,12 @@ app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, r
                         webpage_url: webpage_url_1,
                         success: true
                     })];
-            case 6:
+            case 10:
                 error_3 = _a.sent();
                 console.error('Error during evaluation:', error_3);
                 res.status(500).json({ message: 'Error processing evaluations', error: error_3 });
-                return [3 /*break*/, 7];
-            case 7: return [2 /*return*/];
+                return [3 /*break*/, 11];
+            case 11: return [2 /*return*/];
         }
     });
 }); });
@@ -413,12 +456,16 @@ app.post('/api/monitoring/:monitoring_id/calculate-score', function (req, res) {
     });
 }); });
 app.post('/api/monitoring/:monitoring_id/add-webpages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, urls, add_webpages_request_1, response, error_6;
+    var monitoring_id, urls, needs_authentication, username_field_selector, password_field_selector, login_button_selector, add_webpages_request_1, response, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 monitoring_id = req.params.monitoring_id;
                 urls = req.body.urls;
+                needs_authentication = req.body.needs_authentication;
+                username_field_selector = req.body.username_field_selector;
+                password_field_selector = req.body.password_field_selector;
+                login_button_selector = req.body.login_button_selector;
                 console.log('Monitoring ID:', monitoring_id);
                 console.log('Adding webpages:', urls);
                 _a.label = 1;
@@ -427,6 +474,10 @@ app.post('/api/monitoring/:monitoring_id/add-webpages', function (req, res) { re
                 add_webpages_request_1 = new evaluations_pb_1.AddWebpagesRequest();
                 add_webpages_request_1.setMonitoringRegistryId(Number(monitoring_id));
                 add_webpages_request_1.setWebpagesList(urls);
+                add_webpages_request_1.setNeedsAuthentication(needs_authentication);
+                add_webpages_request_1.setUsernameFieldSelector(username_field_selector);
+                add_webpages_request_1.setPasswordFieldSelector(password_field_selector);
+                add_webpages_request_1.setLoginButtonSelector(login_button_selector);
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
                         client.addWebpages(add_webpages_request_1, function (err, response) {
                             if (err)
@@ -685,8 +736,8 @@ app.get('/api/monitoring/:monitoring_id/latest-evaluations', function (req, res)
         }
     });
 }); });
-app.get('/api/monitoring/evaluations/:evaluation_id/latest-act-assertions', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var evaluation_id, wcagLevelFilters, outcome, wcagLevels, getLatestACTAssertionsRequest_1, reponse, error_13;
+app.get('/api/monitoring/evaluations/:evaluation_id/latest-assertions', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var evaluation_id, moduleType, wcagGuidelinesFilters, wcagLevelFilters, outcome, wcagLevels, wcagGuidelines, getLatestAssertionsRequest_1, reponse, error_13;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -694,18 +745,27 @@ app.get('/api/monitoring/evaluations/:evaluation_id/latest-act-assertions', func
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
+                moduleType = String(req.query.moduleType);
+                wcagGuidelinesFilters = req.query.wcagGuidelinesFilters;
                 wcagLevelFilters = req.query.wcagLevelFilters;
-                outcome = req.query.outcome;
+                outcome = String(req.query.outcome);
                 wcagLevels = [];
+                wcagGuidelines = [];
+                if (typeof wcagGuidelinesFilters === 'string' && wcagGuidelinesFilters.trim() !== '') {
+                    wcagGuidelines = wcagGuidelinesFilters.split(',');
+                }
                 if (typeof wcagLevelFilters === 'string' && wcagLevelFilters.trim() !== '') {
                     wcagLevels = wcagLevelFilters.split(',');
                 }
-                getLatestACTAssertionsRequest_1 = new evaluations_pb_1.GetLatestACTAssertionsRequest();
-                getLatestACTAssertionsRequest_1.setEvaluationId(Number(evaluation_id));
-                getLatestACTAssertionsRequest_1.setWcaglevelfiltersList(wcagLevels);
-                getLatestACTAssertionsRequest_1.setOutcome(outcome);
+                console.log(wcagGuidelines);
+                getLatestAssertionsRequest_1 = new evaluations_pb_1.GetLatestAssertionsRequest();
+                getLatestAssertionsRequest_1.setEvaluationId(Number(evaluation_id));
+                getLatestAssertionsRequest_1.setModuleType(moduleType);
+                getLatestAssertionsRequest_1.setWcagguidelinesfiltersList(wcagGuidelines);
+                getLatestAssertionsRequest_1.setWcaglevelfiltersList(wcagLevels);
+                getLatestAssertionsRequest_1.setOutcome(outcome);
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        client.getLatestACTAssertions(getLatestACTAssertionsRequest_1, function (err, callResponse) {
+                        client.getLatestAssertions(getLatestAssertionsRequest_1, function (err, callResponse) {
                             if (err)
                                 reject(err);
                             else
@@ -1211,3 +1271,35 @@ app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cyc
 app.listen(port, function () {
     console.log("Server is running on http://localhost:".concat(port));
 });
+function bypassLogin(page, usernameFieldSelector, passwordFieldSelector, loginButtonSelector, username, password) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: 
+                // Fill and submit login form
+                return [4 /*yield*/, page.evaluate(function (usernameFieldSelector, passwordFieldSelector, loginButtonSelector, username, password) {
+                        var usernameField = document.querySelector(usernameFieldSelector);
+                        var passwordField = document.querySelector(passwordFieldSelector);
+                        var loginButton = document.querySelector(loginButtonSelector);
+                        if (usernameField && passwordField && loginButton) {
+                            usernameField.value = username;
+                            passwordField.value = password;
+                            loginButton.click();
+                        }
+                        else {
+                            throw new Error('Could not find required login elements');
+                        }
+                    }, usernameFieldSelector, passwordFieldSelector, loginButtonSelector, username, password)];
+                case 1:
+                    // Fill and submit login form
+                    _a.sent();
+                    // Wait for navigation to complete (login successful)
+                    return [4 /*yield*/, page.waitForNavigation({ waitUntil: 'networkidle0' })];
+                case 2:
+                    // Wait for navigation to complete (login successful)
+                    _a.sent();
+                    return [2 /*return*/, { success: true, message: "Login completed and navigated to protected page" }];
+            }
+        });
+    });
+}

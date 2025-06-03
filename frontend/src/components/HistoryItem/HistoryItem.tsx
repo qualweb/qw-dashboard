@@ -23,7 +23,7 @@ function HistoryItem(props: HistoryItemProps) {
     const time_diff = getTimeDiff(props.evaluation_day, props.evaluation_month, props.evaluation_year);
 
     return (
-        <li key={props.evaluation_id} className='history-item'>
+        <li className='history-item'>
             <div className='webpage-title-url'>
                 <h3>{props.evaluation_title}</h3>
                 <h4>{props.evaluation_url}</h4>

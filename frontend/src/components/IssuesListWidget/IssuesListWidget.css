@@ -111,12 +111,13 @@
     min-width: 10rem !important;
     padding-left: 1rem;
     padding-right: 1rem;
+    background-color: var(--secondary-color) !important;
 }
 
 .select-content {
     min-width: 10rem !important;
     background-color: var(--secondary-color) !important;
-    }
+}
 
 [data-scope='select'][data-part='root'] {
     min-width: 10rem !important;

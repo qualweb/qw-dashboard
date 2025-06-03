@@ -23,12 +23,23 @@ CREATE TABLE MonitoringRegistry (
     website_name            VARCHAR NOT NULL
 );
 
-CREATE TABLE Webpage (
-    id      SERIAL PRIMARY KEY,
-    url     VARCHAR NOT NULL,
-    monitoring_registry_id      INTEGER,
+CREATE TABLE LoginWebpage (
+    id                      SERIAL PRIMARY KEY,
+    url                     VARCHAR NOT NULL,
+    username_field          VARCHAR NOT NULL,
+    password_field          VARCHAR NOT NULL,
+    submit_button           VARCHAR NOT NULL
+);
 
-    FOREIGN KEY (monitoring_registry_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE
+CREATE TABLE Webpage (
+    id                          SERIAL PRIMARY KEY,
+    url                         VARCHAR NOT NULL,
+    monitoring_registry_id      INTEGER,
+    needs_authentication        BOOLEAN NOT NULL DEFAULT FALSE,
+    login_webpage_id            INTEGER,
+
+    FOREIGN KEY (monitoring_registry_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE,
+    FOREIGN KEY (login_webpage_id) REFERENCES LoginWebpage(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Monitoring_Cycle (

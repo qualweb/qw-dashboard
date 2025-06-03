@@ -57,13 +57,30 @@ export const createMonitoringCycle = async (
 
 export const runEvaluation = async (
     monitoring_registry_id : string,
-    webpage_id : string
+    webpage_id : string,
+    needs_authentication : boolean,
+    username ?: string,
+    password ?: string
 ) => {
+    let requestBody = {};
+
+    if (needs_authentication) {
+        if (!username || !password) {
+            throw new Error('Username and password are required for authenticated evaluations.');
+        }
+        
+        requestBody = {
+            username,
+            password
+        };
+    }
+
     const response_2 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate/${webpage_id}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(requestBody)
     });
     
     if (response_2.status !== 200) {
@@ -168,12 +185,14 @@ export const getLatestEvaluations = async (
     return data.evaluations;
 }
 
-export const getLatestACTAssertions = async (
+export const getLatestAssertions = async (
     evaluation_id: string,
+    moduleType: string,
+    wcagGuidelinesFilters: string[],
     wcagLevelFilters: string[],
     outcome: string
 ) => {
-    const assertions_response = await fetch(`${MONITORING_API_URL}/evaluations/${evaluation_id}/latest-act-assertions?wcagLevelFilters=${wcagLevelFilters.join(',')}&outcome=${outcome}`);
+    const assertions_response = await fetch(`${MONITORING_API_URL}/evaluations/${evaluation_id}/latest-assertions?moduleType=${moduleType}&wcagGuidelinesFilters=${wcagGuidelinesFilters.join(',')}&wcagLevelFilters=${wcagLevelFilters.join(',')}&outcome=${outcome}`);
     const data = await assertions_response.json();
 
     if(assertions_response.status != 200) {
@@ -193,7 +212,7 @@ export const getAssertionResults = async (
         throw new Error('Failed to fetch assertion results.');
     }
 
-    return data;
+    return data.results;
 }
 
 export const getResultElement = async (
@@ -280,7 +299,11 @@ export const getMonitoredWebpages = async(
 
 export const addWebpages = async(
     monitoring_id: string,
-    webpages: string[]
+    webpages: string[],
+    needs_authentication: boolean = false,
+    username_field: string = '',
+    password_field: string = '',
+    login_button: string = ''
 ) => {
     const response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/add-webpages`, {
         method: 'POST',
@@ -288,7 +311,11 @@ export const addWebpages = async(
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            urls: webpages
+            urls: webpages,
+            needs_authentication: needs_authentication,
+            username_field_selector: username_field,
+            password_field_selector: password_field,
+            login_button_selector: login_button
         })
     });
 

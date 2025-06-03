@@ -40,7 +40,6 @@ exports.default = getModules;
 exports.takeWebpageScreenshot = takeWebpageScreenshot;
 var core_1 = require("@qualweb/core");
 var evaluations_pb_1 = require("./protobuf_library/evaluations_pb");
-var puppeteer_1 = require("puppeteer");
 function getModules(report, page) {
     return __awaiter(this, void 0, void 0, function () {
         var modules, modules_names, assertions_quantity, i, _i, modules_names_1, module_1, new_module, currentModule, assertions;
@@ -268,55 +267,34 @@ function getResults(assertion, page) {
         });
     });
 }
-function takeWebpageScreenshot(webpage_url, width, height) {
+function takeWebpageScreenshot(page, width, height) {
     return __awaiter(this, void 0, void 0, function () {
-        var browser, page, fullHeight, screenshot, error_1;
+        var fullHeight, screenshot, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, puppeteer_1.default.launch({
-                        headless: true,
-                        args: [
-                            '--disable-gpu',
-                            '--no-sandbox',
-                            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-                        ]
-                    })];
-                case 1:
-                    browser = _a.sent();
-                    _a.label = 2;
-                case 2:
-                    _a.trys.push([2, 8, 9, 11]);
-                    return [4 /*yield*/, browser.newPage()];
-                case 3:
-                    page = _a.sent();
-                    return [4 /*yield*/, page.goto(webpage_url, { waitUntil: 'networkidle0' })];
-                case 4:
-                    _a.sent();
+                case 0:
+                    _a.trys.push([0, 4, , 5]);
                     return [4 /*yield*/, page.evaluate(function () { return document.documentElement.scrollHeight; })];
-                case 5:
+                case 1:
                     fullHeight = _a.sent();
                     return [4 /*yield*/, page.setViewport({
                             width: width,
                             height: fullHeight,
                             deviceScaleFactor: 1,
                         })];
-                case 6:
+                case 2:
                     _a.sent();
                     return [4 /*yield*/, page.screenshot({
-                            fullPage: false
+                            fullPage: true
                         })];
-                case 7:
+                case 3:
                     screenshot = _a.sent();
                     return [2 /*return*/, screenshot];
-                case 8:
+                case 4:
                     error_1 = _a.sent();
                     console.error('Error taking screenshot:', error_1);
                     return [2 /*return*/, null];
-                case 9: return [4 /*yield*/, browser.close()];
-                case 10:
-                    _a.sent();
-                    return [7 /*endfinally*/];
-                case 11: return [2 /*return*/];
+                case 5: return [2 /*return*/];
             }
         });
     });

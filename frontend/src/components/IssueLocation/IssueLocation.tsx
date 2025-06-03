@@ -9,9 +9,14 @@ interface IssueLocationProps {
 function IssueLocation(props: IssueLocationProps) {
     const clipboard = useClipboard({ value: props.pointer })
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleInnerButtonClick = (event: any) => {
+        event.stopPropagation();
+    };
+
     return (
         <>
-            <Clipboard.RootProvider value={clipboard}>
+            <Clipboard.RootProvider value={clipboard} onClick={handleInnerButtonClick} >
                 <Clipboard.Control>
                     <Clipboard.Trigger className='location-wrapper'>
                         <Clipboard.Indicator className='location' copied={<CheckIcon />}>

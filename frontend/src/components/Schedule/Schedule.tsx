@@ -2,7 +2,7 @@ import './Schedule.css'
 
 import { useParams } from 'react-router-dom';
 import DashboardMenu from '../DashboardMenu/DashboardMenu';
-import { Calendar, CheckCheck, CheckIcon, Clock3 } from 'lucide-react';
+import { Calendar, CheckCheck, CheckIcon, Clock3, KeyRound } from 'lucide-react';
 import { Checkbox } from '@ark-ui/react/checkbox';
 import { createListCollection } from '@ark-ui/react/collection';
 import { useEffect, useState } from 'react';
@@ -13,15 +13,16 @@ import { DatePicker } from '@ark-ui/react/date-picker';
 import SelectWidget from '../SelectWidget/SelectWidget';
 import { addSchedule } from '../../services/ScheduleService';
 import SchedulesList from '../SchedulesList/SchedulesList';
+import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
 
 function Schedule() {
     const { monitoring_id } = useParams();
 
-    const [webpagesToEval, setWebpagesToEval] = useState<string[]>([]);
+    const [webpagesToEval, setWebpagesToEval] = useState<[url: string, needs_authentication: boolean][]>([]);
     const [monitoredWebpages, setMonitoredWepages] = useState([]);
     const [scheduleTrigger, setScheduleTrigger] = useState(false);
     const [isScheduled, setIsScheduled] = useState(false);
-    
+
     const [scheduleType, setScheduleType] = useState('');
     const [day, setDay] = useState(-1);
     const [month, setMonth] = useState(-1);
@@ -68,19 +69,12 @@ function Schedule() {
         items: items,
     });
 
-    const addWebpage = (url: string): void => {
-        if (!webpagesToEval.includes(url)) {
-            webpagesToEval.push(url);
-        }
-        setWebpagesToEval([...webpagesToEval]);
+    const addWebpage = (url_auth : [url: string, needs_authentication: boolean]): void => {
+        setWebpagesToEval(prev => [...prev, url_auth]);
     };
 
     const removeWebpage = async (webpage: string) => {
-        const index = webpagesToEval.indexOf(webpage);
-        if (index > -1) {
-            webpagesToEval.splice(index, 1);
-        }
-        setWebpagesToEval([...webpagesToEval]);
+        setWebpagesToEval(prev => prev.filter(([url, ]) => url !== webpage));
     };
     
     const schedule_types = createListCollection(
@@ -159,11 +153,16 @@ function Schedule() {
         postSchedule();
     }
 
+    const hasWebpagesNeedingAuth = (): boolean => {
+        return webpagesToEval.some(([, needs_authentication]) => needs_authentication );
+    };
+
     return (
         <div className='schedule'>
             <DashboardMenu monitoring_id={String(monitoring_id)} />
             {monitoring_id ? (
                 <div className='scheduler-container-wrapper'>
+                    <WebsiteIdentifier monitoring_id={monitoring_id} />
                     <div className='schedule-container'>
                         <div className='evaluate-title-container'>
                             <Clock3 />
@@ -174,14 +173,16 @@ function Schedule() {
                                 {collection.items.map((item) => (
                                     <div className='webpage-container' key={item.value}>
                                         <div className='checkbox-webpage-container'>
-                                            <Checkbox.Root className='checkbox-webpage' value={item.value} key={item.value}>
+                                            <Checkbox.Root className='checkbox-webpage' value={item.value}>
                                                 <Checkbox.Control className='checkbox-webpage-control' onClick={() => {
-                                                    if (webpagesToEval.includes(item.value)) {
+                                                    const exists = webpagesToEval.some(([url]) => url === item.value);
+    
+                                                    if (exists) {
                                                         removeWebpage(item.value);
-                                                        console.log(webpagesToEval);
+                                                        console.log("Removed:", item.value);
                                                     } else {
-                                                        addWebpage(item.value);
-                                                        console.log(webpagesToEval);
+                                                        addWebpage([item.value, item.needs_authentication]);
+                                                        console.log("Added:", item.value);
                                                     }
                                                 }}>
                                                     <Checkbox.Indicator className='checkbox-webpage-indicator'>
@@ -189,7 +190,10 @@ function Schedule() {
                                                     </Checkbox.Indicator>
                                                 </Checkbox.Control>
                                                 <Checkbox.HiddenInput />
-                                                <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
+                                                <div className="schduler-webpage-auth">
+                                                    <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
+                                                    {item.needs_authentication ? <KeyRound /> : null}
+                                                </div>
                                             </Checkbox.Root>
                                         </div>
                                     </div>
@@ -235,11 +239,11 @@ function Schedule() {
                                                                             {(datePicker) => (
                                                                             <>
                                                                                 <DatePicker.ViewControl className='date-picker-view-control'>
-                                                                                    <DatePicker.PrevTrigger>Prev</DatePicker.PrevTrigger>
-                                                                                    <DatePicker.ViewTrigger>
+                                                                                    <DatePicker.PrevTrigger className='date-picker-trigger' >Prev</DatePicker.PrevTrigger>
+                                                                                    <DatePicker.ViewTrigger className='date-picker-trigger' >
                                                                                         <DatePicker.RangeText />
                                                                                     </DatePicker.ViewTrigger>
-                                                                                    <DatePicker.NextTrigger>Next</DatePicker.NextTrigger>
+                                                                                    <DatePicker.NextTrigger className='date-picker-trigger' >Next</DatePicker.NextTrigger>
                                                                                 </DatePicker.ViewControl>
                                                                                 <DatePicker.Table className='date-picker-table'>
                                                                                     <DatePicker.TableHead className='date-picker-table-head'>
@@ -508,7 +512,7 @@ function Schedule() {
                         )}
                         <div className='evaluate-button-container'>
                             { !scheduleType ? (
-                                <button className='evaluate-button' onClick={() => {
+                                <button className='evaluate-button' disabled={hasWebpagesNeedingAuth()} onClick={() => {
                                     if (webpagesToEval.length > 0) {
                                         setScheduleTrigger(true);
                                     }
@@ -519,7 +523,9 @@ function Schedule() {
                                         console.log("before add")
                                         console.log(webpagesToEval);
                                         handleSchedule();
-                                    }}>Schedule</button>
+                                    }}>
+                                        Schedule
+                                    </button>
                                     {isScheduled ? (
                                         <div className='schedule-check-container'>
                                             <CheckCheck />
@@ -527,6 +533,7 @@ function Schedule() {
                                     ) : null}
                                 </div>
                             )}
+                            { webpagesToEval.some(([, auth]) => auth) && (<p className='webpage-auth-info' >Webpages that need prior authentication can not be scheduled!</p>)}
                         </div>
                     </div>
                     <SchedulesList monitoring_id={monitoring_id} refresh={refresh} onRefresh={regreshTrigger} />
@@ -540,12 +547,13 @@ export default Schedule;
 
 
 function createMonitoredWebpagesCollection(monitoredWebpages: Webpage[]) {
-    const items: { label: string, value: string }[] = [];
+    const items: { label: string, value: string, needs_authentication: boolean }[] = [];
     
     monitoredWebpages.forEach((webpage : Webpage) => {
         items.push({ 
             label: webpage.url, 
-            value: webpage.id.toString()
+            value: webpage.id.toString(),
+            needs_authentication: webpage.needs_authentication
         });
     });
     

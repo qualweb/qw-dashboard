@@ -78,6 +78,10 @@
     gap: 2.5rem;
 }
 
+.compare-evaluations-button {
+    background: var(--seondary-color);
+}
+
 .compare-evaluations-button-wrapper {
     width: 100%;
     display: flex;
@@ -95,4 +99,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.compare-evaluations-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }

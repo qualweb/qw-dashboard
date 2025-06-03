@@ -19,6 +19,11 @@ function Visualize(props: VisualizeProps) {
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [isLoading, setIsLoading] = useState(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleInnerButtonClick = (event: any) => {
+        event.stopPropagation();
+    };
+
     useEffect(() => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
@@ -58,7 +63,10 @@ function Visualize(props: VisualizeProps) {
 
     return (
         <>
-            <button className='visualize-dialog-trigger' onClick={() => setIsOpen(true)}>
+            <button className='visualize-dialog-trigger' onClick={(event) => {
+                setIsOpen(true);
+                handleInnerButtonClick(event);
+            }}>
                 <Eye />
             </button>
             <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>

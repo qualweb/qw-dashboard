@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons.tsx';
 import { GetLatestACTAssertion, GetLatestACTAssertionsResponse } from "../Types/Types.ts";
-import { getLatestACTAssertions, getWebpageScreenshot } from '../../services/EvaluationService.tsx';
+import { getLatestAssertions, getWebpageScreenshot } from '../../services/EvaluationService.tsx';
 import Assertion from '../Assertion/Assertion.tsx';
 
 interface CategoryWebsiteProps {
-  evaluation_ids: string[];
-  outcome: string;
-  wcagLevelFilters: string[];
+    evaluation_ids: string[];
+    outcome: string;
+    wcagLevelFilters: string[];
+    wcagGuidelinesFilters: string[];
 }
 
 const categoryConfig = {
@@ -30,7 +31,7 @@ function  CategoryWebsite(props: CategoryWebsiteProps) {
             const screenshots = [];
 
             for (let i = 0; i < props.evaluation_ids.length; i++) {
-                const response = await getLatestACTAssertions(props.evaluation_ids[i], props.wcagLevelFilters, props.outcome);
+                const response = await getLatestAssertions(props.evaluation_ids[i], 'act-rules', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
                 if (response && response.assertions) {
                     response.assertions.forEach((element: GetLatestACTAssertion) => {
                         data.assertions.push(element);
@@ -45,7 +46,7 @@ function  CategoryWebsite(props: CategoryWebsiteProps) {
             setWebpageScreenshots(screenshots);
         }
         fetchAssertions();
-    }, [props.evaluation_ids, props.wcagLevelFilters, props.outcome]);
+    }, [props.evaluation_ids, props.wcagLevelFilters, props.outcome, props.wcagGuidelinesFilters]);
 
     let { icon, className } = categoryConfig.passed;
 

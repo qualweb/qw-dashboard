@@ -6,6 +6,7 @@ import { Portal } from "@ark-ui/react/portal";
 import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from 'react';
 import { getWebsiteMonitoringCycles } from '../../services/EvaluationService';
+import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
 
 function SelectEvaluations() {
     const { monitoring_id } = useParams();
@@ -47,83 +48,86 @@ function SelectEvaluations() {
             <DashboardMenu monitoring_id={String(monitoring_id)} />
             <div className='compare-evaluations-separator'>    
                 {monitoring_id ? (
-                    <div className="compare-evaluations-wrapper">
-                        <h3>Compare Evaluations</h3>
-                        <div className='evaluations-selection-button-wrapper'>
-                            <div className="evaluations-selection">
-                                <div className="evaluation-1">
-                                    <Select.Root collection={collection}>
-                                        <Select.Label className='select-website-label'>
-                                            <strong>First monitoring cycle</strong>
-                                        </Select.Label>
-                                        <Select.Control>
-                                            <Select.Trigger>
-                                                <Select.ValueText placeholder="Select a monitoring cycle" />
-                                                <Select.Indicator>
-                                                    <ChevronDownIcon />
-                                                </Select.Indicator>
-                                            </Select.Trigger>
-                                        </Select.Control>
-                                        <Portal>
-                                            <Select.Positioner>
-                                                <Select.Content>
-                                                    <Select.ItemGroup>
-                                                        {collection.items.map((item) => (
-                                                            <Select.Item key={item.value} item={item} onClick={() =>
-                                                                setFirstCycle(item.value)
-                                                            }>
-                                                                <Select.ItemText>{item.label}</Select.ItemText>
-                                                            </Select.Item>
-                                                        ))}
-                                                    </Select.ItemGroup>
-                                                </Select.Content>
-                                            </Select.Positioner>
-                                        </Portal>
-                                        <Select.HiddenSelect />
-                                    </Select.Root>
+                    <div className='compare-evaluations-container'>
+                        <WebsiteIdentifier monitoring_id={String(monitoring_id)} />
+                        <div className="compare-evaluations-wrapper">
+                            <h3>Compare Evaluations</h3>
+                            <div className='evaluations-selection-button-wrapper'>
+                                <div className="evaluations-selection">
+                                    <div className="evaluation-1">
+                                        <Select.Root collection={collection}>
+                                            <Select.Label className='select-website-label'>
+                                                <strong>First monitoring cycle</strong>
+                                            </Select.Label>
+                                            <Select.Control>
+                                                <Select.Trigger>
+                                                    <Select.ValueText placeholder="Select a monitoring cycle" />
+                                                    <Select.Indicator>
+                                                        <ChevronDownIcon />
+                                                    </Select.Indicator>
+                                                </Select.Trigger>
+                                            </Select.Control>
+                                            <Portal>
+                                                <Select.Positioner>
+                                                    <Select.Content>
+                                                        <Select.ItemGroup>
+                                                            {collection.items.map((item) => (
+                                                                <Select.Item key={item.value} item={item} onClick={() =>
+                                                                    setFirstCycle(item.value)
+                                                                }>
+                                                                    <Select.ItemText>{item.label}</Select.ItemText>
+                                                                </Select.Item>
+                                                            ))}
+                                                        </Select.ItemGroup>
+                                                    </Select.Content>
+                                                </Select.Positioner>
+                                            </Portal>
+                                            <Select.HiddenSelect />
+                                        </Select.Root>
+                                    </div>
+                                    <div className="evaluation-2">
+                                        <Select.Root collection={collection}>
+                                            <Select.Label className='select-website-label'>
+                                                <strong>Second monitoring cycle</strong>
+                                            </Select.Label>
+                                            <Select.Control>
+                                                <Select.Trigger>
+                                                    <Select.ValueText placeholder="Select a monitoring cycle" />
+                                                    <Select.Indicator>
+                                                        <ChevronDownIcon />
+                                                    </Select.Indicator>
+                                                </Select.Trigger>
+                                            </Select.Control>
+                                            <Portal>
+                                                <Select.Positioner>
+                                                    <Select.Content>
+                                                        <Select.ItemGroup>
+                                                            {collection.items.map((item) => (
+                                                                <Select.Item key={item.value} item={item} onClick={() =>
+                                                                    setSecondCycle(item.value)
+                                                                }>
+                                                                    <Select.ItemText>{item.label}</Select.ItemText>
+                                                                </Select.Item>
+                                                            ))}
+                                                        </Select.ItemGroup>
+                                                    </Select.Content>
+                                                </Select.Positioner>
+                                            </Portal>
+                                            <Select.HiddenSelect />
+                                        </Select.Root>
+                                    </div>
                                 </div>
-                                <div className="evaluation-2">
-                                    <Select.Root collection={collection}>
-                                        <Select.Label className='select-website-label'>
-                                            <strong>Second monitoring cycle</strong>
-                                        </Select.Label>
-                                        <Select.Control>
-                                            <Select.Trigger>
-                                                <Select.ValueText placeholder="Select a monitoring cycle" />
-                                                <Select.Indicator>
-                                                    <ChevronDownIcon />
-                                                </Select.Indicator>
-                                            </Select.Trigger>
-                                        </Select.Control>
-                                        <Portal>
-                                            <Select.Positioner>
-                                                <Select.Content>
-                                                    <Select.ItemGroup>
-                                                        {collection.items.map((item) => (
-                                                            <Select.Item key={item.value} item={item} onClick={() =>
-                                                                setSecondCycle(item.value)
-                                                            }>
-                                                                <Select.ItemText>{item.label}</Select.ItemText>
-                                                            </Select.Item>
-                                                        ))}
-                                                    </Select.ItemGroup>
-                                                </Select.Content>
-                                            </Select.Positioner>
-                                        </Portal>
-                                        <Select.HiddenSelect />
-                                    </Select.Root>
+                                <div className='compare-evaluations-button-wrapper'>
+                                    {isEnabled ? (
+                                        <Link className='compare-evaluations-button' to={`/dashboard/${monitoring_id}/compare-evaluations/${first_cycle}/${second_cycle}`}>
+                                            <strong>Compare</strong>
+                                        </Link>
+                                    ) : (
+                                        <button className='compare-evaluations-button' disabled>
+                                            <strong>Compare</strong>
+                                        </button>
+                                    )}
                                 </div>
-                            </div>
-                            <div className='compare-evaluations-button-wrapper'>
-                                {isEnabled ? (
-                                    <Link className='compare-evaluations-button' to={`/dashboard/${monitoring_id}/compare-evaluations/${first_cycle}/${second_cycle}`}>
-                                        <strong>Compare</strong>
-                                    </Link>
-                                ) : (
-                                    <button className='compare-evaluations-button' disabled>
-                                        <strong>Compare</strong>
-                                    </button>
-                                )}
                             </div>
                         </div>
                     </div>

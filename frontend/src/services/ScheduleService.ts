@@ -3,7 +3,7 @@ const SCHEDULER_API_URL = 'http://localhost:8083/api/scheduler';
 export const addSchedule = async (
     schedule_type: string,
     monitoring_id: string,
-    webpages_ids: string[],
+    webpages_ids: [id: string, auth: boolean][],
     day?: number,
     month?: number,
     year?: number,
@@ -12,7 +12,7 @@ export const addSchedule = async (
     second?: number,
     day_of_week?: number,
 ) => {
-    const mappedWebpagesIds = webpages_ids.map((id) => { return Number(id) });
+    const mappedWebpagesIds = webpages_ids.map(([id, ]) => { return Number(id) });
 
     const response = await fetch(`${SCHEDULER_API_URL}/add-schedule`, {
         method: 'POST',

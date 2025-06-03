@@ -8,7 +8,7 @@ import { addLatestEvalsMonitoringCycle, calculateScores, createMonitoringCycle, 
 
 interface AddMonitoringRegistryButtonProps {
     user_id: number;
-    onWebsiteAdded: () => void;
+    onChange: () => void;
 }
 
 export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonProps) {
@@ -92,7 +92,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
             if (monitoring_registry_id) {
                 
                 for (const webpage of webpages) {
-                    await runEvaluation(String(monitoring_registry_id), webpage['id']);
+                    await runEvaluation(String(monitoring_registry_id), webpage['id'], webpage['needs_authentication']);
                 }
                 
                 const monitoring_cycle_id = await createMonitoringCycle(String(monitoring_registry_id));
@@ -101,7 +101,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
             
                 await calculateScores(String(monitoring_registry_id));
 
-                props.onWebsiteAdded();
+                props.onChange();
             }
         }
     };

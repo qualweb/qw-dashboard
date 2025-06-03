@@ -6,3 +6,7 @@
 .select-schedule-type-positioner {
     max-width: fit-content;
 }
+
+.select-schedule-type-trigger {
+    background-color: var(--terciary-color) !important;
+}

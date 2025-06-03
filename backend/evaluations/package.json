@@ -16,6 +16,8 @@
     "@qualweb/earl-reporter": "^0.5.2",
     "@qualweb/locale": "^0.2.2",
     "@qualweb/wcag-techniques": "^0.4.2",
+    "@types/cacheable-request": "^8.3.6",
+    "@types/responselike": "^1.0.3",
     "cors": "^2.8.5",
     "crawlee": "^3.12.2",
     "dotenv": "^16.4.7",
@@ -23,12 +25,12 @@
     "google-protobuf": "^3.21.4",
     "puppeteer": "^24.5.0",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "typescript": "^5.7.3"
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.10.10"
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.27",
+    "typescript": "^5.8.3"
   }
 }

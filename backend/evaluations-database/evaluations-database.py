@@ -27,7 +27,7 @@ from protobuf_library.evaluations_pb2 import (
     GetWebpageScreenshotResponse,
     EvaluationIdUrl,
     GetLatestEvaluationsResponse,
-    GetLatestACTAssertionsResponse,
+    GetLatestAssertionsResponse,
     ResultResponse,
     GetAssertionResultsResponse,
     ElementResponse,
@@ -111,7 +111,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
         return AddMonitoringRegistryResponse(status_code=200, monitoring_registry_id=monitoring_registry_id)
     
     def AddEvaluation(self, request, context):
-
         conn = None
 
         try:
@@ -413,6 +412,17 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
+            if request.needs_authentication:
+                cursor.execute('''
+                    INSERT INTO LoginWebpage (
+                        username_field, password_field, submit_button
+                    ) VALUES (
+                        %s, %s, %s
+                    ) RETURNING id
+                ''', (request.username_field_selector, request.password_field_selector, request.login_button_selector))
+
+                login_webpage_id = cursor.fetchone()[0]
+
             for webpage in request.webpages:
                 cursor.execute('''
                     SELECT EXISTS (
@@ -426,11 +436,11 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 if not exists_webpage:
                     cursor.execute('''
                         INSERT INTO Webpage (
-                            url, monitoring_registry_id
+                            url, monitoring_registry_id, needs_authentication, login_webpage_id
                         ) VALUES (
-                            %s, %s
+                            %s, %s, %s, %s
                         )
-                    ''', (webpage, request.monitoring_registry_id))
+                    ''', (webpage, request.monitoring_registry_id, request.needs_authentication, login_webpage_id))
 
             conn.commit()
             cursor.close()
@@ -827,7 +837,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
         return GetLatestEvaluationsResponse(status_code=200, evaluations=response)
     
-    def GetLatestACTAssertions(self, request, context):
+    def GetLatestAssertions(self, request, context):
         conn = None
 
         try:
@@ -845,8 +855,8 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor.execute('''
                 SELECT id FROM Module
                 WHERE evaluation_id = %s
-                AND module_type = 'act-rules'
-            ''', (request.evaluation_id, ))
+                AND module_type = %s
+            ''', (request.evaluation_id, request.module_type))
 
             module_id = cursor.fetchone()[0]
 
@@ -865,25 +875,73 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 assertion_metadata_id = assertion[2]
 
                 wcagFilters = list(request.wcagLevelFilters)
-                
-                # Check if this assertion's metadata is related to any success criteria in the wcagFilters
-                cursor.execute('''
-                    SELECT COUNT(*) FROM Assertion_Metadata_Success_Criteria
-                    WHERE assertion_metadata_id = %s
-                    AND success_criteria_level = ANY(%s::success_criteria_level[])
-                ''', (assertion_metadata_id, list(request.wcagLevelFilters)))
-                
-                count = cursor.fetchone()[0]
 
-                cursor.execute('''
-                    SELECT code, assertion_name FROM Assertion_Metadata
-                    WHERE id = %s
-                ''', (assertion_metadata_id, ))
-                
-                assertion_metadata = cursor.fetchone()
-                
-                # If this assertion is related to any of the requested WCAG levels, add its ID to the result
-                if len(wcagFilters) > 0 and count > 0:
+                wcagGuidelinesFilters = list(request.wcagGuidelinesFilters)
+
+                if len(wcagFilters) > 0 and len(wcagGuidelinesFilters) == 0:
+                    cursor.execute('''
+                        SELECT COUNT(*) FROM Assertion_Metadata_Success_Criteria
+                        WHERE assertion_metadata_id = %s
+                        AND success_criteria_level = ANY(%s::success_criteria_level[])
+                    ''', (assertion_metadata_id, list(request.wcagLevelFilters)))
+
+                    count = cursor.fetchone()[0]
+
+                    cursor.execute('''
+                        SELECT code, assertion_name FROM Assertion_Metadata
+                        WHERE id = %s
+                    ''', (assertion_metadata_id, ))
+
+                    assertion_metadata = cursor.fetchone()
+
+                    if count > 0:
+                        assertions_response.append(
+                            AssertionResponse(
+                                assertion_id=assertion_id,
+                                assertion_name=assertion_metadata[1],
+                                assertion_rule=assertion_metadata[0],
+                                evaluation_id=request.evaluation_id,
+                                webpage_url=webpage
+                            )
+                        )
+
+                elif len(wcagGuidelinesFilters) > 0 and len(wcagFilters) == 0:
+                    guideline_patterns = [f"{guideline}%" for guideline in wcagGuidelinesFilters]
+    
+                    cursor.execute('''
+                        SELECT COUNT(*) FROM Assertion_Metadata_Success_Criteria
+                        WHERE assertion_metadata_id = %s
+                        AND success_criteria_name LIKE ANY(%s)
+                    ''', [assertion_metadata_id, guideline_patterns])
+
+                    count = cursor.fetchone()[0]
+
+                    cursor.execute('''
+                        SELECT code, assertion_name FROM Assertion_Metadata
+                        WHERE id = %s
+                    ''', (assertion_metadata_id, ))
+
+                    assertion_metadata = cursor.fetchone()
+
+                    if count > 0:
+                        assertions_response.append(
+                            AssertionResponse(
+                                assertion_id=assertion_id,
+                                assertion_name=assertion_metadata[1],
+                                assertion_rule=assertion_metadata[0],
+                                evaluation_id=request.evaluation_id,
+                                webpage_url=webpage
+                            )
+                        )
+
+                elif len(wcagGuidelinesFilters) == 0 and len(wcagFilters) == 0:
+                    cursor.execute('''
+                        SELECT code, assertion_name FROM Assertion_Metadata
+                        WHERE id = %s
+                    ''', (assertion_metadata_id, ))
+
+                    assertion_metadata = cursor.fetchone()
+
                     assertions_response.append(
                         AssertionResponse(
                             assertion_id=assertion_id,
@@ -893,16 +951,36 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                             webpage_url=webpage
                         )
                     )
-                elif len(wcagFilters) == 0:
-                    assertions_response.append(
-                        AssertionResponse(
-                            assertion_id=assertion_id,
-                            assertion_name=assertion_metadata[1],
-                            assertion_rule=assertion_metadata[0],
-                            evaluation_id=request.evaluation_id,
-                            webpage_url=webpage
+
+                else:
+                    guideline_patterns = [f"{guideline}.%" for guideline in wcagGuidelinesFilters]
+    
+                    cursor.execute('''
+                        SELECT COUNT(*) FROM Assertion_Metadata_Success_Criteria
+                        WHERE assertion_metadata_id = %s
+                        AND success_criteria_level = ANY(%s::success_criteria_level[])
+                        AND success_criteria_name LIKE ANY(%s)
+                    ''', [assertion_metadata_id, list(request.wcagLevelFilters), guideline_patterns])
+
+                    count = cursor.fetchone()[0]
+
+                    cursor.execute('''
+                        SELECT code, assertion_name FROM Assertion_Metadata
+                        WHERE id = %s
+                    ''', (assertion_metadata_id, ))
+
+                    assertion_metadata = cursor.fetchone()
+
+                    if count > 0:
+                        assertions_response.append(
+                            AssertionResponse(
+                                assertion_id=assertion_id,
+                                assertion_name=assertion_metadata[1],
+                                assertion_rule=assertion_metadata[0],
+                                evaluation_id=request.evaluation_id,
+                                webpage_url=webpage
+                            )
                         )
-                    )
 
             cursor.close()
             
@@ -911,12 +989,12 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             if conn:
                 conn.rollback()
 
-            return GetLatestACTAssertionsResponse(status_code=500)
+            return GetLatestAssertionsResponse(status_code=500)
         finally:
             if conn:
                 connection_pool.putconn(conn)
 
-        return GetLatestACTAssertionsResponse(status_code=200, assertions=assertions_response)
+        return GetLatestAssertionsResponse(status_code=200, assertions=assertions_response)
     
     def GetAssertionResults(self, request, context):
         conn = None
@@ -928,6 +1006,13 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor.execute('''
                 SELECT * FROM Issue
                 WHERE assertion_id = %s
+                ORDER BY 
+                    CASE verdict
+                        WHEN 'passed' THEN 1
+                        WHEN 'warning' THEN 2
+                        WHEN 'failed' THEN 3
+                        WHEN 'inapplicable' THEN 4
+                    END;
             ''', (request.assertion_id, ))
 
             results = cursor.fetchall()
@@ -1232,7 +1317,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT id, url FROM Webpage
+                SELECT id, url, needs_authentication FROM Webpage
                 WHERE monitoring_registry_id = %s
             ''', (request.monitoring_registry_id, ))
 
@@ -1243,7 +1328,8 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 webpages.append(
                     Webpage(
                         id=webpage[0],
-                        url=webpage[1]
+                        url=webpage[1],
+                        needs_authentication=webpage[2]
                     )
                 )
 
@@ -1276,12 +1362,32 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             response = cursor.fetchone()
 
             cursor.execute('''
-                SELECT url 
+                SELECT url, needs_authentication, login_webpage_id
                 FROM Webpage
                 WHERE id = %s
             ''', (request.webpage_id, ))
 
-            webpage_url = cursor.fetchone()[0]
+            webpage_info = cursor.fetchone()
+
+            needs_authentication = webpage_info[1]
+
+            if needs_authentication:
+                login_webpage_id = webpage_info[2]
+
+                cursor.execute('''
+                    SELECT username_field, password_field, submit_button
+                    FROM LoginWebpage
+                    WHERE id = %s
+                ''', (login_webpage_id, ))
+
+                login_info = cursor.fetchone()
+
+                if login_info is None:
+                    return GetEvaluationInfoResponse(status_code=404)
+
+                username_field = login_info[0]
+                password_field = login_info[1]
+                login_button = login_info[2]
 
             cursor.close()
         except Exception as e:
@@ -1300,7 +1406,11 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             display_height=response[1],
             is_mobile=response[2],
             is_landscape=response[3],
-            webpage_url=webpage_url
+            webpage_url=webpage_info[0],
+            needs_authentication=needs_authentication,
+            username_field_selector=username_field if needs_authentication else "",
+            password_field_selector=password_field if needs_authentication else "",
+            login_button_selector=login_button if needs_authentication else ""
         )
     
     def DeleteWebpage(self, request, context):

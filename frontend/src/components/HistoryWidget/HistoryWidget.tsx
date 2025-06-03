@@ -27,6 +27,7 @@ function HistoryWidget(props: HistoryWidgetProps) {
                 <ul className='history-list'>
                     {evaluations && evaluations.map((evaluation) =>
                         <HistoryItem 
+                            key={evaluation['id']}
                             evaluation_id={evaluation['id']} 
                             evaluation_title={evaluation['title']} 
                             evaluation_url={evaluation['input_url']} 

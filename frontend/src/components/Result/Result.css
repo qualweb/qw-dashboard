@@ -7,5 +7,28 @@
 }
 
 .result-desc {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.result-header > h3 {
     text-align: left;
+    word-break: break-all;
+}
+
+.result-header svg {
+    width: 2rem;
+    height: 2rem;
+}
+
+.result-url {
+    text-align: left;
+    word-break: break-all;
 }

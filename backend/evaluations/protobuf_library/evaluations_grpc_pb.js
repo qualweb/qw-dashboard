@@ -246,26 +246,26 @@ function deserialize_runtimePackage_GetIssuesStatsResponse(buffer_arg) {
   return evaluations_pb.GetIssuesStatsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_runtimePackage_GetLatestACTAssertionsRequest(arg) {
-  if (!(arg instanceof evaluations_pb.GetLatestACTAssertionsRequest)) {
-    throw new Error('Expected argument of type runtimePackage.GetLatestACTAssertionsRequest');
+function serialize_runtimePackage_GetLatestAssertionsRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetLatestAssertionsRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetLatestAssertionsRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_runtimePackage_GetLatestACTAssertionsRequest(buffer_arg) {
-  return evaluations_pb.GetLatestACTAssertionsRequest.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_runtimePackage_GetLatestAssertionsRequest(buffer_arg) {
+  return evaluations_pb.GetLatestAssertionsRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_runtimePackage_GetLatestACTAssertionsResponse(arg) {
-  if (!(arg instanceof evaluations_pb.GetLatestACTAssertionsResponse)) {
-    throw new Error('Expected argument of type runtimePackage.GetLatestACTAssertionsResponse');
+function serialize_runtimePackage_GetLatestAssertionsResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetLatestAssertionsResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetLatestAssertionsResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_runtimePackage_GetLatestACTAssertionsResponse(buffer_arg) {
-  return evaluations_pb.GetLatestACTAssertionsResponse.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_runtimePackage_GetLatestAssertionsResponse(buffer_arg) {
+  return evaluations_pb.GetLatestAssertionsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_runtimePackage_GetLatestEvaluationsRequest(arg) {
@@ -710,16 +710,16 @@ var EvaluationsService = exports.EvaluationsService = {
     responseSerialize: serialize_runtimePackage_GetLatestEvaluationsResponse,
     responseDeserialize: deserialize_runtimePackage_GetLatestEvaluationsResponse,
   },
-  getLatestACTAssertions: {
-    path: '/runtimePackage.Evaluations/GetLatestACTAssertions',
+  getLatestAssertions: {
+    path: '/runtimePackage.Evaluations/GetLatestAssertions',
     requestStream: false,
     responseStream: false,
-    requestType: evaluations_pb.GetLatestACTAssertionsRequest,
-    responseType: evaluations_pb.GetLatestACTAssertionsResponse,
-    requestSerialize: serialize_runtimePackage_GetLatestACTAssertionsRequest,
-    requestDeserialize: deserialize_runtimePackage_GetLatestACTAssertionsRequest,
-    responseSerialize: serialize_runtimePackage_GetLatestACTAssertionsResponse,
-    responseDeserialize: deserialize_runtimePackage_GetLatestACTAssertionsResponse,
+    requestType: evaluations_pb.GetLatestAssertionsRequest,
+    responseType: evaluations_pb.GetLatestAssertionsResponse,
+    requestSerialize: serialize_runtimePackage_GetLatestAssertionsRequest,
+    requestDeserialize: deserialize_runtimePackage_GetLatestAssertionsRequest,
+    responseSerialize: serialize_runtimePackage_GetLatestAssertionsResponse,
+    responseDeserialize: deserialize_runtimePackage_GetLatestAssertionsResponse,
   },
   getAssertionResults: {
     path: '/runtimePackage.Evaluations/GetAssertionResults',

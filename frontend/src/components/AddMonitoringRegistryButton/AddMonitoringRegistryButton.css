@@ -91,6 +91,7 @@
     justify-content: center;
     height: fit-content;
     padding: 0.8rem;
+    background-color: var(--secondary-color);
 }
 
 .device-screen-orientation-label {
@@ -129,4 +130,8 @@
     gap: 0.3rem;
     padding-left: 1rem;
     padding-top: 0.5rem;
+}
+
+[data-scope="select"][data-part="trigger"] {
+    background-color: var(--secondary-color);
 }

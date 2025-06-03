@@ -24,6 +24,7 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
     // Filters
     const [wcagLevelFilters, setWcagLevelFilters] = useState<string[]>([]);
     const [statusFilters, setStatusFilters] = useState<string[]>([]);
+    const [wcagGuidelinesFilters, setWcagGuidelinesFilters] = useState<string[]>([]);
 
     const categories = ["passed", "warning", "failed", "inapplicable"];
 
@@ -133,10 +134,12 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                             </div>
                         }
                         <Filters 
+                            wcagGuidelines={wcagGuidelinesFilters}
                             wcagLevels={wcagLevelFilters}
                             status={statusFilters}
                             setStatusFilter={setStatusFilters}
                             setWcagLevelFilter={setWcagLevelFilters}
+                            setGuidelineFilter={setWcagGuidelinesFilters}
                         />
                     </div>
                 </div>
@@ -151,6 +154,7 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                             evaluation_id={String(evaluation["id"])}
                             statusFilters={statusFilters}
                             wcagLevelFilters={wcagLevelFilters}
+                            wcagGuidelinesFilters={wcagGuidelinesFilters}
                         />
                     ))
                 ) : selectedFilter === 'By test' && !loading && lastestEvaluations ? (
@@ -161,7 +165,8 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                                 key={category}
                                 evaluation_ids={latestEvalIds} 
                                 outcome={category} 
-                                wcagLevelFilters={wcagLevelFilters} 
+                                wcagLevelFilters={wcagLevelFilters}
+                                wcagGuidelinesFilters={wcagGuidelinesFilters} 
                             />;
                         })
                       }
@@ -171,7 +176,8 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                                 key={category}
                                 evaluation_ids={latestEvalIds}
                                 outcome={category} 
-                                wcagLevelFilters={wcagLevelFilters} 
+                                wcagLevelFilters={wcagLevelFilters}
+                                wcagGuidelinesFilters={wcagGuidelinesFilters}
                             />;
                         })
                       }

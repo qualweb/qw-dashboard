@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import DashboardMenu from '../DashboardMenu/DashboardMenu';
 import './Evaluate.css'
-import { CheckIcon, Trash2 } from 'lucide-react';
+import { CheckCheck, CheckIcon, KeyRound, Trash2, X } from 'lucide-react';
 import { Checkbox } from '@ark-ui/react/checkbox';
 import { Chart } from '../../assets/Icons';
 import { createListCollection } from '@ark-ui/react/collection';
@@ -9,14 +9,33 @@ import { useEffect, useState } from 'react';
 import { addLatestEvalsMonitoringCycle, calculateScores, createMonitoringCycle, deleteWebpage, getMonitoredWebpages, runEvaluation } from '../../services/EvaluationService';
 import { Webpage } from '../Types/Types';
 import AddWebpages from '../AddWebpages/AddWebpages';
+import { Dialog } from '@ark-ui/react/dialog';
+import { Portal } from '@ark-ui/react/portal';
+import { Field } from '@ark-ui/react/field';
+import LoadingWheel from '../LoadingWheel/LoadingWheel';
 
 function Evaluate() {
     const { monitoring_id } = useParams();
 
-    const webpagesToEval : string[] = [];
+    const [webpagesToEval, setWebpagesToEval] = useState<[url: string, needs_authentication: boolean][]>([]);
     const [monitoredWebpages, setMonitoredWepages] = useState([]);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
-    
+    const [isOpen, setIsOpen] = useState(false)
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [isEvaluating, setIsEvaluating] = useState(false);
+    const [isEvaluated, setIsEvaluated] = useState(false);
+
+    useEffect(() => {
+        if (isEvaluated) {
+            const timer = setTimeout(() => {
+                setIsEvaluated(false);
+            }, 3000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [isEvaluated]);
+
     const refreshWebpages = () => {
         setRefreshTrigger(prev => prev + 1);
     };
@@ -42,12 +61,12 @@ function Evaluate() {
         items: items,
     });
 
-    const addWebpage = (url: string): void => {
-        webpagesToEval.push(url);
+    const addWebpage = (url_auth : [url: string, needs_authentication: boolean]): void => {
+        setWebpagesToEval(prev => [...prev, url_auth]);
     };
 
     const removeWebpage = async (webpage: string) => {
-        webpagesToEval.splice(webpagesToEval.indexOf(webpage), 1);
+        setWebpagesToEval(prev => prev.filter(([url, ]) => url !== webpage));
     };
     
     const stopMonitoringWebpage = async (webpage: string) => {
@@ -59,11 +78,14 @@ function Evaluate() {
         refreshWebpages();
     }
 
-    const evaluateWebpages = async (): Promise<void> => {
-        if (!monitoring_id) return;
+    const evaluateWebpages = async (username?: string, password?: string): Promise<void> => {
+        setIsEvaluating(true);
 
-        for (const webpage of webpagesToEval) {
-            await runEvaluation(monitoring_id, webpage);
+        if (!monitoring_id) return;
+    
+        for (const [url, needs_authentication] of webpagesToEval) {
+            console.log(`Evaluating ${url} with auth: ${needs_authentication}`);
+            await runEvaluation(monitoring_id, url, needs_authentication, username, password);
         }
         
         const monitoring_cycle_id = await createMonitoringCycle(monitoring_id);
@@ -71,6 +93,13 @@ function Evaluate() {
         await addLatestEvalsMonitoringCycle(monitoring_cycle_id);
     
         await calculateScores(monitoring_id);
+
+        setIsEvaluating(false);
+        setIsEvaluated(true);
+    };
+
+    const hasWebpagesNeedingAuth = (): boolean => {
+        return webpagesToEval.some(([, needs_authentication]) => needs_authentication );
     };
 
     return (
@@ -91,12 +120,14 @@ function Evaluate() {
                                 <div className='checkbox-webpage-container'>
                                     <Checkbox.Root className='checkbox-webpage' value={item.value} key={item.value}>
                                         <Checkbox.Control className='checkbox-webpage-control' onClick={() => {
-                                            if (webpagesToEval.includes(item.value)) {
+                                            const exists = webpagesToEval.some(([url]) => url === item.value);
+    
+                                            if (exists) {
                                                 removeWebpage(item.value);
-                                                console.log(webpagesToEval)
+                                                console.log("Removed:", item.value);
                                             } else {
-                                                addWebpage(item.value);
-                                                console.log(webpagesToEval)
+                                                addWebpage([item.value, item.needs_authentication]);
+                                                console.log("Added:", item.value);
                                             }
                                         }}>
                                             <Checkbox.Indicator className='checkbox-webpage-indicator'>
@@ -106,20 +137,74 @@ function Evaluate() {
                                         <Checkbox.HiddenInput />
                                         <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
                                     </Checkbox.Root>
-                                    <button className='checkbox-webpage-trash-button' onClick={() => {
-                                        stopMonitoringWebpage(item.value);
-                                    }}>
-                                        <Trash2 />
-                                    </button>
+                                    <div className="delete-auth">
+                                        {item.needs_authentication ? <KeyRound /> : null}
+                                        <button className='checkbox-webpage-trash-button' onClick={() => {
+                                            stopMonitoringWebpage(item.value);
+                                        }}>
+                                            <Trash2 />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </Checkbox.Group>
                     <div className='evaluate-button-container'>
-                        <button className='evaluate-button' onClick={() => {
-                            evaluateWebpages()
-                        }}>Evaluate</button>
+                        <div className="evaluate-button-wrapper">
+                            <button className='evaluate-button' onClick={() => {
+                                if (hasWebpagesNeedingAuth()) {
+                                    setIsOpen(true);
+                                    return;
+                                }
+
+                                evaluateWebpages();
+                            }}>
+                                <LoadingWheel isLoading={isEvaluating} />
+                                Evaluate
+                            </button>
+                            {isEvaluated ? (
+                                <div className='schedule-check-container'>
+                                    <CheckCheck />
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
+                    <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>
+                        <Portal>
+                            <Dialog.Backdrop className="dialog-backdrop" />
+                            <Dialog.Positioner className="dialog-positioner" >
+                                <Dialog.Content className="dialog-content" >
+                                    <div className="login-bypass-title-close">
+                                        <Dialog.Title className="dialog-title" >Login Bypass</Dialog.Title>
+                                        <Dialog.CloseTrigger className="dialog-close-trigger" ><X /></Dialog.CloseTrigger>
+                                    </div>
+                                    <div className="user-pass-login-bypass">
+                                        <p>Some of the selected webpages require authentication to be evaluated.</p>
+                                        <Field.Root className='field-selector' >
+                                            <Field.Label><strong>Introduce your username:</strong></Field.Label>
+                                            <Field.Input className='user-pass-login-bypass-input' onChange={(e) => {
+                                                setUsername(e.target.value);
+                                            }} />
+                                            <Field.ErrorText>Error Info</Field.ErrorText>
+                                        </Field.Root>
+                                        <Field.Root className='field-selector' >
+                                            <Field.Label><strong>Introduce your password:</strong></Field.Label>
+                                            <Field.Input className='user-pass-login-bypass-input' type="password" onChange={(e) => {
+                                                setPassword(e.target.value);
+                                            }} />
+                                            <Field.ErrorText>Error Info</Field.ErrorText>
+                                        </Field.Root>
+                                        <button className='evaluate-button' onClick={() => {
+                                            evaluateWebpages(username, password);
+                                            setIsOpen(false);
+                                            setUsername('');
+                                            setPassword('');
+                                        }}>Evaluate</button>
+                                    </div>
+                                </Dialog.Content>
+                            </Dialog.Positioner>
+                        </Portal>
+                    </Dialog.Root>
                 </div>
             ) : null}
         </div>
@@ -130,12 +215,13 @@ export default Evaluate;
 
 
 function createMonitoredWebpagesCollection(monitoredWebpages: Webpage[]) {
-    const items: { label: string, value: string }[] = [];
+    const items: { label: string, value: string, needs_authentication: boolean }[] = [];
     
     monitoredWebpages.forEach((webpage : Webpage) => {
         items.push({ 
             label: webpage.url, 
-            value: webpage.id.toString()
+            value: webpage.id.toString(),
+            needs_authentication: webpage.needs_authentication
         });
     });
     

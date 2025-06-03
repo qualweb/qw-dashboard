@@ -5,6 +5,10 @@
     width: 100%;
 }
 
+.issue-item-container {
+    width: 100%;
+}
+
 .issue-item {
     background-color: var(--terciary-color);
     border-radius: 3rem;
@@ -17,6 +21,7 @@
     flex-direction: column;
     gap: 2rem;
     align-items: center;
+    width: 100%;
 }
 
 .issue-left {
@@ -39,6 +44,8 @@
     gap: 0.8rem;
     cursor: pointer;
     border-radius: 2rem;
+    background-color: var(--secondary-color);
+    padding: 0.5rem 1rem;
 }
 
 .expanded-content {

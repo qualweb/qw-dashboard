@@ -20,3 +20,7 @@
     width: 100%;
     overflow-y: auto;
 }
+
+.delete-schedule-button {
+    background-color: var(--secondary-color);
+}

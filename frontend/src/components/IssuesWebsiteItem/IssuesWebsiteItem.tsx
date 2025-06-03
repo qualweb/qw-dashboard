@@ -9,10 +9,16 @@ interface IssueItemProps {
   webpage_url: string;
   statusFilters: string[];
   wcagLevelFilters: string[];
+  wcagGuidelinesFilters: string[];
 }
 
 function IssuesWebsiteItem(props: IssueItemProps) {
   const [expanded, setExpanded] = useState(false);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleInnerButtonClick = (event: any) => {
+    event.stopPropagation();
+  };
 
   const categories = ["passed", "warning", "failed", "inapplicable"];
 
@@ -29,7 +35,10 @@ function IssuesWebsiteItem(props: IssueItemProps) {
 
   return (
     <div className="issue-item-container" key={props.webpage_url}>
-      <div className="issue-item">
+      <button className="issue-item" onClick={(event) => {          
+        setExpanded(!expanded)          
+        handleInnerButtonClick(event)       
+      }} >
         <div className='issue-main-info-wrapper'>
           <div className="issue-left">
             <div className="globe-icon">
@@ -37,10 +46,8 @@ function IssuesWebsiteItem(props: IssueItemProps) {
             </div>
             <h3 className="issue-url">{props.webpage_url}</h3>
           </div>
-          <button
+          <div
             className="issue-right"
-            onClick={() => setExpanded(!expanded)}
-            style={{ cursor: 'pointer' }}
           >
             <strong><span>More info</span></strong>
             <ChevronDown
@@ -50,7 +57,7 @@ function IssuesWebsiteItem(props: IssueItemProps) {
                 transition: 'transform 0.3s ease'
               }}
             />
-          </button>
+          </div>
         </div>
         {expanded &&
           <div className="expanded-content">
@@ -61,6 +68,7 @@ function IssuesWebsiteItem(props: IssueItemProps) {
                   evaluation_id={props.evaluation_id}
                   outcome={category} 
                   wcagLevelFilters={props.wcagLevelFilters}
+                  wcagGuidelinesFilters={props.wcagGuidelinesFilters}
                   webpage_screenshot={webpageScreehshot}
                 />;
             })}
@@ -71,12 +79,13 @@ function IssuesWebsiteItem(props: IssueItemProps) {
                   evaluation_id={props.evaluation_id} 
                   outcome={category} 
                   wcagLevelFilters={props.wcagLevelFilters} 
+                  wcagGuidelinesFilters={props.wcagGuidelinesFilters}
                   webpage_screenshot={webpageScreehshot}
                 />;
             })}
           </div>
         }
-      </div>
+      </button>
     </div>
   );
 };

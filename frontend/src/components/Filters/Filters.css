@@ -5,6 +5,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 1.5rem 1.5rem;
+    background-color: var(--secondary-color);
 }
 
 .dialog-trigger:hover {
@@ -98,9 +99,7 @@
     padding-top: 2rem;
     display: flex;
     gap: 1rem;
-    justify-content: space-around;
-    padding-left: 1rem;
-    padding-right: 1rem
+    justify-content: space-between;
 }
 
 
@@ -171,4 +170,33 @@
 [data-scope=checkbox][data-part=indicator] > svg {
     width: 100%;
     height: 100%;
+}
+
+.dialog-button {
+    background-color: var(--primary-color);
+}
+
+.filters-wrapper-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-left: 4rem;
+    padding-right: 4rem;
+}
+
+.by-guideline {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.wrapper-by-guideline {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    max-height: 15rem;
+    padding-right: 2rem;
 }

@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons.tsx';
 import { GetLatestACTAssertionsResponse } from "../Types/Types.ts";
-import { getLatestACTAssertions } from '../../services/EvaluationService.tsx';
+import { getLatestAssertions } from '../../services/EvaluationService.tsx';
 import Assertion from '../Assertion/Assertion.tsx';
 
 interface CategoryPerWebpageProps {
   evaluation_id: string;
   outcome: string;
   wcagLevelFilters: string[];
+  wcagGuidelinesFilters: string[];
   webpage_screenshot: string;
 }
 
@@ -24,13 +25,18 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
   const [expanded, setExpanded] = useState(false);
   const [assertions, setAssertions] = useState<GetLatestACTAssertionsResponse>();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleInnerButtonClick = (event: any) => {
+    event.stopPropagation();
+  };
+
   useEffect(() => {
     const fetchAssertions = async () => {
-      const data = await getLatestACTAssertions(props.evaluation_id, props.wcagLevelFilters, props.outcome);
+    const data = await getLatestAssertions(props.evaluation_id, 'act-rules', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
       setAssertions(data);
     }
     fetchAssertions();
-  }, [props.evaluation_id, props.wcagLevelFilters, props.outcome]);
+  }, [props.evaluation_id, props.wcagLevelFilters, props.outcome, props.wcagGuidelinesFilters]);
 
   let { icon, className } = categoryConfig.passed;
 
@@ -46,9 +52,12 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
     icon = categoryConfig.inapplicable.icon;
     className = categoryConfig.inapplicable.className;
   }
-
+  
   return (
-    <div className="category-item">
+    <button className="category-item" onClick={(event) => {          
+      setExpanded(!expanded)          
+      handleInnerButtonClick(event)       
+    }} >
       <div className="category-header">
         <div className="wrapper-3">
           <div className="category-left">
@@ -59,7 +68,7 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
               <h3>{props.outcome.charAt(0).toUpperCase() + props.outcome.slice(1)} - {assertions?.assertions.length} tests</h3>
             </span>
           </div>
-          <button className="category-right" onClick={() => setExpanded(!expanded)}>
+          <div className="category-right">
             <strong><span>More info</span></strong>
             <ChevronDown
               size={20}
@@ -69,7 +78,7 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
                 cursor: 'pointer'
               }}
             />
-          </button>
+          </div>
         </div>
         <div className="tests-container">
           {expanded && (
@@ -91,7 +100,7 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
           )}
         </div>
       </div>
-    </div>
+    </button>
   );
 };
 

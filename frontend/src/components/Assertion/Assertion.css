@@ -8,14 +8,11 @@
 
 .tests-item {
     width: 100%;
-}
-
-.tests-header {
     display: flex;
     flex-direction: column;
     justify-content: center;
     background-color: var(--terciary-color);
-    border-radius: 3rem;
+    border-radius: 4rem;
     padding: 2rem 2rem;
     gap: 1rem;
 }
@@ -26,13 +23,19 @@
     gap: 1rem;
 }
 
+.tests-left svg {
+    width: 2rem;
+    height: 2rem;
+}
+
 .tests-right {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0rem;
+    gap: 1rem;
     border-radius: 2rem;
-    min-width: 11rem;
+    background-color: var(--secondary-color);
+    padding: 0.5rem 1rem;
 }
 
 .wrapper-4 {

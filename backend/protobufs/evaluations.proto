@@ -127,6 +127,10 @@ message SetLatestEvaluationResponse {
 message AddWebpagesRequest {
     int32 monitoring_registry_id = 1;
     repeated string webpages = 2;
+    bool needs_authentication = 3;
+    string username_field_selector = 5;
+    string password_field_selector = 6;
+    string login_button_selector = 7;
 }
 
 message AddWebpagesResponse {
@@ -233,13 +237,15 @@ message EvaluationIdUrl {
     string evaluation_url = 2;
 }
 
-message GetLatestACTAssertionsRequest {
+message GetLatestAssertionsRequest {
     int32 evaluation_id = 1;
-    repeated string wcagLevelFilters = 2;
-    string outcome = 3;
+    string module_type = 2;
+    repeated string wcagGuidelinesFilters = 3;
+    repeated string wcagLevelFilters = 4;
+    string outcome = 5;
 }
 
-message GetLatestACTAssertionsResponse {
+message GetLatestAssertionsResponse {
     int32 status_code = 1;
     repeated AssertionResponse assertions = 2;
 }
@@ -374,6 +380,7 @@ message GetMonitoredWebpagesResponse {
 message Webpage {
     int32 id = 1;
     string url = 2;
+    bool needs_authentication = 3;
 }
 
 message GetEvaluationInfoRequest {
@@ -388,6 +395,10 @@ message GetEvaluationInfoResponse {
     bool is_mobile = 4;
     bool is_landscape = 5;
     string webpage_url = 6;
+    bool needs_authentication = 7;
+    string username_field_selector = 8;
+    string password_field_selector = 9;
+    string login_button_selector = 10;
 }
 
 message DeleteWebpageRequest {
@@ -458,7 +469,7 @@ service Evaluations {
     rpc GetIssuesStats(GetIssuesStatsRequest) returns (GetIssuesStatsResponse);
     rpc GetWebpageScreenshot(GetWebpageScreenshotRequest) returns (GetWebpageScreenshotResponse);
     rpc GetLatestEvaluations(GetLatestEvaluationsRequest) returns (GetLatestEvaluationsResponse);
-    rpc GetLatestACTAssertions(GetLatestACTAssertionsRequest) returns (GetLatestACTAssertionsResponse);
+    rpc GetLatestAssertions(GetLatestAssertionsRequest) returns (GetLatestAssertionsResponse);
     rpc GetAssertionResults (GetAssertionResultsRequest) returns (GetAssertionResultsResponse);
     rpc GetResultElement (GetResultElementsRequest) returns (GetResultElementsResponse);
     rpc GetEvaluationHistory (GetEvaluationHistoryRequest) returns (GetEvaluationHistoryResponse);

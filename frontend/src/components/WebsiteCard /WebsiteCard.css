@@ -1,3 +1,8 @@
+.website-card-wrapper {
+    list-style: none;
+    flex-grow: 1;
+    min-width: 30rem;
+}
 
 .website-card-link {
     display: flex;
@@ -15,12 +20,10 @@
 }
 
 .website-card {
-    min-width: 30rem;
     background-color: var(--terciary-color);
-    list-style: none;
     border-radius: 3rem;
     padding: 4rem;
-    flex: 1 1
+    width: 100%;
 }
 
 .website-card-above {
