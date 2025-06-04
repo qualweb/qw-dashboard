@@ -1088,6 +1088,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor.execute('''
                 SELECT id, title, input_url, score, evaluation_date FROM Evaluation
                 WHERE monitored_website_id = %s
+                ORDER BY evaluation_date DESC
             ''', (request.monitoring_id, ))
 
             evals = cursor.fetchall()

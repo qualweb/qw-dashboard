@@ -1,4 +1,3 @@
-import { getTimeDiff } from '../utils/utils';
 import './HistoryItem.css'
 
 interface HistoryItemProps {
@@ -9,18 +8,23 @@ interface HistoryItemProps {
     evaluation_day: number;
     evaluation_month: number;
     evaluation_year: number;
+    evaluation_hour: number;
+    evaluation_minute: number;
+    evaluation_second: number;
 }
 
 function HistoryItem(props: HistoryItemProps) {
     let score_color = 'rgba(17, 249, 52, 0.186)';
-
     if (props.evaluation_score < 50) {
         score_color = 'rgba(255, 0, 0, 0.186)';
     } else if (props.evaluation_score >= 50 && props.evaluation_score < 75) {
         score_color = 'rgba(255, 221, 0, 0.186)';
     }
 
-    const time_diff = getTimeDiff(props.evaluation_day, props.evaluation_month, props.evaluation_year);
+    // Helper function to add leading zero if number is less than 10
+    const padZero = (num: number): string => {
+        return num < 10 ? `0${num}` : `${num}`;
+    };
 
     return (
         <li className='history-item'>
@@ -33,7 +37,8 @@ function HistoryItem(props: HistoryItemProps) {
                     backgroundColor: score_color
                 }}><strong>{props.evaluation_score}</strong></div>
                 <div className='evaluation-date'>
-                    <strong>{time_diff}</strong>
+                    <span><strong>{padZero(props.evaluation_day)}/{padZero(props.evaluation_month)}/{props.evaluation_year}</strong></span>
+                    <span><strong>{padZero(props.evaluation_hour)}:{padZero(props.evaluation_minute)}:{padZero(props.evaluation_second)}</strong></span>
                 </div>
             </div>
         </li>

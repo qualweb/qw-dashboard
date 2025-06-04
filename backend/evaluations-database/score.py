@@ -150,9 +150,9 @@ def get_barrier_score(
     print(success_criteria, file=sys.stderr, flush=True)
 
     barrier_scores = {
-        "A": 0.81 if multiple_criteria else 0.8,
-        "AA": 0.17 if multiple_criteria else 0.16,
-        "AAA": 0.05 if multiple_criteria else 0.04
+        "A": 0.21 if multiple_criteria else 0.20,
+        "AA": 0.11 if multiple_criteria else 0.10,
+        "AAA": 0.06 if multiple_criteria else 0.05
     }
     
     return barrier_scores.get(level, -1)

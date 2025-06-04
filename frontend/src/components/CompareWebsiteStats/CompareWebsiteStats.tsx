@@ -82,21 +82,21 @@ function CompareWebsiteStats(props: CompareWebsiteStatsProps) {
         {
             label: 'Total fails', 
             value: totalSecondFails, 
-            diff: improvement_total_fails > 0 ? `+${improvement_total_fails}` : improvement_total_fails < 0 ? `${improvement_total_fails}` : '0',
+            diff: improvement_total_fails > 0 ? `+${improvement_total_fails}` : improvement_total_fails < 0 ? `-${improvement_total_fails}` : '0',
             diff_number: improvement_total_fails,
             icon: improvement_total_fails > 0 ? UpIcon : improvement_total_fails < 0 ? DownIcon : MinusIcon
         },
         {
             label: 'Pages with more than 1 fail', 
             value: pagesWithHighFailsSecond, 
-            diff: improvement_high_fail_pages > 0 ? `+${improvement_high_fail_pages}` : improvement_high_fail_pages < 0 ? `${improvement_high_fail_pages}` : '0',
+            diff: improvement_high_fail_pages > 0 ? `+${improvement_high_fail_pages}` : improvement_high_fail_pages < 0 ? `-${improvement_high_fail_pages}` : '0',
             diff_number: improvement_high_fail_pages,
             icon: improvement_high_fail_pages > 0 ? UpIcon : improvement_high_fail_pages < 0 ? DownIcon : MinusIcon
         },
         {
             label: 'Average fails per page', 
-            value: avgSecondFails, 
-            diff: improvement_avg_fails > 0 ? `+${Math.round(improvement_avg_fails * 100) / 100}` : improvement_avg_fails < 0 ? `${Math.round(improvement_avg_fails * 100) / 100}` : '0',
+            value: (Math.round(avgSecondFails * 100) / 100).toFixed(2), 
+            diff: improvement_avg_fails > 0 ? `+${(Math.round(improvement_avg_fails * 100) / 100).toFixed(2)}` : improvement_avg_fails < 0 ? `-${(Math.round(improvement_avg_fails * 100) / 100).toFixed(2)}` : '0',
             diff_number: improvement_avg_fails,
             icon: improvement_avg_fails > 0 ? UpIcon : improvement_avg_fails < 0 ? DownIcon : MinusIcon
         },

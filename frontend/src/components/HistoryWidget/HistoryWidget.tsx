@@ -35,6 +35,9 @@ function HistoryWidget(props: HistoryWidgetProps) {
                             evaluation_day={evaluation['date']['day']} 
                             evaluation_month={evaluation['date']['month']} 
                             evaluation_year={evaluation['date']['year']}
+                            evaluation_hour={evaluation['date']['hour']}
+                            evaluation_minute={evaluation['date']['minute']}
+                            evaluation_second={evaluation['date']['second']}
                         />
                     )}
                 </ul>
