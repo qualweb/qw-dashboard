@@ -222,7 +222,7 @@ function Schedule() {
                                                             setYear(selectedDate.year);
                                                         }
                                                     }}>
-                                                        <DatePicker.Label className='date-picker-label'><strong>Pick a date</strong></DatePicker.Label>
+                                                        <DatePicker.Label className='date-picker-label'><strong>Pick a date *</strong></DatePicker.Label>
                                                         <DatePicker.Control className='date-picker-control'>
                                                             <DatePicker.Input className='date-picker-input' />
                                                             <DatePicker.Trigger className='date-picker-trigger'><Calendar /></DatePicker.Trigger>

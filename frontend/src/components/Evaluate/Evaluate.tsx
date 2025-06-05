@@ -6,7 +6,7 @@ import { Checkbox } from '@ark-ui/react/checkbox';
 import { Chart } from '../../assets/Icons';
 import { createListCollection } from '@ark-ui/react/collection';
 import { useEffect, useState } from 'react';
-import { addLatestEvalsMonitoringCycle, calculateScores, createMonitoringCycle, deleteWebpage, getMonitoredWebpages, runEvaluation } from '../../services/EvaluationService';
+import { deleteWebpage, getMonitoredWebpages, runEvaluation } from '../../services/EvaluationService';
 import { Webpage } from '../Types/Types';
 import AddWebpages from '../AddWebpages/AddWebpages';
 import { Dialog } from '@ark-ui/react/dialog';
@@ -82,18 +82,24 @@ function Evaluate() {
         setIsEvaluating(true);
 
         if (!monitoring_id) return;
-    
-        for (const [url, needs_authentication] of webpagesToEval) {
-            console.log(`Evaluating ${url} with auth: ${needs_authentication}`);
-            await runEvaluation(monitoring_id, url, needs_authentication, username, password);
-        }
-        
-        const monitoring_cycle_id = await createMonitoringCycle(monitoring_id);
-        
-        await addLatestEvalsMonitoringCycle(monitoring_cycle_id);
-    
-        await calculateScores(monitoring_id);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const webpage_ids = webpagesToEval.map((webpage : any) => webpage[0]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const needs_authentication = webpagesToEval.map((webpage : any) => webpage[1]);
+
+        console.log(webpagesToEval);
+        console.log("Evaluating webpages with IDs:", webpage_ids);
+        console.log("Needs authentication:", needs_authentication);
+
+        await runEvaluation(
+            String(monitoring_id), 
+            webpage_ids, 
+            needs_authentication,
+            username,
+            password
+        );
+    
         setIsEvaluating(false);
         setIsEvaluated(true);
     };

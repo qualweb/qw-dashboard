@@ -221,212 +221,255 @@ app.post('/api/monitoring/set-accessibility-metric', function (req, res) { retur
         }
     });
 }); });
-app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, webpage_id, username, password, getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, browser_1, page, report_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_3;
+app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, webpage_ids, username, password, _loop_1, _i, webpage_ids_1, webpage_id, state_1, monitoring_cycle_id, error_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 monitoring_id = req.params.monitoring_id;
-                webpage_id = req.params.webpage_id;
+                webpage_ids = req.body.webpage_ids;
                 username = req.body.username;
                 password = req.body.password;
+                if (webpage_ids.length === 0) {
+                    return [2 /*return*/, res.status(400).json({ message: 'No webpages to evaluate' })];
+                }
+                console.log(webpage_ids);
+                _loop_1 = function (webpage_id) {
+                    var getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, browser_1, page, report_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_4;
+                    return __generator(this, function (_b) {
+                        switch (_b.label) {
+                            case 0:
+                                console.log("Evaluating webpage with ID: ".concat(webpage_id));
+                                _b.label = 1;
+                            case 1:
+                                _b.trys.push([1, 10, , 11]);
+                                getEvaluationInfoRequest_1 = new evaluations_pb_1.GetEvaluationInfoRequest();
+                                getEvaluationInfoRequest_1.setMonitoringRegistryId(Number(monitoring_id));
+                                getEvaluationInfoRequest_1.setWebpageId(Number(webpage_id));
+                                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                        client.getEvaluationInfo(getEvaluationInfoRequest_1, function (err, response) {
+                                            if (err)
+                                                reject(err);
+                                            else
+                                                resolve(response);
+                                        });
+                                    })];
+                            case 2:
+                                response = _b.sent();
+                                screen_width_1 = response.getDisplayWidth();
+                                screen_height_1 = response.getDisplayHeight();
+                                webpage_url_1 = response.getWebpageUrl();
+                                is_mobile = response.getIsMobile();
+                                is_landscape = response.getIsLandscape();
+                                needs_authentication_1 = response.getNeedsAuthentication();
+                                username_field_selector_1 = response.getUsernameFieldSelector();
+                                password_field_selector_1 = response.getPasswordFieldSelector();
+                                login_button_selector_1 = response.getLoginButtonSelector();
+                                return [4 /*yield*/, puppeteer_1.default.launch({
+                                        headless: true,
+                                        args: [
+                                            '--disable-gpu',
+                                            '--no-sandbox',
+                                            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+                                        ],
+                                        timeout: 5000,
+                                    })];
+                            case 3:
+                                browser_1 = _b.sent();
+                                return [4 /*yield*/, browser_1.newPage()];
+                            case 4:
+                                page = _b.sent();
+                                return [4 /*yield*/, page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
+                            case 5:
+                                _b.sent();
+                                return [4 /*yield*/, page.setViewport({
+                                        width: screen_width_1,
+                                        height: screen_height_1,
+                                        deviceScaleFactor: 1,
+                                    })];
+                            case 6:
+                                _b.sent();
+                                console.log("Evaluating URL ".concat(webpage_url_1));
+                                return [4 /*yield*/, evaluate(webpage_url_1, screen_width_1, screen_height_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
+                            case 7:
+                                report_1 = _b.sent();
+                                if (!needs_authentication_1 && report_1[webpage_url_1] !== undefined) {
+                                    report_1 = report_1[webpage_url_1];
+                                    console.log("Successfully evaluated URL ".concat(webpage_url_1));
+                                }
+                                else if (needs_authentication_1 && report_1.customHtml !== undefined) {
+                                    report_1 = report_1.customHtml;
+                                    console.log("Successfully evaluated URL ".concat(webpage_url_1, " behind authentication"));
+                                }
+                                else {
+                                    console.error("Error evaluating URL ".concat(webpage_url_1));
+                                    return [2 /*return*/, { value: res.status(200).json({
+                                                message: 'Evaluation failed',
+                                                url: webpage_url_1
+                                            }) }];
+                                }
+                                return [4 /*yield*/, (function () { return __awaiter(void 0, void 0, void 0, function () {
+                                        var browser_2, page_1, screenshot, evaluations_request_1, _a, _b, response_1, error_5;
+                                        var _c, _d, _e, _f, _g, _h;
+                                        return __generator(this, function (_j) {
+                                            switch (_j.label) {
+                                                case 0:
+                                                    _j.trys.push([0, 13, , 14]);
+                                                    return [4 /*yield*/, puppeteer_1.default.launch({
+                                                            headless: true,
+                                                            args: [
+                                                                '--disable-gpu',
+                                                                '--no-sandbox',
+                                                                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+                                                            ],
+                                                            timeout: 5000,
+                                                        })];
+                                                case 1:
+                                                    browser_2 = _j.sent();
+                                                    return [4 /*yield*/, browser_2.newPage()];
+                                                case 2:
+                                                    page_1 = _j.sent();
+                                                    return [4 /*yield*/, page_1.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
+                                                case 3:
+                                                    _j.sent();
+                                                    return [4 /*yield*/, page_1.setViewport({
+                                                            width: screen_width_1,
+                                                            height: screen_height_1,
+                                                            deviceScaleFactor: 1,
+                                                        })];
+                                                case 4:
+                                                    _j.sent();
+                                                    if (!needs_authentication_1) return [3 /*break*/, 7];
+                                                    return [4 /*yield*/, page_1.goto(webpage_url_1, { waitUntil: 'networkidle0' })];
+                                                case 5:
+                                                    _j.sent();
+                                                    return [4 /*yield*/, bypassLogin(page_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
+                                                case 6:
+                                                    _j.sent();
+                                                    return [3 /*break*/, 9];
+                                                case 7: return [4 /*yield*/, page_1.goto(webpage_url_1, { waitUntil: 'networkidle0' })];
+                                                case 8:
+                                                    _j.sent();
+                                                    _j.label = 9;
+                                                case 9: return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(page_1, screen_width_1, screen_height_1)];
+                                                case 10:
+                                                    screenshot = _j.sent();
+                                                    evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
+                                                    evaluations_request_1.setQualwebVersion(report_1.system.version);
+                                                    evaluations_request_1.setInputUrl(!needs_authentication_1 ? ((_d = (_c = report_1.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "") : webpage_url_1);
+                                                    evaluations_request_1.setCompleteUrl((_f = (_e = report_1.system.url) === null || _e === void 0 ? void 0 : _e.completeUrl) !== null && _f !== void 0 ? _f : "");
+                                                    evaluations_request_1.setDom(report_1.system.page.dom.html);
+                                                    evaluations_request_1.setTitle((_g = report_1.system.page.dom.title) !== null && _g !== void 0 ? _g : "");
+                                                    evaluations_request_1.setElementCount((_h = report_1.system.page.dom.elementCount) !== null && _h !== void 0 ? _h : 0);
+                                                    evaluations_request_1.setPassed(report_1.metadata.passed);
+                                                    evaluations_request_1.setWarning(report_1.metadata.warning);
+                                                    evaluations_request_1.setFailed(report_1.metadata.failed);
+                                                    evaluations_request_1.setInapplicable(report_1.metadata.inapplicable);
+                                                    _b = (_a = evaluations_request_1).setModulesList;
+                                                    return [4 /*yield*/, (0, process_evals_1.default)(report_1, page_1)];
+                                                case 11:
+                                                    _b.apply(_a, [_j.sent()]);
+                                                    evaluations_request_1.setModulesQuantity(2);
+                                                    evaluations_request_1.setMonitoredWebsiteId(Number(monitoring_id));
+                                                    if (screenshot) {
+                                                        evaluations_request_1.setScreenshot(screenshot);
+                                                    }
+                                                    browser_2.close();
+                                                    return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                                            client.addEvaluation(evaluations_request_1, function (err, response) {
+                                                                if (err)
+                                                                    reject(err);
+                                                                else
+                                                                    resolve(response);
+                                                            });
+                                                        })];
+                                                case 12:
+                                                    response_1 = _j.sent();
+                                                    console.log("Successfully added evaluation for URL ".concat(webpage_url_1));
+                                                    return [2 /*return*/, { webpage_url: webpage_url_1, success: true, statusCode: response_1.getStatusCode() }];
+                                                case 13:
+                                                    error_5 = _j.sent();
+                                                    console.error("Error adding evaluation for URL ".concat(webpage_url_1, ":"), error_5);
+                                                    return [2 /*return*/, { webpage_url: webpage_url_1, success: false, error: error_5 }];
+                                                case 14: return [2 /*return*/];
+                                            }
+                                        });
+                                    }); })()];
+                            case 8:
+                                result = _b.sent();
+                                if (!result.success) {
+                                    return [2 /*return*/, { value: res.status(500).json({
+                                                message: 'Evaluation failed',
+                                                result: result
+                                            }) }];
+                                }
+                                setLatestEvalRequest_1 = new evaluations_pb_1.SetLatestEvaluationRequest();
+                                setLatestEvalRequest_1.setMonitoringRegistryId(Number(monitoring_id));
+                                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                        client.setLatestEvaluation(setLatestEvalRequest_1, function (err, callResponse) {
+                                            if (err)
+                                                reject(err);
+                                            else
+                                                resolve(callResponse);
+                                        });
+                                    })];
+                            case 9:
+                                setLatestEvalResponse = _b.sent();
+                                if (setLatestEvalResponse.getStatusCode() !== 200) {
+                                    return [2 /*return*/, { value: res.status(setLatestEvalResponse.getStatusCode()).json({
+                                                message: 'Failed to set latest evaluation',
+                                                statusCode: setLatestEvalResponse.getStatusCode()
+                                            }) }];
+                                }
+                                return [3 /*break*/, 11];
+                            case 10:
+                                error_4 = _b.sent();
+                                console.error('Error during evaluation:', error_4);
+                                res.status(500).json({ message: 'Error processing evaluations', error: error_4 });
+                                return [3 /*break*/, 11];
+                            case 11: return [2 /*return*/];
+                        }
+                    });
+                };
+                _i = 0, webpage_ids_1 = webpage_ids;
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 10, , 11]);
-                getEvaluationInfoRequest_1 = new evaluations_pb_1.GetEvaluationInfoRequest();
-                getEvaluationInfoRequest_1.setMonitoringRegistryId(Number(monitoring_id));
-                getEvaluationInfoRequest_1.setWebpageId(Number(webpage_id));
-                return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        client.getEvaluationInfo(getEvaluationInfoRequest_1, function (err, response) {
-                            if (err)
-                                reject(err);
-                            else
-                                resolve(response);
-                        });
-                    })];
+                if (!(_i < webpage_ids_1.length)) return [3 /*break*/, 4];
+                webpage_id = webpage_ids_1[_i];
+                return [5 /*yield**/, _loop_1(webpage_id)];
             case 2:
-                response = _a.sent();
-                screen_width_1 = response.getDisplayWidth();
-                screen_height_1 = response.getDisplayHeight();
-                webpage_url_1 = response.getWebpageUrl();
-                is_mobile = response.getIsMobile();
-                is_landscape = response.getIsLandscape();
-                needs_authentication_1 = response.getNeedsAuthentication();
-                username_field_selector_1 = response.getUsernameFieldSelector();
-                password_field_selector_1 = response.getPasswordFieldSelector();
-                login_button_selector_1 = response.getLoginButtonSelector();
-                return [4 /*yield*/, puppeteer_1.default.launch({
-                        headless: true,
-                        args: [
-                            '--disable-gpu',
-                            '--no-sandbox',
-                            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-                        ],
-                        timeout: 5000,
-                    })];
+                state_1 = _a.sent();
+                if (typeof state_1 === "object")
+                    return [2 /*return*/, state_1.value];
+                _a.label = 3;
             case 3:
-                browser_1 = _a.sent();
-                return [4 /*yield*/, browser_1.newPage()];
+                _i++;
+                return [3 /*break*/, 1];
             case 4:
-                page = _a.sent();
-                return [4 /*yield*/, page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
+                _a.trys.push([4, 8, , 9]);
+                return [4 /*yield*/, createMonitoringCycle(String(monitoring_id))];
             case 5:
-                _a.sent();
-                return [4 /*yield*/, page.setViewport({
-                        width: screen_width_1,
-                        height: screen_height_1,
-                        deviceScaleFactor: 1,
-                    })];
+                monitoring_cycle_id = _a.sent();
+                return [4 /*yield*/, addLatestEvalsMonitoringCycle(monitoring_cycle_id)];
             case 6:
                 _a.sent();
-                console.log("Evaluating URL ".concat(webpage_url_1));
-                return [4 /*yield*/, evaluate(webpage_url_1, screen_width_1, screen_height_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
+                return [4 /*yield*/, calculateScores(String(monitoring_id))];
             case 7:
-                report_1 = _a.sent();
-                if (!needs_authentication_1 && report_1[webpage_url_1] !== undefined) {
-                    report_1 = report_1[webpage_url_1];
-                    console.log("Successfully evaluated URL ".concat(webpage_url_1));
-                }
-                else if (needs_authentication_1 && report_1.customHtml !== undefined) {
-                    report_1 = report_1.customHtml;
-                    console.log("Successfully evaluated URL ".concat(webpage_url_1, " behind authentication"));
-                }
-                else {
-                    console.error("Error evaluating URL ".concat(webpage_url_1));
-                    return [2 /*return*/, res.status(200).json({
-                            message: 'Evaluation failed',
-                            url: webpage_url_1
-                        })];
-                }
-                return [4 /*yield*/, (function () { return __awaiter(void 0, void 0, void 0, function () {
-                        var browser_2, page_1, screenshot, evaluations_request_1, _a, _b, response_1, error_4;
-                        var _c, _d, _e, _f, _g, _h;
-                        return __generator(this, function (_j) {
-                            switch (_j.label) {
-                                case 0:
-                                    _j.trys.push([0, 13, , 14]);
-                                    return [4 /*yield*/, puppeteer_1.default.launch({
-                                            headless: true,
-                                            args: [
-                                                '--disable-gpu',
-                                                '--no-sandbox',
-                                                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-                                            ],
-                                            timeout: 5000,
-                                        })];
-                                case 1:
-                                    browser_2 = _j.sent();
-                                    return [4 /*yield*/, browser_2.newPage()];
-                                case 2:
-                                    page_1 = _j.sent();
-                                    return [4 /*yield*/, page_1.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
-                                case 3:
-                                    _j.sent();
-                                    return [4 /*yield*/, page_1.setViewport({
-                                            width: screen_width_1,
-                                            height: screen_height_1,
-                                            deviceScaleFactor: 1,
-                                        })];
-                                case 4:
-                                    _j.sent();
-                                    if (!needs_authentication_1) return [3 /*break*/, 7];
-                                    return [4 /*yield*/, page_1.goto(webpage_url_1, { waitUntil: 'networkidle0' })];
-                                case 5:
-                                    _j.sent();
-                                    return [4 /*yield*/, bypassLogin(page_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
-                                case 6:
-                                    _j.sent();
-                                    return [3 /*break*/, 9];
-                                case 7: return [4 /*yield*/, page_1.goto(webpage_url_1, { waitUntil: 'networkidle0' })];
-                                case 8:
-                                    _j.sent();
-                                    _j.label = 9;
-                                case 9: return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(page_1, screen_width_1, screen_height_1)];
-                                case 10:
-                                    screenshot = _j.sent();
-                                    evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
-                                    evaluations_request_1.setQualwebVersion(report_1.system.version);
-                                    evaluations_request_1.setInputUrl(!needs_authentication_1 ? ((_d = (_c = report_1.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "") : webpage_url_1);
-                                    evaluations_request_1.setCompleteUrl((_f = (_e = report_1.system.url) === null || _e === void 0 ? void 0 : _e.completeUrl) !== null && _f !== void 0 ? _f : "");
-                                    evaluations_request_1.setDom(report_1.system.page.dom.html);
-                                    evaluations_request_1.setTitle((_g = report_1.system.page.dom.title) !== null && _g !== void 0 ? _g : "");
-                                    evaluations_request_1.setElementCount((_h = report_1.system.page.dom.elementCount) !== null && _h !== void 0 ? _h : 0);
-                                    evaluations_request_1.setPassed(report_1.metadata.passed);
-                                    evaluations_request_1.setWarning(report_1.metadata.warning);
-                                    evaluations_request_1.setFailed(report_1.metadata.failed);
-                                    evaluations_request_1.setInapplicable(report_1.metadata.inapplicable);
-                                    _b = (_a = evaluations_request_1).setModulesList;
-                                    return [4 /*yield*/, (0, process_evals_1.default)(report_1, page_1)];
-                                case 11:
-                                    _b.apply(_a, [_j.sent()]);
-                                    evaluations_request_1.setModulesQuantity(2);
-                                    evaluations_request_1.setMonitoredWebsiteId(Number(monitoring_id));
-                                    if (screenshot) {
-                                        evaluations_request_1.setScreenshot(screenshot);
-                                    }
-                                    browser_2.close();
-                                    return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                            client.addEvaluation(evaluations_request_1, function (err, response) {
-                                                if (err)
-                                                    reject(err);
-                                                else
-                                                    resolve(response);
-                                            });
-                                        })];
-                                case 12:
-                                    response_1 = _j.sent();
-                                    console.log("Successfully added evaluation for URL ".concat(webpage_url_1));
-                                    return [2 /*return*/, { webpage_url: webpage_url_1, success: true, statusCode: response_1.getStatusCode() }];
-                                case 13:
-                                    error_4 = _j.sent();
-                                    console.error("Error adding evaluation for URL ".concat(webpage_url_1, ":"), error_4);
-                                    return [2 /*return*/, { webpage_url: webpage_url_1, success: false, error: error_4 }];
-                                case 14: return [2 /*return*/];
-                            }
-                        });
-                    }); })()];
-            case 8:
-                result = _a.sent();
-                if (!result.success) {
-                    return [2 /*return*/, res.status(500).json({
-                            message: 'Evaluation failed',
-                            result: result
-                        })];
-                }
-                setLatestEvalRequest_1 = new evaluations_pb_1.SetLatestEvaluationRequest();
-                setLatestEvalRequest_1.setMonitoringRegistryId(Number(monitoring_id));
-                return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        client.setLatestEvaluation(setLatestEvalRequest_1, function (err, callResponse) {
-                            if (err)
-                                reject(err);
-                            else
-                                resolve(callResponse);
-                        });
-                    })];
-            case 9:
-                setLatestEvalResponse = _a.sent();
-                if (setLatestEvalResponse.getStatusCode() !== 200) {
-                    return [2 /*return*/, res.status(setLatestEvalResponse.getStatusCode()).json({
-                            message: 'Failed to set latest evaluation',
-                            statusCode: setLatestEvalResponse.getStatusCode()
-                        })];
-                }
+                _a.sent();
                 return [2 /*return*/, res.status(200).json({
-                        message: 'Evaluation processing complete',
-                        webpage_url: webpage_url_1,
+                        message: 'Evaluations processing complete',
                         success: true
                     })];
-            case 10:
+            case 8:
                 error_3 = _a.sent();
-                console.error('Error during evaluation:', error_3);
-                res.status(500).json({ message: 'Error processing evaluations', error: error_3 });
-                return [3 /*break*/, 11];
-            case 11: return [2 /*return*/];
+                console.error('Error during evaluations processing:', error_3);
+                return [2 /*return*/, res.status(500).json({ message: 'Error processing evaluations', error: error_3 })];
+            case 9: return [2 /*return*/];
         }
     });
 }); });
 app.post('/api/monitoring/:monitoring_id/calculate-score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getScoreRequest_1, response, error_5;
+    var monitoring_id, getScoreRequest_1, response, error_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -448,15 +491,15 @@ app.post('/api/monitoring/:monitoring_id/calculate-score', function (req, res) {
                 response = _a.sent();
                 return [2 /*return*/, res.send(response.getStatusCode())];
             case 3:
-                error_5 = _a.sent();
-                console.error('Error fetching score:', error_5);
+                error_6 = _a.sent();
+                console.error('Error fetching score:', error_6);
                 return [2 /*return*/, res.send(500)];
             case 4: return [2 /*return*/];
         }
     });
 }); });
 app.post('/api/monitoring/:monitoring_id/add-webpages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, urls, needs_authentication, username_field_selector, password_field_selector, login_button_selector, add_webpages_request_1, response, error_6;
+    var monitoring_id, urls, needs_authentication, username_field_selector, password_field_selector, login_button_selector, add_webpages_request_1, response, error_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -496,8 +539,8 @@ app.post('/api/monitoring/:monitoring_id/add-webpages', function (req, res) { re
                 res.send(200);
                 return [3 /*break*/, 4];
             case 3:
-                error_6 = _a.sent();
-                console.error('Error adding webpages:', error_6);
+                error_7 = _a.sent();
+                console.error('Error adding webpages:', error_7);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -505,7 +548,7 @@ app.post('/api/monitoring/:monitoring_id/add-webpages', function (req, res) { re
     });
 }); });
 app.post('/api/monitoring/set-accessibility-metric-all-websites', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var accessibility_metric, setMetricRequest_1, response, error_7;
+    var accessibility_metric, setMetricRequest_1, response, error_8;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -533,8 +576,8 @@ app.post('/api/monitoring/set-accessibility-metric-all-websites', function (req,
                 res.send(200);
                 return [3 /*break*/, 4];
             case 3:
-                error_7 = _a.sent();
-                console.error('Error setting accessibility metric:', error_7);
+                error_8 = _a.sent();
+                console.error('Error setting accessibility metric:', error_8);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -542,7 +585,7 @@ app.post('/api/monitoring/set-accessibility-metric-all-websites', function (req,
     });
 }); });
 app.get('/api/monitoring/:id/current-warnings', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getCurrentWarningsRequest_1, response, error_8;
+    var monitoring_id, getCurrentWarningsRequest_1, response, error_9;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -569,8 +612,8 @@ app.get('/api/monitoring/:id/current-warnings', function (req, res) { return __a
                 res.send(response.getWarningsList());
                 return [3 /*break*/, 4];
             case 3:
-                error_8 = _a.sent();
-                console.error('Error fetching current warnings:', error_8);
+                error_9 = _a.sent();
+                console.error('Error fetching current warnings:', error_9);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -578,7 +621,7 @@ app.get('/api/monitoring/:id/current-warnings', function (req, res) { return __a
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/score', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getScoreRequest_2, response, error_9;
+    var monitoring_id, getScoreRequest_2, response, error_10;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -607,8 +650,8 @@ app.get('/api/monitoring/:monitoring_id/score', function (req, res) { return __a
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_9 = _a.sent();
-                console.error('Error fetching score:', error_9);
+                error_10 = _a.sent();
+                console.error('Error fetching score:', error_10);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -616,7 +659,7 @@ app.get('/api/monitoring/:monitoring_id/score', function (req, res) { return __a
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/issues-stats', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getIssuesStatsRequest_1, response, error_10;
+    var monitoring_id, getIssuesStatsRequest_1, response, error_11;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -648,8 +691,8 @@ app.get('/api/monitoring/:monitoring_id/issues-stats', function (req, res) { ret
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_10 = _a.sent();
-                console.error('Error fetching score:', error_10);
+                error_11 = _a.sent();
+                console.error('Error fetching score:', error_11);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -657,7 +700,7 @@ app.get('/api/monitoring/:monitoring_id/issues-stats', function (req, res) { ret
     });
 }); });
 app.get('/api/monitoring/evaluations/:evaluation_id/webpage-screenshot', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var evaluation_id, getWebpageScreenshotRequest_1, response, screenshot, error_11;
+    var evaluation_id, getWebpageScreenshotRequest_1, response, screenshot, error_12;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -690,8 +733,8 @@ app.get('/api/monitoring/evaluations/:evaluation_id/webpage-screenshot', functio
                 res.setHeader('Content-Length', screenshot.length);
                 return [2 /*return*/, res.status(200).send(Buffer.from(screenshot))];
             case 3:
-                error_11 = _a.sent();
-                console.error('Error fetching screenshot:', error_11);
+                error_12 = _a.sent();
+                console.error('Error fetching screenshot:', error_12);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -699,7 +742,7 @@ app.get('/api/monitoring/evaluations/:evaluation_id/webpage-screenshot', functio
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/latest-evaluations', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getLatestEvaluationsRequest_1, response, error_12;
+    var monitoring_id, getLatestEvaluationsRequest_1, response, error_13;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -728,8 +771,8 @@ app.get('/api/monitoring/:monitoring_id/latest-evaluations', function (req, res)
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_12 = _a.sent();
-                console.error('Error fetching latest evaluations:', error_12);
+                error_13 = _a.sent();
+                console.error('Error fetching latest evaluations:', error_13);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -737,7 +780,7 @@ app.get('/api/monitoring/:monitoring_id/latest-evaluations', function (req, res)
     });
 }); });
 app.get('/api/monitoring/evaluations/:evaluation_id/latest-assertions', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var evaluation_id, moduleType, wcagGuidelinesFilters, wcagLevelFilters, outcome, wcagLevels, wcagGuidelines, getLatestAssertionsRequest_1, reponse, error_13;
+    var evaluation_id, moduleType, wcagGuidelinesFilters, wcagLevelFilters, outcome, wcagLevels, wcagGuidelines, getLatestAssertionsRequest_1, reponse, error_14;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -783,8 +826,8 @@ app.get('/api/monitoring/evaluations/:evaluation_id/latest-assertions', function
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_13 = _a.sent();
-                console.error('Error fetching latest assertions:', error_13);
+                error_14 = _a.sent();
+                console.error('Error fetching latest assertions:', error_14);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -792,7 +835,7 @@ app.get('/api/monitoring/evaluations/:evaluation_id/latest-assertions', function
     });
 }); });
 app.get('/api/monitoring/assertions/:assertion_id/results', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var assertion_id, getAssertionResultsRequest_1, response, error_14;
+    var assertion_id, getAssertionResultsRequest_1, response, error_15;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -821,8 +864,8 @@ app.get('/api/monitoring/assertions/:assertion_id/results', function (req, res) 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_14 = _a.sent();
-                console.error('Error fetching results:', error_14);
+                error_15 = _a.sent();
+                console.error('Error fetching results:', error_15);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -830,7 +873,7 @@ app.get('/api/monitoring/assertions/:assertion_id/results', function (req, res) 
     });
 }); });
 app.get('/api/monitoring/issues/:issue_id/elements', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var issue_id, getResultElementsRequest_1, response, error_15;
+    var issue_id, getResultElementsRequest_1, response, error_16;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -859,8 +902,8 @@ app.get('/api/monitoring/issues/:issue_id/elements', function (req, res) { retur
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_15 = _a.sent();
-                console.error('Error fetching elements:', error_15);
+                error_16 = _a.sent();
+                console.error('Error fetching elements:', error_16);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -868,7 +911,7 @@ app.get('/api/monitoring/issues/:issue_id/elements', function (req, res) { retur
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/history', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getEvaluationHistoryRequest_1, response, error_16;
+    var monitoring_id, getEvaluationHistoryRequest_1, response, error_17;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -897,8 +940,8 @@ app.get('/api/monitoring/:monitoring_id/history', function (req, res) { return _
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_16 = _a.sent();
-                console.error('Error fetching history:', error_16);
+                error_17 = _a.sent();
+                console.error('Error fetching history:', error_17);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -906,7 +949,7 @@ app.get('/api/monitoring/:monitoring_id/history', function (req, res) { return _
     });
 }); });
 app.get('/api/monitoring/:user_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user_id, getUserMonitoringRegistries_1, response, error_17;
+    var user_id, getUserMonitoringRegistries_1, response, error_18;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -935,8 +978,8 @@ app.get('/api/monitoring/:user_id', function (req, res) { return __awaiter(void 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_17 = _a.sent();
-                console.error('Error fetching history:', error_17);
+                error_18 = _a.sent();
+                console.error('Error fetching history:', error_18);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -944,7 +987,7 @@ app.get('/api/monitoring/:user_id', function (req, res) { return __awaiter(void 
     });
 }); });
 app.post('/api/monitoring/:monitoring_id/monitoring-cycle', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, setNewMonitoringCycle_1, response, error_18;
+    var monitoring_id, setNewMonitoringCycle_1, response, error_19;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -973,8 +1016,8 @@ app.post('/api/monitoring/:monitoring_id/monitoring-cycle', function (req, res) 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_18 = _a.sent();
-                console.error('Error setting evaluation cycle:', error_18);
+                error_19 = _a.sent();
+                console.error('Error setting evaluation cycle:', error_19);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -982,7 +1025,7 @@ app.post('/api/monitoring/:monitoring_id/monitoring-cycle', function (req, res) 
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/monitoring-cycles', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getWebsiteMonitoringCycles_1, response, error_19;
+    var monitoring_id, getWebsiteMonitoringCycles_1, response, error_20;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1011,8 +1054,8 @@ app.get('/api/monitoring/:monitoring_id/monitoring-cycles', function (req, res) 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_19 = _a.sent();
-                console.error('Error fetching history:', error_19);
+                error_20 = _a.sent();
+                console.error('Error fetching history:', error_20);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1020,7 +1063,7 @@ app.get('/api/monitoring/:monitoring_id/monitoring-cycles', function (req, res) 
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/monitored-webpages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getWebpagesRequest_1, response, error_20;
+    var monitoring_id, getWebpagesRequest_1, response, error_21;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1049,8 +1092,8 @@ app.get('/api/monitoring/:monitoring_id/monitored-webpages', function (req, res)
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_20 = _a.sent();
-                console.error('Error fetching history:', error_20);
+                error_21 = _a.sent();
+                console.error('Error fetching history:', error_21);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1058,7 +1101,7 @@ app.get('/api/monitoring/:monitoring_id/monitored-webpages', function (req, res)
     });
 }); });
 app.delete('/api/monitoring/webpage/:webpage_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var webpage_id, deleteWebpageRequest_1, response, error_21;
+    var webpage_id, deleteWebpageRequest_1, response, error_22;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1087,8 +1130,8 @@ app.delete('/api/monitoring/webpage/:webpage_id', function (req, res) { return _
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_21 = _a.sent();
-                console.error('Error deleting webpage:', error_21);
+                error_22 = _a.sent();
+                console.error('Error deleting webpage:', error_22);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1096,7 +1139,7 @@ app.delete('/api/monitoring/webpage/:webpage_id', function (req, res) { return _
     });
 }); });
 app.post('/api/monitoring/monitoring-cycle/:monitoring_cycle_id/evaluations', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_cycle_id, addLatestEvaluationsToMonitoringCycle_1, response, error_22;
+    var monitoring_cycle_id, addLatestEvaluationsToMonitoringCycle_1, response, error_23;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1125,8 +1168,8 @@ app.post('/api/monitoring/monitoring-cycle/:monitoring_cycle_id/evaluations', fu
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_22 = _a.sent();
-                console.error('Error setting latest evaluations:', error_22);
+                error_23 = _a.sent();
+                console.error('Error setting latest evaluations:', error_23);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1134,7 +1177,7 @@ app.post('/api/monitoring/monitoring-cycle/:monitoring_cycle_id/evaluations', fu
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/monitoring-registry/', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getMonitoringRegistryRequest_1, response, error_23;
+    var monitoring_id, getMonitoringRegistryRequest_1, response, error_24;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1163,8 +1206,8 @@ app.get('/api/monitoring/:monitoring_id/monitoring-registry/', function (req, re
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_23 = _a.sent();
-                console.error('Error fetching history:', error_23);
+                error_24 = _a.sent();
+                console.error('Error fetching history:', error_24);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1172,7 +1215,7 @@ app.get('/api/monitoring/:monitoring_id/monitoring-registry/', function (req, re
     });
 }); });
 app.get('/api/monitoring/monitoring-cycle/:cycle', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var cycle, getMonitoringCycleRequest_1, response, error_24;
+    var cycle, getMonitoringCycleRequest_1, response, error_25;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1201,8 +1244,8 @@ app.get('/api/monitoring/monitoring-cycle/:cycle', function (req, res) { return 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_24 = _a.sent();
-                console.error('Error fetching history:', error_24);
+                error_25 = _a.sent();
+                console.error('Error fetching history:', error_25);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1210,7 +1253,7 @@ app.get('/api/monitoring/monitoring-cycle/:cycle', function (req, res) { return 
     });
 }); });
 app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cycle', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var webpage_id, first_cycle_id, second_cycle_id, getWebpageComparisonDataFirstCycleRequest_1, response1, getWebpageComparisonDataSecondCycleRequest_1, response2, error_25;
+    var webpage_id, first_cycle_id, second_cycle_id, getWebpageComparisonDataFirstCycleRequest_1, response1, getWebpageComparisonDataSecondCycleRequest_1, response2, error_26;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1260,8 +1303,8 @@ app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cyc
                 });
                 return [3 /*break*/, 5];
             case 4:
-                error_25 = _a.sent();
-                console.error('Error fetching comparison data:', error_25);
+                error_26 = _a.sent();
+                console.error('Error fetching comparison data:', error_26);
                 res.send(500);
                 return [3 /*break*/, 5];
             case 5: return [2 /*return*/];
@@ -1303,3 +1346,63 @@ function bypassLogin(page, usernameFieldSelector, passwordFieldSelector, loginBu
         });
     });
 }
+var createMonitoringCycle = function (monitoring_registry_id) { return __awaiter(void 0, void 0, void 0, function () {
+    var response, data;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, fetch("http://localhost:8081/api/monitoring/".concat(monitoring_registry_id, "/monitoring-cycle"), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })];
+            case 1:
+                response = _a.sent();
+                if (response.status !== 200) {
+                    throw new Error('It was not possible to create a monitoring cycle.');
+                }
+                return [4 /*yield*/, response.json()];
+            case 2:
+                data = _a.sent();
+                return [2 /*return*/, data.monitoring_cycle_id];
+        }
+    });
+}); };
+var addLatestEvalsMonitoringCycle = function (monitoring_cycle_id) { return __awaiter(void 0, void 0, void 0, function () {
+    var response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, fetch("http://localhost:8081/api/monitoring/monitoring-cycle/".concat(monitoring_cycle_id, "/evaluations"), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })];
+            case 1:
+                response = _a.sent();
+                if (response.status !== 200) {
+                    throw new Error('It was not possible to set the evaluations.');
+                }
+                return [2 /*return*/];
+        }
+    });
+}); };
+var calculateScores = function (monitoring_id) { return __awaiter(void 0, void 0, void 0, function () {
+    var response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, fetch("http://localhost:8081/api/monitoring/".concat(monitoring_id, "/calculate-score"), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })];
+            case 1:
+                response = _a.sent();
+                if (response.status !== 200) {
+                    throw new Error('It was not possible to calculate the scores.');
+                }
+                return [2 /*return*/];
+        }
+    });
+}); };

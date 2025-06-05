@@ -55,27 +55,36 @@ export const createMonitoringCycle = async (
     return data.monitoring_cycle_id;
 }
 
+interface RequestBody {
+    webpage_ids: string[];
+    username?: string;
+    password?: string;
+}
+
 export const runEvaluation = async (
     monitoring_registry_id : string,
-    webpage_id : string,
-    needs_authentication : boolean,
+    webpage_ids : string[],
+    needs_authentication : boolean[],
     username ?: string,
     password ?: string
 ) => {
-    let requestBody = {};
-
-    if (needs_authentication) {
+    let requestBody : RequestBody = {
+        webpage_ids: webpage_ids
+    };
+    
+    if (needs_authentication.some(auth => auth === true)) {
         if (!username || !password) {
             throw new Error('Username and password are required for authenticated evaluations.');
         }
         
         requestBody = {
-            username,
-            password
+            ...requestBody,
+            username: username,
+            password: password
         };
     }
 
-    const response_2 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate/${webpage_id}`, {
+    const response_2 = await fetch(`${MONITORING_API_URL}/${monitoring_registry_id}/evaluate/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

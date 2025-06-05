@@ -211,197 +211,217 @@ app.post('/api/monitoring/set-accessibility-metric', async (req: Request, res: R
     res.send(200);
 });
 
-app.post('/api/monitoring/:monitoring_id/evaluate/:webpage_id', async (req: Request, res: Response) => {
+app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Response) => {
     const monitoring_id = req.params.monitoring_id;
-    const webpage_id = req.params.webpage_id;
+    const webpage_ids = req.body.webpage_ids;
     const username = req.body.username;
     const password = req.body.password;
 
-    try {
-        const getEvaluationInfoRequest = new GetEvaluationInfoRequest();
-        getEvaluationInfoRequest.setMonitoringRegistryId(Number(monitoring_id));
-        getEvaluationInfoRequest.setWebpageId(Number(webpage_id));
+    if (webpage_ids.length === 0) {
+        return res.status(400).json({ message: 'No webpages to evaluate' });
+    }
+    
+    console.log(webpage_ids)
 
-        const response = await new Promise<GetEvaluationInfoResponse>((resolve, reject) => {
-            client.getEvaluationInfo(getEvaluationInfoRequest, (err: Error, response : GetEvaluationInfoResponse) => {
-                if (err) reject(err);
-                else resolve(response);
+    for (const webpage_id of webpage_ids) {
+        console.log(`Evaluating webpage with ID: ${webpage_id}`);
+        try {
+            const getEvaluationInfoRequest = new GetEvaluationInfoRequest();
+            getEvaluationInfoRequest.setMonitoringRegistryId(Number(monitoring_id));
+            getEvaluationInfoRequest.setWebpageId(Number(webpage_id));
+
+            const response = await new Promise<GetEvaluationInfoResponse>((resolve, reject) => {
+                client.getEvaluationInfo(getEvaluationInfoRequest, (err: Error, response : GetEvaluationInfoResponse) => {
+                    if (err) reject(err);
+                    else resolve(response);
+                });
             });
-        });
 
-        const screen_width = response.getDisplayWidth();
-        const screen_height = response.getDisplayHeight();
-        const webpage_url = response.getWebpageUrl();
-        const is_mobile = response.getIsMobile();
-        const is_landscape = response.getIsLandscape();
+            const screen_width = response.getDisplayWidth();
+            const screen_height = response.getDisplayHeight();
+            const webpage_url = response.getWebpageUrl();
+            const is_mobile = response.getIsMobile();
+            const is_landscape = response.getIsLandscape();
 
-        const needs_authentication = response.getNeedsAuthentication();
-        const username_field_selector = response.getUsernameFieldSelector();
-        const password_field_selector = response.getPasswordFieldSelector();
-        const login_button_selector = response.getLoginButtonSelector();
+            const needs_authentication = response.getNeedsAuthentication();
+            const username_field_selector = response.getUsernameFieldSelector();
+            const password_field_selector = response.getPasswordFieldSelector();
+            const login_button_selector = response.getLoginButtonSelector();
 
 
-        const browser : Browser = await puppeteer.launch({
-            headless: true,
-            args: [
-                '--disable-gpu',
-                '--no-sandbox',
-                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-              ],
-            timeout: 5000,
-        });
-        
-        const page : Page = await browser.newPage();
-
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
-
-        await page.setViewport({
-            width: screen_width,
-            height: screen_height,
-            deviceScaleFactor: 1,
-        });
-
-        console.log(`Evaluating URL ${webpage_url}`);
-
-        let report = await evaluate(
-            webpage_url,
-            screen_width,
-            screen_height,
-            is_mobile,
-            is_landscape,
-            needs_authentication,
-            username_field_selector,
-            password_field_selector,
-            login_button_selector,
-            username,
-            password
-        );
-        
-        if (!needs_authentication && report[webpage_url] !== undefined) {
-            report = report[webpage_url];
-            console.log(`Successfully evaluated URL ${webpage_url}`);
-        }
-        else if (needs_authentication && report.customHtml !== undefined) {
-            report = report.customHtml;
-            console.log(`Successfully evaluated URL ${webpage_url} behind authentication`);
-        }
-        else {
-            console.error(`Error evaluating URL ${webpage_url}`);
-
-            return res.status(200).json({ 
-                message: 'Evaluation failed',
-                url: webpage_url
+            const browser : Browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--disable-gpu',
+                    '--no-sandbox',
+                    '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+                ],
+                timeout: 5000,
             });
-        }
+            
+            const page : Page = await browser.newPage();
 
-        const result = await ( async () => {
-            try {
-                const browser : Browser = await puppeteer.launch({
-                    headless: true,
-                    args: [
-                        '--disable-gpu',
-                        '--no-sandbox',
-                        '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-                      ],
-                    timeout: 5000,
-                });
-                
-                const page : Page = await browser.newPage();
+            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
 
-                await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
+            await page.setViewport({
+                width: screen_width,
+                height: screen_height,
+                deviceScaleFactor: 1,
+            });
 
-                await page.setViewport({
-                    width: screen_width,
-                    height: screen_height,
-                    deviceScaleFactor: 1,
-                });
+            console.log(`Evaluating URL ${webpage_url}`);
 
-                if (needs_authentication) {
-                    await page.goto(webpage_url, { waitUntil: 'networkidle0' });
-        
-                    await bypassLogin(
-                        page, 
-                        username_field_selector, 
-                        password_field_selector, 
-                        login_button_selector,
-                        username,
-                        password
-                    );
-                } else {
-                    await page.goto(webpage_url, { waitUntil: 'networkidle0' });
-                }
-                
-                const screenshot = await takeWebpageScreenshot(page, screen_width, screen_height);
-
-                const evaluations_request = new AddEvaluationRequest();
-                evaluations_request.setQualwebVersion(report.system.version);
-                evaluations_request.setInputUrl(!needs_authentication ? (report.system.url?.inputUrl ?? "") : webpage_url);
-                evaluations_request.setCompleteUrl(report.system.url?.completeUrl ?? "");
-                evaluations_request.setDom(report.system.page.dom.html);
-                evaluations_request.setTitle(report.system.page.dom.title ?? "");
-                evaluations_request.setElementCount(report.system.page.dom.elementCount ?? 0);
-                evaluations_request.setPassed(report.metadata.passed);
-                evaluations_request.setWarning(report.metadata.warning);
-                evaluations_request.setFailed(report.metadata.failed);
-                evaluations_request.setInapplicable(report.metadata.inapplicable);
-                evaluations_request.setModulesList(await getModules(report, page));
-                evaluations_request.setModulesQuantity(2);
-                evaluations_request.setMonitoredWebsiteId(Number(monitoring_id));
-
-                if (screenshot) {
-                    evaluations_request.setScreenshot(screenshot);
-                }
-
-                browser.close(); 
-
-                const response = await new Promise<AddEvaluationResponse>((resolve, reject) => {
-                    client.addEvaluation(evaluations_request, (err: Error, response: AddEvaluationResponse) => {
-                        if (err) reject(err);
-                        else resolve(response);
-                    });
-                });
-                
-                console.log(`Successfully added evaluation for URL ${webpage_url}`);
-                return { webpage_url, success: true, statusCode: response.getStatusCode() };
-            } catch (error) {
-                console.error(`Error adding evaluation for URL ${webpage_url}:`, error);
-                return { webpage_url, success: false, error };
+            let report = await evaluate(
+                webpage_url,
+                screen_width,
+                screen_height,
+                is_mobile,
+                is_landscape,
+                needs_authentication,
+                username_field_selector,
+                password_field_selector,
+                login_button_selector,
+                username,
+                password
+            );
+            
+            if (!needs_authentication && report[webpage_url] !== undefined) {
+                report = report[webpage_url];
+                console.log(`Successfully evaluated URL ${webpage_url}`);
             }
-        })();
+            else if (needs_authentication && report.customHtml !== undefined) {
+                report = report.customHtml;
+                console.log(`Successfully evaluated URL ${webpage_url} behind authentication`);
+            }
+            else {
+                console.error(`Error evaluating URL ${webpage_url}`);
+
+                return res.status(200).json({ 
+                    message: 'Evaluation failed',
+                    url: webpage_url
+                });
+            }
+
+            const result = await ( async () => {
+                try {
+                    const browser : Browser = await puppeteer.launch({
+                        headless: true,
+                        args: [
+                            '--disable-gpu',
+                            '--no-sandbox',
+                            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+                        ],
+                        timeout: 5000,
+                    });
+                    
+                    const page : Page = await browser.newPage();
+
+                    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
+
+                    await page.setViewport({
+                        width: screen_width,
+                        height: screen_height,
+                        deviceScaleFactor: 1,
+                    });
+
+                    if (needs_authentication) {
+                        await page.goto(webpage_url, { waitUntil: 'networkidle0' });
+            
+                        await bypassLogin(
+                            page, 
+                            username_field_selector, 
+                            password_field_selector, 
+                            login_button_selector,
+                            username,
+                            password
+                        );
+                    } else {
+                        await page.goto(webpage_url, { waitUntil: 'networkidle0' });
+                    }
+                    
+                    const screenshot = await takeWebpageScreenshot(page, screen_width, screen_height);
+
+                    const evaluations_request = new AddEvaluationRequest();
+                    evaluations_request.setQualwebVersion(report.system.version);
+                    evaluations_request.setInputUrl(!needs_authentication ? (report.system.url?.inputUrl ?? "") : webpage_url);
+                    evaluations_request.setCompleteUrl(report.system.url?.completeUrl ?? "");
+                    evaluations_request.setDom(report.system.page.dom.html);
+                    evaluations_request.setTitle(report.system.page.dom.title ?? "");
+                    evaluations_request.setElementCount(report.system.page.dom.elementCount ?? 0);
+                    evaluations_request.setPassed(report.metadata.passed);
+                    evaluations_request.setWarning(report.metadata.warning);
+                    evaluations_request.setFailed(report.metadata.failed);
+                    evaluations_request.setInapplicable(report.metadata.inapplicable);
+                    evaluations_request.setModulesList(await getModules(report, page));
+                    evaluations_request.setModulesQuantity(2);
+                    evaluations_request.setMonitoredWebsiteId(Number(monitoring_id));
+
+                    if (screenshot) {
+                        evaluations_request.setScreenshot(screenshot);
+                    }
+
+                    browser.close(); 
+
+                    const response = await new Promise<AddEvaluationResponse>((resolve, reject) => {
+                        client.addEvaluation(evaluations_request, (err: Error, response: AddEvaluationResponse) => {
+                            if (err) reject(err);
+                            else resolve(response);
+                        });
+                    });
+                    
+                    console.log(`Successfully added evaluation for URL ${webpage_url}`);
+                    return { webpage_url, success: true, statusCode: response.getStatusCode() };
+                } catch (error) {
+                    console.error(`Error adding evaluation for URL ${webpage_url}:`, error);
+                    return { webpage_url, success: false, error };
+                }
+            })();
+            
+            if (!result.success) {
+                return res.status(500).json({ 
+                    message: 'Evaluation failed',
+                    result 
+                });
+            }
+
+            const setLatestEvalRequest = new SetLatestEvaluationRequest();
+            setLatestEvalRequest.setMonitoringRegistryId(Number(monitoring_id));
+
+            const setLatestEvalResponse = await new Promise<SetLatestEvaluationResponse>((resolve, reject) => {
+                client.setLatestEvaluation(setLatestEvalRequest, (err: Error, callResponse: SetLatestEvaluationResponse) => {
+                    if (err) reject(err);
+                    else resolve(callResponse);
+                });
+            });
+
+            if (setLatestEvalResponse.getStatusCode() !== 200) {
+                return res.status(setLatestEvalResponse.getStatusCode()).json({
+                    message: 'Failed to set latest evaluation',
+                    statusCode: setLatestEvalResponse.getStatusCode()
+                });
+            }
+            
+        } catch (error) {
+            console.error('Error during evaluation:', error);
+            res.status(500).json({ message: 'Error processing evaluations', error });
+        }
+    }
+    
+
+    try {
+        const monitoring_cycle_id = await createMonitoringCycle(String(monitoring_id));
         
-        if (!result.success) {
-            return res.status(500).json({ 
-                message: 'Evaluation failed',
-                result 
-            });
-        }
-
-        const setLatestEvalRequest = new SetLatestEvaluationRequest();
-        setLatestEvalRequest.setMonitoringRegistryId(Number(monitoring_id));
-
-        const setLatestEvalResponse = await new Promise<SetLatestEvaluationResponse>((resolve, reject) => {
-            client.setLatestEvaluation(setLatestEvalRequest, (err: Error, callResponse: SetLatestEvaluationResponse) => {
-                if (err) reject(err);
-                else resolve(callResponse);
-            });
-        });
-
-        if (setLatestEvalResponse.getStatusCode() !== 200) {
-            return res.status(setLatestEvalResponse.getStatusCode()).json({
-                message: 'Failed to set latest evaluation',
-                statusCode: setLatestEvalResponse.getStatusCode()
-            });
-        }
-
+        await addLatestEvalsMonitoringCycle(monitoring_cycle_id);
+        
+        await calculateScores(String(monitoring_id));
+        
         return res.status(200).json({ 
-            message: 'Evaluation processing complete',
-            webpage_url,
+            message: 'Evaluations processing complete',
             success: true
         });
-        
     } catch (error) {
-        console.error('Error during evaluation:', error);
-        res.status(500).json({ message: 'Error processing evaluations', error });
+        console.error('Error during evaluations processing:', error);
+        return res.status(500).json({ message: 'Error processing evaluations', error });
     }
 });
 
@@ -1082,4 +1102,53 @@ async function bypassLogin(
     await page.waitForNavigation({ waitUntil: 'networkidle0' });
     
     return { success: true, message: "Login completed and navigated to protected page" };
+}
+
+const createMonitoringCycle = async (
+    monitoring_registry_id : string
+) => {
+    const response = await fetch(`http://localhost:8081/api/monitoring/${monitoring_registry_id}/monitoring-cycle`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status !== 200) {
+        throw new Error('It was not possible to create a monitoring cycle.');
+    }
+
+    const data = await response.json();
+
+    return data.monitoring_cycle_id;
+}
+
+const addLatestEvalsMonitoringCycle = async (
+    monitoring_cycle_id : string
+) => {
+    const response = await fetch(`http://localhost:8081/api/monitoring/monitoring-cycle/${monitoring_cycle_id}/evaluations`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status !== 200) {
+        throw new Error('It was not possible to set the evaluations.');
+    }
+}
+
+const calculateScores = async (
+    monitoring_id : string
+) => {
+    const response = await fetch(`http://localhost:8081/api/monitoring/${monitoring_id}/calculate-score`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status !== 200) {
+        throw new Error('It was not possible to calculate the scores.');
+    }
 }

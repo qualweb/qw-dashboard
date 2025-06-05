@@ -237,3 +237,18 @@ img {
     height: 1.5rem;
     rotate: 90deg;
 }
+
+a {
+    height: 100%;
+    width: 100%;
+    font-size: var(--smaller-font-size);
+    color: white; 
+    display: flex;
+    align-items: center;
+}
+
+a svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 1.5rem;   
+}

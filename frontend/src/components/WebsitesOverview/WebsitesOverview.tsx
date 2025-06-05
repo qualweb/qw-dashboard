@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { getUser, registerUser } from '../../services/UserService';
 import { getUserWebsites } from '../../services/EvaluationService';
 import AddMonitoringRegistryButton from '../AddMonitoringRegistryButton/AddMonitoringRegistryButton';
+import LoadingWheel from '../LoadingWheel/LoadingWheel';
 
 function WebsitesOverview() {
     const { user, isAuthenticated } = useAuth0();
@@ -13,6 +14,7 @@ function WebsitesOverview() {
     const [websites, setWebsites] = useState([]);
     const [user_id, setUser_id] = useState(-1);
     const [refresh, setRefresh] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const regreshTrigger = () => {
         setRefresh(!refresh);
@@ -45,6 +47,8 @@ function WebsitesOverview() {
                     console.error('Error fetching websites:', error);
                 }
             }
+
+            setIsLoading(false);
         }
 
         checkRegister();
@@ -73,33 +77,37 @@ function WebsitesOverview() {
                                 onChange={regreshTrigger}
                             />
                         </div>
-                        <ul className='your-websites-list'>
-                        {websites && websites.length > 0 ? 
-                            websites.map((website) => (
-                                <WebsiteCard 
-                                    key={website['id']}
-                                    id={website['id']}
-                                    name={website['name']}
-                                    url={website['main_url']}
-                                    is_mobile={website['is_mobile']}
-                                    is_landscape={website['is_landscape']}
-                                    display_width={website['display_width']}
-                                    display_height={website['display_height']}
-                                    webpages={website['webpages']}
-                                    latest_eval_day={website['latest_evaluation']['day']}
-                                    latest_eval_month={website['latest_evaluation']['month']}
-                                    latest_eval_year={website['latest_evaluation']['year']}
-                                    score={website['score']}
-                                    passed={website['passed']}
-                                    warnings={website['warnings']}
-                                    failed={website['failed']}
-                                    inapplicable={website['inapplicable']}
-                                />
-                            ))
-                            : 
-                            <li>No websites found</li>
-                        }
-                        </ul>
+                        { isLoading ? (
+                            <LoadingWheel />
+                        ) : (
+                            <ul className='your-websites-list'>
+                                {websites && websites.length > 0 ? 
+                                    websites.map((website) => (
+                                        <WebsiteCard 
+                                            key={website['id']}
+                                            id={website['id']}
+                                            name={website['name']}
+                                            url={website['main_url']}
+                                            is_mobile={website['is_mobile']}
+                                            is_landscape={website['is_landscape']}
+                                            display_width={website['display_width']}
+                                            display_height={website['display_height']}
+                                            webpages={website['webpages']}
+                                            latest_eval_day={website['latest_evaluation']['day']}
+                                            latest_eval_month={website['latest_evaluation']['month']}
+                                            latest_eval_year={website['latest_evaluation']['year']}
+                                            score={website['score']}
+                                            passed={website['passed']}
+                                            warnings={website['warnings']}
+                                            failed={website['failed']}
+                                            inapplicable={website['inapplicable']}
+                                        />
+                                    ))
+                                    : 
+                                    <li>No websites found</li>
+                                }
+                            </ul>
+                        )}
                     </div>
                 </div>
             </div>

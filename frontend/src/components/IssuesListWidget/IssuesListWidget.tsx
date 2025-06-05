@@ -1,5 +1,5 @@
 import './IssuesListWidget.css';
-import { ChevronDown } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { Portal } from '@ark-ui/react/portal'
 import { Select, createListCollection } from '@ark-ui/react/select'
 import { useEffect, useState } from 'react';
@@ -30,7 +30,7 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
 
     const filters = createListCollection({
         items: [
-          { label: 'By webpage', value: 'By webpage' },
+          { label: 'By webpage', value: 'By webpage', selected: true },
           { label: 'By test', value: 'By test' },
         ],
     });
@@ -83,10 +83,7 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                 <div className='pills'>
                     <div className="title-pill"><h2>Current Accessibility Issues</h2></div>
                     <div className='filter-pills'>
-                        <Select.Root collection={filters}>
-                            <Select.Label className="sr-only">
-                                <strong>Current website</strong>
-                            </Select.Label>
+                        <Select.Root collection={filters} defaultValue={[selectedFilter]} >
                             <Select.Control className='select-control'>
                                 <Select.Trigger className="select-trigger">
                                     <strong><Select.ValueText className="select-value" placeholder={selectedFilter} /></strong>
@@ -102,6 +99,9 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                                             {filters.items.map((item) => (
                                                 <Select.Item key={item.value} item={item} className="select-item" onClick={() => {setSelectedFilter(item.value)}}>
                                                     <Select.ItemText>{item.label}</Select.ItemText>
+                                                    <Select.ItemIndicator>
+                                                        <Check />
+                                                    </Select.ItemIndicator>
                                                 </Select.Item>
                                             ))}
                                         </Select.ItemGroup>

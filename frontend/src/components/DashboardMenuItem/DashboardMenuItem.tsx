@@ -9,7 +9,7 @@ interface WebsiteDashboardMenuItemProps {
 
 function DashboardMenuItem(props: WebsiteDashboardMenuItemProps) {
     return (
-        <Link to={props.path}>
+        <Link to={props.path} className='list-item' role="menuitem" >
             {props.icon}
             <strong>{props.name}</strong>
         </Link>

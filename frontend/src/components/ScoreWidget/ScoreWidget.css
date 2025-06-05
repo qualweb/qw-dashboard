@@ -36,12 +36,15 @@
 .score-track {
     stroke: var(--color-track);
     stroke-width: var(--thickness);
+    position: relative;
 }
   
 .score-range {
     stroke: var(--color-range);
     stroke-width: var(--thickness);
     stroke-linecap: round;
+    position: relative;
+    
 }
   
 .score-value-container {
@@ -60,3 +63,4 @@
     font-size: 3.5rem;
     font-weight: 500;
 }
+
