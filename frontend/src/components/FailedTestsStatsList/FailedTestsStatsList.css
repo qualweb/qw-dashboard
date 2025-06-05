@@ -1,0 +1,26 @@
+.failed-tests-stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.failed-tests-stats-list > h3 {
+    margin: 0;
+}
+
+.failed-tests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    list-style: none;
+    background-color: var(--secondary-color);
+    padding: 3rem;
+    border-radius: 4rem;
+}
+
+.failed-tests-title {
+    padding: 1rem 2rem;
+    background-color: var(--secondary-color);
+    border-radius: 3rem;
+    width: fit-content;
+}

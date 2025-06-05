@@ -454,6 +454,23 @@ message GetWebpageComparisonDataResponse {
     int32 status_code = 1;
     float score = 2;
     int32 total_fails = 3;
+    int32 passed_instances = 4;
+    int32 applicable_instances = 5;
+}
+
+message GetFailedTestsStatsRequest {
+    int32 cycle_id = 1;
+}
+
+message GetFailedTestsStatsResponse {
+    int32 status_code = 1;
+    repeated FailedTestStats failed_tests = 2;
+}
+
+message FailedTestStats {
+    string assertion_name = 1;
+    string assertion_code = 2;
+    repeated string webpages = 3;
 }
 
 service Evaluations {
@@ -483,4 +500,5 @@ service Evaluations {
     rpc GetMonitoringRegistry (GetMonitoringRegistryRequest) returns (GetMonitoringRegistryResponse);
     rpc GetMonitoringCycle (GetMonitoringCycleRequest) returns (GetMonitoringCycleResponse);
     rpc GetWebpageComparisonData (GetWebpageComparisonDataRequest) returns (GetWebpageComparisonDataResponse);
+    rpc GetFailedTestsStats (GetFailedTestsStatsRequest) returns (GetFailedTestsStatsResponse);
 }

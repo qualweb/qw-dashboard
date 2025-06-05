@@ -1311,6 +1311,63 @@ app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cyc
         }
     });
 }); });
+app.get('/api/monitoring/:monitoring_id/comparison/:first_cycle/:second_cycle/failed-tests-stats', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var monitoring_id, first_cycle_id, second_cycle_id, getFailedTestsStatsRequest1_1, response1, getFailedTestsStatsRequest2_1, response2, error_27;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                monitoring_id = req.params.monitoring_id;
+                first_cycle_id = req.params.first_cycle;
+                second_cycle_id = req.params.second_cycle;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 4, , 5]);
+                getFailedTestsStatsRequest1_1 = new evaluations_pb_1.GetFailedTestsStatsRequest();
+                getFailedTestsStatsRequest1_1.setCycleId(Number(first_cycle_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getFailedTestsStats(getFailedTestsStatsRequest1_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 2:
+                response1 = _a.sent();
+                if (response1.getStatusCode() !== 200) {
+                    res.send(response1.getStatusCode());
+                    return [2 /*return*/];
+                }
+                getFailedTestsStatsRequest2_1 = new evaluations_pb_1.GetFailedTestsStatsRequest();
+                getFailedTestsStatsRequest2_1.setCycleId(Number(second_cycle_id));
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        client.getFailedTestsStats(getFailedTestsStatsRequest2_1, function (err, callResponse) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(callResponse);
+                        });
+                    })];
+            case 3:
+                response2 = _a.sent();
+                if (response2.getStatusCode() !== 200) {
+                    res.send(response2.getStatusCode());
+                    return [2 /*return*/];
+                }
+                res.status(200).json({
+                    first_cycle_failed_tests: (0, convert_1.convertFailedTestsStats)(response1),
+                    second_cycle_failed_tests: (0, convert_1.convertFailedTestsStats)(response2)
+                });
+                return [3 /*break*/, 5];
+            case 4:
+                error_27 = _a.sent();
+                console.error('Error fetching failed tests stats:', error_27);
+                res.send(500);
+                return [3 /*break*/, 5];
+            case 5: return [2 /*return*/];
+        }
+    });
+}); });
 app.listen(port, function () {
     console.log("Server is running on http://localhost:".concat(port));
 });

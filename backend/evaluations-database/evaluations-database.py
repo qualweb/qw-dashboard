@@ -47,7 +47,9 @@ from protobuf_library.evaluations_pb2 import (
     AddLatestEvaluationsToMonitoringCycleResponse,
     GetMonitoringRegistryResponse,
     GetMonitoringCycleResponse,
-    GetWebpageComparisonDataResponse
+    GetWebpageComparisonDataResponse,
+    FailedTestStats,
+    GetFailedTestsStatsResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -1626,12 +1628,36 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         break
 
                 cursor.execute('''
-                    SELECT failed FROM Module
+                    SELECT id, failed FROM Module
                     WHERE evaluation_id = %s
                     AND module_type = 'act-rules'
                 ''', (evaluation, ))
 
-                total_fails = cursor.fetchone()[0]
+                result = cursor.fetchone()
+
+                module_id = result[0]
+                total_fails = result[1]
+
+                cursor.execute('''
+                    SELECT id FROM Assertion
+                    WHERE module_id = %s
+                ''', (module_id, ))
+
+                assertions = cursor.fetchall()
+
+                passed_instances = 0
+                applicable_instances = 0
+
+                for assertion in assertions:
+                    cursor.execute('''
+                        SELECT passed, warning, failed FROM Assertion
+                        WHERE id = %s
+                    ''', (assertion[0], ))
+
+                    module_stats = cursor.fetchone()
+
+                    passed_instances += module_stats[0]
+                    applicable_instances += (module_stats[0] + module_stats[1] + module_stats[2])
 
             cursor.close()
 
@@ -1645,7 +1671,94 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             if conn:
                 connection_pool.putconn(conn)
 
-        return GetWebpageComparisonDataResponse(status_code=200, score=score, total_fails=total_fails)
+        return GetWebpageComparisonDataResponse(status_code=200, score=score, total_fails=total_fails, passed_instances=passed_instances, applicable_instances=applicable_instances)
+    
+    def GetFailedTestsStats(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT evaluation_id FROM Monitoring_Cycle_Evaluation
+                WHERE monitoring_cycle_id = %s
+            ''', (request.cycle_id, ))
+
+            evaluation_ids = cursor.fetchall()
+
+            tests = {}
+            failed_tests_stats = {}
+
+            for evaluation_id in evaluation_ids:
+                cursor.execute('''
+                    SELECT input_url FROM Evaluation
+                    WHERE id = %s
+                ''', (evaluation_id[0], ))
+
+                webpage = cursor.fetchone()[0]
+
+                cursor.execute('''
+                    SELECT id, failed FROM Module
+                    WHERE evaluation_id = %s
+                    AND module_type = 'act-rules'
+                ''', (evaluation_id[0], ))
+
+                module_result = cursor.fetchone()
+
+                if module_result:
+                    cursor.execute('''
+                        SELECT id, assertion_metadata_id FROM Assertion
+                        WHERE module_id = %s AND outcome = 'failed'
+                    ''', (module_result[0], ))
+
+                    assertion_metadata_ids = cursor.fetchall()
+
+                    for assertion_metadata_id in assertion_metadata_ids:
+                        cursor.execute('''
+                            SELECT code, assertion_name FROM Assertion_Metadata
+                            WHERE id = %s
+                        ''', (assertion_metadata_id[1], ))
+
+                        assertion_metadata = cursor.fetchone()
+
+                        if assertion_metadata:
+                            if assertion_metadata[0] not in tests:
+                                tests[assertion_metadata[0]] = assertion_metadata[1]
+
+                            if assertion_metadata[0] not in failed_tests_stats:
+                                failed_tests_stats[assertion_metadata[0]] = [webpage]
+
+                            failed_tests_stats[assertion_metadata[0]].append(webpage)
+
+            failed_tests = []
+
+            print("OLAAAA", file=sys.stderr, flush=True)
+
+            print(tests, file=sys.stderr, flush=True)
+            print(failed_tests_stats, file=sys.stderr, flush=True)
+
+            for test in tests.keys():
+                failed_tests.append(
+                    FailedTestStats(
+                        assertion_name=tests[test],
+                        assertion_code=test,
+                        webpages=failed_tests_stats[test]
+                    )
+                )
+
+            cursor.close()
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetFailedTestsStatsResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetFailedTestsStatsResponse(status_code=200, failed_tests=failed_tests)
             
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]

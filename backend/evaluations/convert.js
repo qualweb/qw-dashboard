@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convertWebpageComparisonData = exports.convertMonitoringCycle = exports.convertMonitoringRegistry = void 0;
+exports.convertFailedTests = exports.convertFailedTestsStats = exports.convertWebpageComparisonData = exports.convertMonitoringCycle = exports.convertMonitoringRegistry = void 0;
 exports.convertLatestEvals = convertLatestEvals;
 exports.convertLatestACTAssertions = convertLatestACTAssertions;
 exports.convertAssertionResults = convertAssertionResults;
@@ -126,6 +126,22 @@ var convertWebpageComparisonData = function (webpage) {
     return {
         score: webpage.getScore(),
         total_fails: webpage.getTotalFails(),
+        passed_instances: webpage.getPassedInstances(),
+        applicable_instances: webpage.getApplicableInstances(),
     };
 };
 exports.convertWebpageComparisonData = convertWebpageComparisonData;
+var convertFailedTestsStats = function (failedTestsStats) {
+    return {
+        failed_tests: (0, exports.convertFailedTests)(failedTestsStats.getFailedTestsList()),
+    };
+};
+exports.convertFailedTestsStats = convertFailedTestsStats;
+var convertFailedTests = function (failedTests) {
+    return failedTests.map(function (element) { return ({
+        assertion_name: element.getAssertionName(),
+        assertion_code: element.getAssertionCode(),
+        webpages: element.getWebpagesList()
+    }); });
+};
+exports.convertFailedTests = convertFailedTests;

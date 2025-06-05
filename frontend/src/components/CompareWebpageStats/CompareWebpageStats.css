@@ -31,8 +31,8 @@
     display: flex;
     align-items: center;
     gap: 0.2rem;
-    top: 0;
     right: 0.5rem;
+    bottom: 10rem;
 }
 
 .stat-diff > span {

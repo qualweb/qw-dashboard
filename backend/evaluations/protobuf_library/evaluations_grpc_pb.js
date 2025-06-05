@@ -224,6 +224,28 @@ function deserialize_runtimePackage_GetEvaluationInfoResponse(buffer_arg) {
   return evaluations_pb.GetEvaluationInfoResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_GetFailedTestsStatsRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetFailedTestsStatsRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetFailedTestsStatsRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetFailedTestsStatsRequest(buffer_arg) {
+  return evaluations_pb.GetFailedTestsStatsRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetFailedTestsStatsResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetFailedTestsStatsResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetFailedTestsStatsResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetFailedTestsStatsResponse(buffer_arg) {
+  return evaluations_pb.GetFailedTestsStatsResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetIssuesStatsRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetIssuesStatsRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetIssuesStatsRequest');
@@ -863,6 +885,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_GetWebpageComparisonDataRequest,
     responseSerialize: serialize_runtimePackage_GetWebpageComparisonDataResponse,
     responseDeserialize: deserialize_runtimePackage_GetWebpageComparisonDataResponse,
+  },
+  getFailedTestsStats: {
+    path: '/runtimePackage.Evaluations/GetFailedTestsStats',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetFailedTestsStatsRequest,
+    responseType: evaluations_pb.GetFailedTestsStatsResponse,
+    requestSerialize: serialize_runtimePackage_GetFailedTestsStatsRequest,
+    requestDeserialize: deserialize_runtimePackage_GetFailedTestsStatsRequest,
+    responseSerialize: serialize_runtimePackage_GetFailedTestsStatsResponse,
+    responseDeserialize: deserialize_runtimePackage_GetFailedTestsStatsResponse,
   },
 };
 

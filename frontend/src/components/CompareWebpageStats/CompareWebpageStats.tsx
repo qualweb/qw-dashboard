@@ -23,18 +23,28 @@ function CompareWebpageStats(props: CompareWebpageStatsProps) {
         fetchWebpageComparisonData();
     }, [props.webpage_id, props.first_cycle, props.second_cycle]);
 
-    let improvement_score = 0.0;
-    let improvement_total_fails = 0;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let stats: any[] = [];
 
     if (fst_cycle_data && snd_cycle_data) {
-        improvement_score = snd_cycle_data['score'] - fst_cycle_data['score'];
-        improvement_total_fails = snd_cycle_data['total_fails'] - fst_cycle_data['total_fails'];
+        const improvement_score = snd_cycle_data['score'] - fst_cycle_data['score'];
+        const improvement_total_fails = snd_cycle_data['total_fails'] - fst_cycle_data['total_fails'];
+        
+
+        const firstPassedInstances = fst_cycle_data['passed_instances'];
+        const firstApplicableInstances = fst_cycle_data['applicable_instances'];
+        const secondPassedInstances = snd_cycle_data['passed_instances'];
+        const secondApplicableInstances = snd_cycle_data['applicable_instances'];
+
+        const firstInacessibilityPercentage = firstPassedInstances / firstApplicableInstances;
+        const secondInacessibilityPercentage = secondPassedInstances / secondApplicableInstances;
+
+        const inaccessibilityDiff = secondInacessibilityPercentage - firstInacessibilityPercentage;
         
         stats = [
             {label: 'Score', value: Math.floor(snd_cycle_data['score'] * 100), diff: improvement_score > 0 ? `+${improvement_score}` : improvement_score < 0 ? `${improvement_score}` : '0', diff_number: improvement_score , icon: improvement_score > 0 ? UpIcon : improvement_score < 0 ? DownIcon : MinusIcon},
-            {label: 'Total fails', value: snd_cycle_data['total_fails'], diff: improvement_total_fails > 0 ? `+${improvement_total_fails}` : improvement_total_fails < 0 ? `${improvement_total_fails}` : '0', diff_number: improvement_total_fails, icon: improvement_total_fails > 0 ? UpIcon : improvement_total_fails < 0 ? DownIcon : MinusIcon}
+            {label: 'Total fails', value: snd_cycle_data['total_fails'], diff: improvement_total_fails > 0 ? `+${improvement_total_fails}` : improvement_total_fails < 0 ? `${improvement_total_fails}` : '0', diff_number: improvement_total_fails, icon: improvement_total_fails > 0 ? UpIcon : improvement_total_fails < 0 ? DownIcon : MinusIcon},
+            {label: 'Inaccessibility Percentage', value: `${Math.floor(secondInacessibilityPercentage * 100)}%`, diff: inaccessibilityDiff > 0 ? `+${Math.floor(inaccessibilityDiff * 100)}%` : inaccessibilityDiff < 0 ? `${Math.floor(inaccessibilityDiff * 100)}%` : '0%', diff_number: inaccessibilityDiff, icon: inaccessibilityDiff > 0 ? UpIcon : inaccessibilityDiff < 0 ? DownIcon : MinusIcon}            
         ]
     }
 

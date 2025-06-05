@@ -2153,6 +2153,12 @@ export class GetWebpageComparisonDataResponse extends jspb.Message {
   getTotalFails(): number;
   setTotalFails(value: number): void;
 
+  getPassedInstances(): number;
+  setPassedInstances(value: number): void;
+
+  getApplicableInstances(): number;
+  setApplicableInstances(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetWebpageComparisonDataResponse.AsObject;
   static toObject(includeInstance: boolean, msg: GetWebpageComparisonDataResponse): GetWebpageComparisonDataResponse.AsObject;
@@ -2168,6 +2174,84 @@ export namespace GetWebpageComparisonDataResponse {
     statusCode: number,
     score: number,
     totalFails: number,
+    passedInstances: number,
+    applicableInstances: number,
+  }
+}
+
+export class GetFailedTestsStatsRequest extends jspb.Message {
+  getCycleId(): number;
+  setCycleId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetFailedTestsStatsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetFailedTestsStatsRequest): GetFailedTestsStatsRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetFailedTestsStatsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetFailedTestsStatsRequest;
+  static deserializeBinaryFromReader(message: GetFailedTestsStatsRequest, reader: jspb.BinaryReader): GetFailedTestsStatsRequest;
+}
+
+export namespace GetFailedTestsStatsRequest {
+  export type AsObject = {
+    cycleId: number,
+  }
+}
+
+export class GetFailedTestsStatsResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearFailedTestsList(): void;
+  getFailedTestsList(): Array<FailedTestStats>;
+  setFailedTestsList(value: Array<FailedTestStats>): void;
+  addFailedTests(value?: FailedTestStats, index?: number): FailedTestStats;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetFailedTestsStatsResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetFailedTestsStatsResponse): GetFailedTestsStatsResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetFailedTestsStatsResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetFailedTestsStatsResponse;
+  static deserializeBinaryFromReader(message: GetFailedTestsStatsResponse, reader: jspb.BinaryReader): GetFailedTestsStatsResponse;
+}
+
+export namespace GetFailedTestsStatsResponse {
+  export type AsObject = {
+    statusCode: number,
+    failedTestsList: Array<FailedTestStats.AsObject>,
+  }
+}
+
+export class FailedTestStats extends jspb.Message {
+  getAssertionName(): string;
+  setAssertionName(value: string): void;
+
+  getAssertionCode(): string;
+  setAssertionCode(value: string): void;
+
+  clearWebpagesList(): void;
+  getWebpagesList(): Array<string>;
+  setWebpagesList(value: Array<string>): void;
+  addWebpages(value: string, index?: number): string;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): FailedTestStats.AsObject;
+  static toObject(includeInstance: boolean, msg: FailedTestStats): FailedTestStats.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: FailedTestStats, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): FailedTestStats;
+  static deserializeBinaryFromReader(message: FailedTestStats, reader: jspb.BinaryReader): FailedTestStats;
+}
+
+export namespace FailedTestStats {
+  export type AsObject = {
+    assertionName: string,
+    assertionCode: string,
+    webpagesList: Array<string>,
   }
 }
 

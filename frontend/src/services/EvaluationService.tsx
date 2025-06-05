@@ -389,6 +389,21 @@ export const getWebpageComparisonData = async(
     return data;
 }
 
+export const getFailedTestsStats = async(
+    monitoring_id: string,
+    first_cycle: string,
+    second_cycle: string
+) => {
+    const failed_tests_response = await fetch(`${MONITORING_API_URL}/${monitoring_id}/comparison/${first_cycle}/${second_cycle}/failed-tests-stats`);
+    const data = await failed_tests_response.json();
+
+    if(failed_tests_response.status != 200) {
+        throw new Error('Failed to fetch failed tests stats.');
+    }
+
+    return data;
+}
+
 export const getAssertionsNumberByStateAndLevelPerWebpage = async(
     webpage_id: string,
     first_cycle: string,

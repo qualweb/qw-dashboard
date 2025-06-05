@@ -51,11 +51,13 @@ import {
     GetMonitoringCycleRequest,
     GetMonitoringCycleResponse,
     GetWebpageComparisonDataRequest,
-    GetWebpageComparisonDataResponse
+    GetWebpageComparisonDataResponse,
+    GetFailedTestsStatsResponse,
+    GetFailedTestsStatsRequest
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue } from 'crawlee';
-import { convertAssertionResults, convertEvaluationHistory, convertLatestACTAssertions, convertLatestEvals, convertMonitoredWebpages, convertMonitoringCycle, convertMonitoringCycles, convertMonitoringRegistries, convertMonitoringRegistry, convertResultElement, convertWebpageComparisonData } from './convert';
+import { convertAssertionResults, convertEvaluationHistory, convertFailedTestsStats, convertLatestACTAssertions, convertLatestEvals, convertMonitoredWebpages, convertMonitoringCycle, convertMonitoringCycles, convertMonitoringRegistries, convertMonitoringRegistry, convertResultElement, convertWebpageComparisonData } from './convert';
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
@@ -1071,6 +1073,52 @@ app.get ('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cy
     }
 });
 
+app.get('/api/monitoring/:monitoring_id/comparison/:first_cycle/:second_cycle/failed-tests-stats', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
+    const first_cycle_id = req.params.first_cycle;
+    const second_cycle_id = req.params.second_cycle;
+
+    try {
+        const getFailedTestsStatsRequest1 = new GetFailedTestsStatsRequest();
+        getFailedTestsStatsRequest1.setCycleId(Number(first_cycle_id));
+
+        const response1 = await new Promise<GetFailedTestsStatsResponse>((resolve, reject) => {
+            client.getFailedTestsStats(getFailedTestsStatsRequest1, (err: Error, callResponse: GetFailedTestsStatsResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response1.getStatusCode() !== 200) {
+            res.send(response1.getStatusCode());
+            return;
+        }
+
+        const getFailedTestsStatsRequest2 = new GetFailedTestsStatsRequest();
+        getFailedTestsStatsRequest2.setCycleId(Number(second_cycle_id));
+
+        const response2 = await new Promise<GetFailedTestsStatsResponse>((resolve, reject) => {
+            client.getFailedTestsStats(getFailedTestsStatsRequest2, (err: Error, callResponse: GetFailedTestsStatsResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (response2.getStatusCode() !== 200) {
+            res.send(response2.getStatusCode());
+            return;
+        }
+
+        res.status(200).json({
+            first_cycle_failed_tests: convertFailedTestsStats(response1),
+            second_cycle_failed_tests: convertFailedTestsStats(response2)
+        });
+    } catch (error) {
+        console.error('Error fetching failed tests stats:', error);
+        res.send(500);
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
@@ -1152,3 +1200,4 @@ const calculateScores = async (
         throw new Error('It was not possible to calculate the scores.');
     }
 }
+

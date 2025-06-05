@@ -1,4 +1,4 @@
-import { AssertionResponse, ElementResponse, EvalDate, MonitoringCycle, EvaluationHistory, EvaluationIdUrl, MonitoringRegistry, ResultResponse, Webpage, GetMonitoringRegistryResponse, GetMonitoringCycleResponse, GetWebpageComparisonDataResponse } from "./protobuf_library/evaluations_pb";
+import { AssertionResponse, ElementResponse, EvalDate, MonitoringCycle, EvaluationHistory, EvaluationIdUrl, MonitoringRegistry, ResultResponse, Webpage, GetMonitoringRegistryResponse, GetMonitoringCycleResponse, GetWebpageComparisonDataResponse, GetFailedTestsStatsResponse, FailedTestStats } from "./protobuf_library/evaluations_pb";
 
 export function convertLatestEvals(latestEvals: EvaluationIdUrl[]) {
   return latestEvals.map(element => ({
@@ -127,5 +127,21 @@ export const convertWebpageComparisonData = (webpage: GetWebpageComparisonDataRe
   return {
     score: webpage.getScore(),
     total_fails: webpage.getTotalFails(),
+    passed_instances: webpage.getPassedInstances(),
+    applicable_instances: webpage.getApplicableInstances(),
   }
+}
+
+export const convertFailedTestsStats = (failedTestsStats: GetFailedTestsStatsResponse) => {
+  return {
+    failed_tests: convertFailedTests(failedTestsStats.getFailedTestsList()),
+  }
+}
+
+export const convertFailedTests = (failedTests: FailedTestStats[]) => {
+  return failedTests.map(element => ({
+    assertion_name: element.getAssertionName(),
+    assertion_code: element.getAssertionCode(),
+    webpages: element.getWebpagesList()
+  }))
 }
