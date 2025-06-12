@@ -1,6 +1,6 @@
 // const MONITORING_API_URL = 'http://10.10.6.132:8081/api/monitoring';
 
-const MONITORING_API_URL = '10.10.2.116:8081/api/monitoring';
+const MONITORING_API_URL = 'http://10.10.2.116:8081/api/monitoring';
 
 export const runCrawler = async (
     website_name : string,
