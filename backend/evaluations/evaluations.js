@@ -303,10 +303,6 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                 }
                                 else {
                                     console.error("Error evaluating URL ".concat(webpage_url_1));
-                                    return [2 /*return*/, { value: res.status(200).json({
-                                                message: 'Evaluation failed',
-                                                url: webpage_url_1
-                                            }) }];
                                 }
                                 return [4 /*yield*/, (function () { return __awaiter(void 0, void 0, void 0, function () {
                                         var browser_2, page_1, goto, webpageSizeInKB, buffer, screenshot, evaluations_request_1, _a, _b, response_1, error_5;

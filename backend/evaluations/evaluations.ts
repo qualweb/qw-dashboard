@@ -299,11 +299,6 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
             }
             else {
                 console.error(`Error evaluating URL ${webpage_url}`);
-
-                return res.status(200).json({ 
-                    message: 'Evaluation failed',
-                    url: webpage_url
-                });
             }
 
             const result = await ( async () => {
