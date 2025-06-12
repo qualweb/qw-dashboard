@@ -98,6 +98,8 @@ function convertMonitoredWebpages(webpages) {
         id: element.getId(),
         url: element.getUrl(),
         needs_authentication: element.getNeedsAuthentication(),
+        num_elements: element.getNumElements(),
+        sizeKB: element.getPageSizeKb(),
     }); });
 }
 var convertMonitoringRegistry = function (monitoringRegistry) {

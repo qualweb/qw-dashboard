@@ -1,0 +1,6 @@
+# API Gateway - all your backend services
+api.localhost {
+    reverse_proxy /api/monitoring/* localhost:8081
+    reverse_proxy /api/users/* localhost:8082
+    reverse_proxy /api/scheduler/* localhost:8083
+}

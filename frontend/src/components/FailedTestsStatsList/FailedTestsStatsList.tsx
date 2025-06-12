@@ -37,6 +37,7 @@ function FailedTestsStatsList(props: FailedTestsStatsListProps) {
                         assertion_code={rule['assertion_code']}
                         webpages={rule['webpages']}
                         diff={rule['webpages']['length'] - fstCycleData[index]['webpages']['length']}
+                        new_webpages={getUniqueElementsNotInFirst(fstCycleData[index]['webpages'], rule['webpages'])}
                     />
                 ))}
             </ul>
@@ -45,3 +46,10 @@ function FailedTestsStatsList(props: FailedTestsStatsListProps) {
 }
 
 export default FailedTestsStatsList;
+
+function getUniqueElementsNotInFirst<T>(arr1: T[], arr2: T[]): T[] {
+    const set1 = new Set(arr1);
+    const set2 = new Set(arr2);
+    
+    return Array.from(set2).filter(item => !set1.has(item));
+}

@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 import grpc
 import os
+import ssl
 
 from SchedulerHelper import Scheduler
 
@@ -36,6 +37,12 @@ load_schedules()
 
 app = Flask(__name__)
 cors = CORS(app)
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.load_cert_chain('localhost.pem', 'localhost-key.pem')
+
+if __name__ == '__main__':
+    app.run(host='localhost', port=8083, ssl_context=context)
 
 
 @app.route("/api/scheduler/add-schedule", methods=["POST"])

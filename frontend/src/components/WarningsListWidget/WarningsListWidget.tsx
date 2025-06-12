@@ -38,7 +38,8 @@ function CurrentWarningsWidget(props: CurrentWarningsWidgetProps) {
                         key={"warnings"}
                         evaluation_ids={latestEvalIds} 
                         outcome={"warning"} 
-                        wcagLevelFilters={[]} 
+                        wcagLevelFilters={[]}
+                        wcagGuidelinesFilters={[]} 
                     />
                 </>
             ) : null}

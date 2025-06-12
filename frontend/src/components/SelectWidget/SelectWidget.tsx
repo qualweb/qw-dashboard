@@ -9,15 +9,23 @@ interface ScheduleWidgetProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     collection: Select.ListCollection<{ label: string; value: any; }>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onValueChange: (value: React.SetStateAction<any>) => void
+    onValueChange: (value: React.SetStateAction<any>) => void,
+    defaultValues?: string[];
 }
 
 function SelectWidget(props: ScheduleWidgetProps) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleInnerButtonClick = (event: any) => {
+        event.stopPropagation();
+      };
+
     return (
-        <Select.Root collection={props.collection}>
+        <Select.Root collection={props.collection} defaultValue={props.defaultValues}>
             <Select.Label className='select-schedule-type-label'><strong>{props.label}</strong></Select.Label>
             <Select.Control>
-                <Select.Trigger className='select-schedule-type-trigger'>
+                <Select.Trigger className='select-schedule-type-trigger' onClick={(event) => {
+                    handleInnerButtonClick(event);
+                }}>
                     <Select.ValueText placeholder={props.placeholder} />
                     <Select.Indicator>
                         <ChevronDownIcon />
@@ -29,8 +37,9 @@ function SelectWidget(props: ScheduleWidgetProps) {
                     <Select.Content className='select-schedule-type-content'>
                         <Select.ItemGroup className='select-group-item-schedule-type'>
                             {props.collection.items.map((item) => (
-                                <Select.Item key={item.value} item={item} className='select-item-schedule-type' onClick={() => {
+                                <Select.Item key={item.value} item={item} className='select-item-schedule-type' onClick={(event) => {
                                     props.onValueChange(item.value);
+                                    handleInnerButtonClick(event);
                                 }}>
                                     <Select.ItemText>{item.label}</Select.ItemText>
                                 </Select.Item>

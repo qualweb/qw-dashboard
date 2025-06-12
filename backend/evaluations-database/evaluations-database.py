@@ -49,7 +49,8 @@ from protobuf_library.evaluations_pb2 import (
     GetMonitoringCycleResponse,
     GetWebpageComparisonDataResponse,
     FailedTestStats,
-    GetFailedTestsStatsResponse
+    GetFailedTestsStatsResponse,
+    GetIntermediateCyclesResponse
 )
 
 import protobuf_library.evaluations_pb2_grpc as evaluations_pb2_grpc
@@ -119,6 +120,12 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             conn = connection_pool.getconn()
             cursor = conn.cursor()
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+            cursor.execute('''
+                UPDATE Webpage
+                SET num_elements = %s, page_size_kb = %s
+                WHERE url = %s AND monitoring_registry_id = %s
+            ''', (request.element_count, request.webpage_size_kb, request.input_url, request.monitored_website_id))
 
             cursor.execute('''
                 INSERT INTO Evaluation (
@@ -1320,7 +1327,7 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT id, url, needs_authentication FROM Webpage
+                SELECT id, url, needs_authentication, num_elements, page_size_kb FROM Webpage
                 WHERE monitoring_registry_id = %s
             ''', (request.monitoring_registry_id, ))
 
@@ -1332,7 +1339,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                     Webpage(
                         id=webpage[0],
                         url=webpage[1],
-                        needs_authentication=webpage[2]
+                        needs_authentication=webpage[2],
+                        num_elements=webpage[3],
+                        page_size_kb=webpage[4]
                     )
                 )
 
@@ -1728,8 +1737,8 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
                             if assertion_metadata[0] not in failed_tests_stats:
                                 failed_tests_stats[assertion_metadata[0]] = [webpage]
-
-                            failed_tests_stats[assertion_metadata[0]].append(webpage)
+                            else:
+                                failed_tests_stats[assertion_metadata[0]].append(webpage)
 
             failed_tests = []
 
@@ -1738,7 +1747,9 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             print(tests, file=sys.stderr, flush=True)
             print(failed_tests_stats, file=sys.stderr, flush=True)
 
-            for test in tests.keys():
+            codes = set(tests.keys())
+
+            for test in codes:
                 failed_tests.append(
                     FailedTestStats(
                         assertion_name=tests[test],
@@ -1759,7 +1770,62 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                 connection_pool.putconn(conn)
 
         return GetFailedTestsStatsResponse(status_code=200, failed_tests=failed_tests)
+
+    def GetIntermediateCycles(self, request, context):
+        conn = None
+
+        try:
+            conn = connection_pool.getconn()
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                SELECT monitoring_registry_id FROM Monitoring_Cycle
+                WHERE id = %s
+            ''', (request.first_cycle_id, ))
+
+            monitoring_registry_id = cursor.fetchone()[0]
+
+            if monitoring_registry_id is None:
+                return GetIntermediateCyclesResponse(status_code=404)
             
+            cursor.execute('''
+                SELECT id, cycle_date FROM Monitoring_Cycle
+                WHERE monitoring_registry_id = %s
+                AND id >= %s AND id <= %s
+                ORDER BY cycle_date DESC
+            ''', (monitoring_registry_id, request.first_cycle_id, request.second_cycle_id))
+
+            response = cursor.fetchall()
+
+            intermediate_cycles = []
+
+            for cycle in response:
+                intermediate_cycles.append(
+                    MonitoringCycle(
+                        id=cycle[0],
+                        cycle_date=EvalDate(
+                            day=cycle[1].day,
+                            month=cycle[1].month,
+                            year=cycle[1].year,
+                            hour=cycle[1].hour,
+                            minute=cycle[1].minute,
+                            second=cycle[1].second
+                        )
+                    )
+                )
+
+        except Exception as e:
+            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            if conn:
+                conn.rollback()
+
+            return GetIntermediateCyclesResponse(status_code=500)
+        finally:
+            if conn:
+                connection_pool.putconn(conn)
+
+        return GetIntermediateCyclesResponse(status_code=200, intermediate_cycles=intermediate_cycles)
+
 def serve():
     interceptors = [ExceptionToStatusInterceptor()]
     server = grpc.server(

@@ -7,6 +7,7 @@ interface FailedTestProps {
     assertion_code: string;
     webpages: string[];
     diff: number;
+    new_webpages: string[];
 }
 
 function FailedTest(props: FailedTestProps) {
@@ -18,10 +19,10 @@ function FailedTest(props: FailedTestProps) {
                 <div className='rule-wrapper'>
                     <div className="rule-code">
                         <h4>{props.assertion_name}</h4>
-                        <span className='assertion-code' >{props.assertion_code}</span>
+                        <span className='assertion-code' ><strong>{props.assertion_code}</strong></span>
                     </div>
                     <div className='rule-affected-webpages'>
-                        <span><strong>{props.webpages.length} <sup>{props.diff == 0 ? '' : (props.diff > 0 ? '+' + props.diff : '-' + props.diff)}</sup> affected webpages</strong></span>
+                        <span><strong>{props.webpages.length} <sup>{props.diff == 0 ? '' : (props.diff > 0 ? '+' + props.diff : props.diff)}</sup> affected webpages</strong></span>
                         <div className='rule-affected-webpages-button'>
                             <ChevronDown
                                 style={{ 
@@ -39,6 +40,7 @@ function FailedTest(props: FailedTestProps) {
                                 <li key={index} className='failed-webpage'>
                                     <Globe />
                                     <span>{webpage}</span>
+                                    {props.new_webpages.includes(webpage) && <span className='new-webpage'><strong>New</strong></span>}
                                 </li>
                             ))}
                         </ul>

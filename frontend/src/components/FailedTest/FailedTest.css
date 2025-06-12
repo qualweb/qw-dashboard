@@ -18,8 +18,8 @@
 
 .assertion-code {
     font-size: small;
-    background-color: rgb(52, 52, 52);
-    padding: 0.5rem 0.7rem;
+    background-color: rgb(76, 51, 20);
+    padding: 0.5rem 1rem;
     border-radius: 2rem;
 }
 
@@ -68,4 +68,11 @@
     gap: 2rem;
     padding: 1rem 2rem;
     border-radius: 3rem;
+}
+
+.new-webpage {
+    background-color: rgb(85, 20, 20);
+    padding: 0.5rem 1rem;
+    border-radius: 3rem;
+    font-size: small;
 }

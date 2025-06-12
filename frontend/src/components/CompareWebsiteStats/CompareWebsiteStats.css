@@ -49,9 +49,48 @@
 .failed-tests-stats-list-container {
     display: flex;
     justify-content: center;
+    align-items: center;
     flex-grow: 1;
+    flex-direction: column;
+    gap: 3rem;
 }
 
 .failed-tests-stats-list {
+    width: 95%;
+}
+
+.continuous-chart-container {
+    width: 90%;
+    background-color: var(--secondary-color);
+    padding: 3rem;
+    border-radius: 4rem;
+}
+
+.continuous-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+}
+
+.continuous-chart-title {
+    padding: 1rem 2rem;
+    background-color: var(--secondary-color);
+    border-radius: 3rem;
+    margin: 0;
+}
+
+.continuous-chart-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 95%;
+}
+
+.select-metric-container {
+    display: flex;
+    justify-content: flex-start;
     width: 95%;
 }

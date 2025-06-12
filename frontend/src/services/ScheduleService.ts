@@ -1,4 +1,4 @@
-const SCHEDULER_API_URL = 'http://localhost:8083/api/scheduler';
+const SCHEDULER_API_URL = 'https://localhost:8083/api/scheduler';
 
 export const addSchedule = async (
     schedule_type: string,

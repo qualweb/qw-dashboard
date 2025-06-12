@@ -1,4 +1,4 @@
-const USERS_API_URL = 'http://localhost:8082/api/users';
+const USERS_API_URL = 'https://localhost:8082/api/users';
 
 export const registerUser = async(
     auth0_id: string | undefined,

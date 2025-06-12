@@ -12,7 +12,6 @@ users_database_channel = grpc.insecure_channel(f"{users_database_host}:6001")
 users_database_client = UsersStub(users_database_channel)
 
 app = Flask(__name__)
-
 cors = CORS(app)
 
 @app.route("/api/users/register", methods=["POST"])

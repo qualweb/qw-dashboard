@@ -320,6 +320,9 @@ export class AddEvaluationRequest extends jspb.Message {
   getScreenshot_asB64(): string;
   setScreenshot(value: Uint8Array | string): void;
 
+  getWebpageSizeKb(): number;
+  setWebpageSizeKb(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AddEvaluationRequest.AsObject;
   static toObject(includeInstance: boolean, msg: AddEvaluationRequest): AddEvaluationRequest.AsObject;
@@ -346,6 +349,7 @@ export namespace AddEvaluationRequest {
     modulesQuantity: number,
     monitoredWebsiteId: number,
     screenshot: Uint8Array | string,
+    webpageSizeKb: number,
   }
 }
 
@@ -1809,6 +1813,12 @@ export class Webpage extends jspb.Message {
   getNeedsAuthentication(): boolean;
   setNeedsAuthentication(value: boolean): void;
 
+  getNumElements(): number;
+  setNumElements(value: number): void;
+
+  getPageSizeKb(): number;
+  setPageSizeKb(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Webpage.AsObject;
   static toObject(includeInstance: boolean, msg: Webpage): Webpage.AsObject;
@@ -1824,6 +1834,8 @@ export namespace Webpage {
     id: number,
     url: string,
     needsAuthentication: boolean,
+    numElements: number,
+    pageSizeKb: number,
   }
 }
 
@@ -2252,6 +2264,56 @@ export namespace FailedTestStats {
     assertionName: string,
     assertionCode: string,
     webpagesList: Array<string>,
+  }
+}
+
+export class GetIntermediateCyclesRequest extends jspb.Message {
+  getFirstCycleId(): number;
+  setFirstCycleId(value: number): void;
+
+  getSecondCycleId(): number;
+  setSecondCycleId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetIntermediateCyclesRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetIntermediateCyclesRequest): GetIntermediateCyclesRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetIntermediateCyclesRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetIntermediateCyclesRequest;
+  static deserializeBinaryFromReader(message: GetIntermediateCyclesRequest, reader: jspb.BinaryReader): GetIntermediateCyclesRequest;
+}
+
+export namespace GetIntermediateCyclesRequest {
+  export type AsObject = {
+    firstCycleId: number,
+    secondCycleId: number,
+  }
+}
+
+export class GetIntermediateCyclesResponse extends jspb.Message {
+  getStatusCode(): number;
+  setStatusCode(value: number): void;
+
+  clearIntermediateCyclesList(): void;
+  getIntermediateCyclesList(): Array<MonitoringCycle>;
+  setIntermediateCyclesList(value: Array<MonitoringCycle>): void;
+  addIntermediateCycles(value?: MonitoringCycle, index?: number): MonitoringCycle;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetIntermediateCyclesResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetIntermediateCyclesResponse): GetIntermediateCyclesResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: GetIntermediateCyclesResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetIntermediateCyclesResponse;
+  static deserializeBinaryFromReader(message: GetIntermediateCyclesResponse, reader: jspb.BinaryReader): GetIntermediateCyclesResponse;
+}
+
+export namespace GetIntermediateCyclesResponse {
+  export type AsObject = {
+    statusCode: number,
+    intermediateCyclesList: Array<MonitoringCycle.AsObject>,
   }
 }
 

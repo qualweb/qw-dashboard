@@ -20,6 +20,7 @@ function CompareWebpageStats(props: CompareWebpageStatsProps) {
             setFstCycleData(data.first_cycle);
             setSndCycleData(data.second_cycle);
         };
+
         fetchWebpageComparisonData();
     }, [props.webpage_id, props.first_cycle, props.second_cycle]);
 
@@ -42,7 +43,7 @@ function CompareWebpageStats(props: CompareWebpageStatsProps) {
         const inaccessibilityDiff = secondInacessibilityPercentage - firstInacessibilityPercentage;
         
         stats = [
-            {label: 'Score', value: Math.floor(snd_cycle_data['score'] * 100), diff: improvement_score > 0 ? `+${improvement_score}` : improvement_score < 0 ? `${improvement_score}` : '0', diff_number: improvement_score , icon: improvement_score > 0 ? UpIcon : improvement_score < 0 ? DownIcon : MinusIcon},
+            {label: 'Score', value: Math.floor(snd_cycle_data['score'] * 100), diff: improvement_score > 0 ? `+${Math.floor(improvement_score * 100)}` : improvement_score < 0 ? `${improvement_score}` : '0', diff_number: improvement_score , icon: improvement_score > 0 ? UpIcon : improvement_score < 0 ? DownIcon : MinusIcon},
             {label: 'Total fails', value: snd_cycle_data['total_fails'], diff: improvement_total_fails > 0 ? `+${improvement_total_fails}` : improvement_total_fails < 0 ? `${improvement_total_fails}` : '0', diff_number: improvement_total_fails, icon: improvement_total_fails > 0 ? UpIcon : improvement_total_fails < 0 ? DownIcon : MinusIcon},
             {label: 'Inaccessibility Percentage', value: `${Math.floor(secondInacessibilityPercentage * 100)}%`, diff: inaccessibilityDiff > 0 ? `+${Math.floor(inaccessibilityDiff * 100)}%` : inaccessibilityDiff < 0 ? `${Math.floor(inaccessibilityDiff * 100)}%` : '0%', diff_number: inaccessibilityDiff, icon: inaccessibilityDiff > 0 ? UpIcon : inaccessibilityDiff < 0 ? DownIcon : MinusIcon}            
         ]

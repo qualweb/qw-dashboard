@@ -53,11 +53,13 @@ import {
     GetWebpageComparisonDataRequest,
     GetWebpageComparisonDataResponse,
     GetFailedTestsStatsResponse,
-    GetFailedTestsStatsRequest
+    GetFailedTestsStatsRequest,
+    GetIntermediateCyclesRequest,
+    GetIntermediateCyclesResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue } from 'crawlee';
-import { convertAssertionResults, convertEvaluationHistory, convertFailedTestsStats, convertLatestACTAssertions, convertLatestEvals, convertMonitoredWebpages, convertMonitoringCycle, convertMonitoringCycles, convertMonitoringRegistries, convertMonitoringRegistry, convertResultElement, convertWebpageComparisonData } from './convert';
+import { convertAssertionResults, convertDate, convertEvaluationHistory, convertFailedTestsStats, convertLatestACTAssertions, convertLatestEvals, convertMonitoredWebpages, convertMonitoringCycle, convertMonitoringCycles, convertMonitoringRegistries, convertMonitoringRegistry, convertResultElement, convertWebpageComparisonData } from './convert';
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
@@ -326,8 +328,10 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
                         deviceScaleFactor: 1,
                     });
 
+                    let goto;
+
                     if (needs_authentication) {
-                        await page.goto(webpage_url, { waitUntil: 'networkidle0' });
+                        goto = await page.goto(webpage_url, { waitUntil: 'networkidle0' });
             
                         await bypassLogin(
                             page, 
@@ -338,7 +342,15 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
                             password
                         );
                     } else {
-                        await page.goto(webpage_url, { waitUntil: 'networkidle0' });
+                        goto = await page.goto(webpage_url, { waitUntil: 'networkidle0' });
+                    }
+
+                    let webpageSizeInKB;
+
+                    if (goto && goto.ok()) {
+                        const buffer = await goto.buffer();
+                        webpageSizeInKB = buffer.length / 1024;
+                        console.log(`Webpage size for ${webpage_url}: ${webpageSizeInKB} KB`);
                     }
                     
                     const screenshot = await takeWebpageScreenshot(page, screen_width, screen_height);
@@ -357,6 +369,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
                     evaluations_request.setModulesList(await getModules(report, page));
                     evaluations_request.setModulesQuantity(2);
                     evaluations_request.setMonitoredWebsiteId(Number(monitoring_id));
+                    evaluations_request.setWebpageSizeKb(webpageSizeInKB ?? 0);
 
                     if (screenshot) {
                         evaluations_request.setScreenshot(screenshot);
@@ -1071,6 +1084,72 @@ app.get ('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cy
         console.error('Error fetching comparison data:', error);
         res.send(500);
     }
+});
+
+app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cycle/chart-data', async (req: Request, res: Response) => {
+    const webpage_id = req.params.webpage_id;
+    const first_cycle_id = req.params.first_cycle;
+    const second_cycle_id = req.params.second_cycle;
+
+    const getIntermediateCyclesRequest = new GetIntermediateCyclesRequest();
+    getIntermediateCyclesRequest.setFirstCycleId(Number(first_cycle_id));
+    getIntermediateCyclesRequest.setSecondCycleId(Number(second_cycle_id));
+
+    const intermediateCyclesResponse = await new Promise<GetIntermediateCyclesResponse>((resolve, reject) => {
+        client.getIntermediateCycles(getIntermediateCyclesRequest, (err: Error, callResponse: GetIntermediateCyclesResponse) => {
+            if (err) reject(err);
+            else resolve(callResponse);
+        });
+    });
+    
+    if (intermediateCyclesResponse.getStatusCode() !== 200) {
+        res.send(intermediateCyclesResponse.getStatusCode());
+        return;
+    }
+
+    const intermediate_cycles = intermediateCyclesResponse.getIntermediateCyclesList();
+
+    console.log('Intermediate cycles:', intermediate_cycles);
+    
+    try {
+        const cycles = await Promise.all(
+            intermediate_cycles.map(async (cycle) => {
+                
+                console.log('Webpage ID:', webpage_id);
+                console.log('Processing cycle:', cycle.getId());
+
+                const getWebpageComparisonDataFirstCycleRequest = new GetWebpageComparisonDataRequest();
+                getWebpageComparisonDataFirstCycleRequest.setWebpageId(Number(webpage_id));
+                getWebpageComparisonDataFirstCycleRequest.setCycleId(Number(cycle.getId()));
+                
+                const response1 = await new Promise<GetWebpageComparisonDataResponse>((resolve, reject) => {
+                    client.getWebpageComparisonData(getWebpageComparisonDataFirstCycleRequest, (err: Error, callResponse: GetWebpageComparisonDataResponse) => {
+                        if (err) reject(err);
+                        else resolve(callResponse);
+                    });
+                });
+                
+                if (response1.getStatusCode() !== 200) {
+                    throw new Error(`Request failed with status: ${response1.getStatusCode()}`);
+                }
+                
+                return {
+                    cycle_id: cycle.getId(),
+                    cycle_date: convertDate(cycle.getCycleDate()),
+                    data: convertWebpageComparisonData(response1)
+                };
+            })
+        );
+        
+        return res.status(200).json({
+            graph_data: cycles    
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.send(500);
+        return;
+    }
+    
 });
 
 app.get('/api/monitoring/:monitoring_id/comparison/:first_cycle/:second_cycle/failed-tests-stats', async (req: Request, res: Response) => {

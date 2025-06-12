@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from 'react';
 
 import { MenuIcon } from '../../assets/Icons';
 import { Link } from 'react-router-dom';
+import { Settings } from 'lucide-react';
 
 interface DashboardMenuProps {
     monitoring_id : string;
@@ -16,7 +17,8 @@ function DashboardMenu (props: DashboardMenuProps) {
     const { user, logout } = useAuth0();
     
     const [isOpen, setIsOpen] = useState(false);
-    const [focusedIndex, setFocusedIndex] = useState(0);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, setFocusedIndex] = useState(0);
     const menuItemsRef = useRef<(HTMLAnchorElement | HTMLDivElement | null)[]>([]);
     const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -28,6 +30,7 @@ function DashboardMenu (props: DashboardMenuProps) {
         { name: "Evaluate", path: `/dashboard/${props.monitoring_id}/evaluate`, icon: Chart },
         { name: "Evaluation scheduler", path: `/dashboard/${props.monitoring_id}/scheduler`, icon: TimeIcon },
         { name: "Compare Evaluations", path: `/dashboard/${props.monitoring_id}/select-evaluations`, icon: ScaleIcon },
+        { name: "Website Metadata", path: `/dashboard/${props.monitoring_id}/website-metadata`, icon: <Settings /> }
     ];
 
     const toggleMenu = () => {
@@ -231,7 +234,6 @@ function DashboardMenu (props: DashboardMenuProps) {
                                 <div className='list-item' role="menuitem">
                                     <Menu.Root>
                                         <Menu.Trigger
-                                            ref={el => menuItemsRef.current[menuItems.length] = el}
                                             tabIndex={0}
                                             onKeyDown={(e) => {
                                                 // Handle Escape to prevent it from closing outer menu

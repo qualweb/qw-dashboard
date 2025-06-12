@@ -246,6 +246,28 @@ function deserialize_runtimePackage_GetFailedTestsStatsResponse(buffer_arg) {
   return evaluations_pb.GetFailedTestsStatsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_runtimePackage_GetIntermediateCyclesRequest(arg) {
+  if (!(arg instanceof evaluations_pb.GetIntermediateCyclesRequest)) {
+    throw new Error('Expected argument of type runtimePackage.GetIntermediateCyclesRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetIntermediateCyclesRequest(buffer_arg) {
+  return evaluations_pb.GetIntermediateCyclesRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_runtimePackage_GetIntermediateCyclesResponse(arg) {
+  if (!(arg instanceof evaluations_pb.GetIntermediateCyclesResponse)) {
+    throw new Error('Expected argument of type runtimePackage.GetIntermediateCyclesResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_runtimePackage_GetIntermediateCyclesResponse(buffer_arg) {
+  return evaluations_pb.GetIntermediateCyclesResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_runtimePackage_GetIssuesStatsRequest(arg) {
   if (!(arg instanceof evaluations_pb.GetIssuesStatsRequest)) {
     throw new Error('Expected argument of type runtimePackage.GetIssuesStatsRequest');
@@ -896,6 +918,17 @@ var EvaluationsService = exports.EvaluationsService = {
     requestDeserialize: deserialize_runtimePackage_GetFailedTestsStatsRequest,
     responseSerialize: serialize_runtimePackage_GetFailedTestsStatsResponse,
     responseDeserialize: deserialize_runtimePackage_GetFailedTestsStatsResponse,
+  },
+  getIntermediateCycles: {
+    path: '/runtimePackage.Evaluations/GetIntermediateCycles',
+    requestStream: false,
+    responseStream: false,
+    requestType: evaluations_pb.GetIntermediateCyclesRequest,
+    responseType: evaluations_pb.GetIntermediateCyclesResponse,
+    requestSerialize: serialize_runtimePackage_GetIntermediateCyclesRequest,
+    requestDeserialize: deserialize_runtimePackage_GetIntermediateCyclesRequest,
+    responseSerialize: serialize_runtimePackage_GetIntermediateCyclesResponse,
+    responseDeserialize: deserialize_runtimePackage_GetIntermediateCyclesResponse,
   },
 };
 

@@ -75,6 +75,7 @@ message AddEvaluationRequest {
     int32 modules_quantity = 12;
     int32 monitored_website_id = 13;
     bytes screenshot = 14;
+    float webpage_size_kb = 15;
 }
 
 message AddEvaluationResponse {
@@ -381,6 +382,8 @@ message Webpage {
     int32 id = 1;
     string url = 2;
     bool needs_authentication = 3;
+    int32 num_elements = 4;
+    float page_size_kb = 5;
 }
 
 message GetEvaluationInfoRequest {
@@ -473,6 +476,16 @@ message FailedTestStats {
     repeated string webpages = 3;
 }
 
+message GetIntermediateCyclesRequest {
+    int32 first_cycle_id = 1;
+    int32 second_cycle_id = 2;
+}
+
+message GetIntermediateCyclesResponse {
+    int32 status_code = 1;
+    repeated MonitoringCycle intermediate_cycles = 2;
+}
+
 service Evaluations {
     rpc AddMonitoringRegistry(AddMonitoringRegistryRequest) returns (AddMonitoringRegistryResponse);
     rpc AddEvaluation(AddEvaluationRequest) returns (AddEvaluationResponse);
@@ -501,4 +514,5 @@ service Evaluations {
     rpc GetMonitoringCycle (GetMonitoringCycleRequest) returns (GetMonitoringCycleResponse);
     rpc GetWebpageComparisonData (GetWebpageComparisonDataRequest) returns (GetWebpageComparisonDataResponse);
     rpc GetFailedTestsStats (GetFailedTestsStatsRequest) returns (GetFailedTestsStatsResponse);
+    rpc GetIntermediateCycles (GetIntermediateCyclesRequest) returns (GetIntermediateCyclesResponse);
 }

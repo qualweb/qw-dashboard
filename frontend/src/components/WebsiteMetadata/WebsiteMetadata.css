@@ -1,0 +1,127 @@
+.website-metadata-container {
+    color: #ffffff;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+  }
+  
+.metadata-wrapper {
+    width: 100%;
+    padding: 2rem;
+}
+
+.metadata-content > h2 {
+    padding: 1rem 2rem;
+    background-color: var(--secondary-color);
+    width: fit-content;
+    border-radius: 3rem;
+}
+  
+.metadata-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--terciary-color);
+    border-radius: 1rem;
+    overflow: hidden;
+}
+  
+.metadata-table thead {
+    background-color: var(--secondary-color);
+}
+  
+.metadata-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #404040;
+}
+  
+.metadata-table-row {
+    border-bottom: 1px solid #404040;
+    transition: background-color 0.2s ease;
+}
+  
+.metadata-table-row:hover {
+    background-color: #333333;
+}
+  
+.metadata-table-row:last-child:hover {
+    background-color: #3a3a3a;
+}
+  
+.metadata-table td {
+    padding: 1rem;
+    color: #e0e0e0;
+}
+  
+.metadata-table a {
+    color: white;
+    text-decoration: none;
+    word-break: break-all;
+    text-align: left;
+}
+  
+.metadata-table a:hover {
+    color: white;
+    text-decoration: underline;
+}
+  
+.metadata-table-body tr:last-child td {
+    color: #ffffff;
+    font-weight: 600;
+    background-color: var(--secondary-color);
+}
+  
+.metadata-content > div > div {
+    text-align: center;
+    padding: 2rem;
+    color: #888888;
+    font-style: italic;
+    background-color: #333333;
+    border-radius: 8px;
+    border: 1px dashed #555555;
+}
+  
+@media (max-width: 768px) {
+    .metadata-wrapper {
+        padding: 1rem;
+    }
+    
+    .metadata-content {
+        padding: 1rem;
+    }
+    
+    .metadata-table th,
+    .metadata-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .metadata-table a {
+        word-break: break-word;
+    }
+}
+  
+@media (prefers-reduced-motion: reduce) {
+    .metadata-table-row,
+    .metadata-table a {
+        transition: none;
+    }
+}
+  
+.metadata-table-row:focus-within {
+    outline: 2px solid #ff6b35;
+    outline-offset: -2px;
+}
+  
+.metadata-table span[aria-label] {
+    position: relative;
+}
+
+.metadata-table > thead > tr > th {
+    text-align: center;
+}

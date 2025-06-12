@@ -1,6 +1,6 @@
 // const MONITORING_API_URL = 'http://10.10.6.132:8081/api/monitoring';
 
-const MONITORING_API_URL = 'http://localhost:8081/api/monitoring';
+const MONITORING_API_URL = 'https://localhost:8081/api/monitoring';
 
 export const runCrawler = async (
     website_name : string,
@@ -416,6 +416,21 @@ export const getAssertionsNumberByStateAndLevelPerWebpage = async(
 
     if(assertions_response.status != 200) {
         throw new Error('Failed to fetch assertions.');
+    }
+
+    return data;
+}
+
+export const getChartData = async (
+    webpage_id: string,
+    fst_cycle_id: string,
+    snd_cycle_id: string
+) => {
+    const response = await fetch(`${MONITORING_API_URL}/webpage/${webpage_id}/comparison/${fst_cycle_id}/${snd_cycle_id}/chart-data`);
+    const data = await response.json();
+
+    if (response.status !== 200) {
+        throw new Error('Failed to fetch chart data.');
     }
 
     return data;

@@ -11,10 +11,18 @@
   },
   "dependencies": {
     "@ark-ui/react": "^4.9.1",
+    "@auth0/auth0-react": "^2.3.0",
     "@feedzai/autovizua11y": "^2.0.4",
+    "@visx/axis": "^3.12.0",
+    "@visx/grid": "^3.12.0",
+    "@visx/group": "^3.12.0",
+    "@visx/scale": "^3.12.0",
+    "@visx/shape": "^3.12.0",
+    "@visx/visx": "^3.12.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "formik": "^2.4.6",
+    "lucide-react": "^0.514.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.2.0"

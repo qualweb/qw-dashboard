@@ -61,12 +61,16 @@ function Evaluate() {
         items: items,
     });
 
-    const addWebpage = (url_auth : [url: string, needs_authentication: boolean]): void => {
-        setWebpagesToEval(prev => [...prev, url_auth]);
+    const addWebpage = (url_auth: [string, boolean]): void => {
+        setWebpagesToEval(prev => {
+            const exists = prev.some(([url]) => url === url_auth[0]);
+            if (exists) return prev;
+            return [...prev, url_auth];
+        });
     };
-
-    const removeWebpage = async (webpage: string) => {
-        setWebpagesToEval(prev => prev.filter(([url, ]) => url !== webpage));
+    
+    const removeWebpage = (webpage: string) => {
+        setWebpagesToEval(prev => prev.filter(([url]) => url !== webpage));
     };
     
     const stopMonitoringWebpage = async (webpage: string) => {
@@ -127,7 +131,7 @@ function Evaluate() {
                                     <Checkbox.Root className='checkbox-webpage' value={item.value} key={item.value}>
                                         <Checkbox.Control className='checkbox-webpage-control' onClick={() => {
                                             const exists = webpagesToEval.some(([url]) => url === item.value);
-    
+
                                             if (exists) {
                                                 removeWebpage(item.value);
                                                 console.log("Removed:", item.value);

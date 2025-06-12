@@ -37,6 +37,8 @@ CREATE TABLE Webpage (
     monitoring_registry_id      INTEGER,
     needs_authentication        BOOLEAN NOT NULL DEFAULT FALSE,
     login_webpage_id            INTEGER,
+    num_elements                INTEGER NOT NULL,
+    page_size_kb                INTEGER NOT NULL,
 
     FOREIGN KEY (monitoring_registry_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE,
     FOREIGN KEY (login_webpage_id) REFERENCES LoginWebpage(id) ON DELETE CASCADE

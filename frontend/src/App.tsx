@@ -8,6 +8,7 @@ import Evaluate from './components/Evaluate/Evaluate';
 import SelectEvaluations from './components/SelectEvaluations/SelectEvaluations';
 import CompareEvaluations from './components/CompareEvaluations/CompareEvaluations';
 import Schedule from './components/Schedule/Schedule';
+import WebsiteMetadata from './components/WebsiteMetadata/WebsiteMetadata';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path='/dashboard/:monitoring_id/compare-evaluations/:first_cycle/:second_cycle' element={<CompareEvaluations  />} />
           <Route path='/dashboard/:monitoring_id/evaluate' element={<Evaluate />} />
           <Route path='/dashboard/:monitoring_id/scheduler' element={<Schedule />} />
+          <Route path='/dashboard/:monitoring_id/website-metadata' element={<WebsiteMetadata />} />
         </Routes>
       </Router>
     </>
