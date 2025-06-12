@@ -303,6 +303,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                 }
                                 else {
                                     console.error("Error evaluating URL ".concat(webpage_url_1));
+                                    return [2 /*return*/, "break"];
                                 }
                                 return [4 /*yield*/, (function () { return __awaiter(void 0, void 0, void 0, function () {
                                         var browser_2, page_1, goto, webpageSizeInKB, buffer, screenshot, evaluations_request_1, _a, _b, response_1, error_5;
@@ -448,6 +449,8 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                 state_1 = _a.sent();
                 if (typeof state_1 === "object")
                     return [2 /*return*/, state_1.value];
+                if (state_1 === "break")
+                    return [3 /*break*/, 4];
                 _a.label = 3;
             case 3:
                 _i++;
