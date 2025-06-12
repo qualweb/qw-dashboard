@@ -8,7 +8,7 @@ import App from './App.tsx'
 const AUTH0_DOMAIN=import.meta.env.VITE_AUTH0_DOMAIN
 const AUTH0_CLIENT_ID=import.meta.env.VITE_AUTH0_CLIENT_ID
 
-sucreateRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     { AUTH0_DOMAIN && AUTH0_CLIENT_ID ? (
       <Auth0Provider
