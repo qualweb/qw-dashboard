@@ -15,7 +15,7 @@ createRoot(document.getElementById('root')!).render(
         domain={AUTH0_DOMAIN}
         clientId={AUTH0_CLIENT_ID}
         authorizationParams={{
-          redirect_uri: "https://qwdashboard.di.fc.ul.pt/websites-overview"
+          redirect_uri: "https://localhost:8080/websites-overview"
         }}
       >
         <App />
