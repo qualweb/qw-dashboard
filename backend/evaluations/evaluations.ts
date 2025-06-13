@@ -299,7 +299,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
             }
             else {
                 console.error(`Error evaluating URL ${webpage_url}`);
-                break;
+                continue;
             }
 
             const result = await ( async () => {
