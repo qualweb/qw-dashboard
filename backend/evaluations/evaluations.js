@@ -235,7 +235,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                 }
                 console.log(webpage_ids);
                 _loop_1 = function (webpage_id) {
-                    var getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, browser_1, page, report_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_4;
+                    var getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, browser_1, page, report_1, decodedUrl, result, setLatestEvalRequest_1, setLatestEvalResponse, error_4;
                     return __generator(this, function (_b) {
                         switch (_b.label) {
                             case 0:
@@ -293,9 +293,10 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                 return [4 /*yield*/, evaluate(webpage_url_1, screen_width_1, screen_height_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
                             case 7:
                                 report_1 = _b.sent();
-                                if (!needs_authentication_1 && report_1[webpage_url_1] !== undefined) {
-                                    report_1 = report_1[webpage_url_1];
-                                    console.log("Successfully evaluated URL ".concat(webpage_url_1));
+                                decodedUrl = decodeURIComponent(webpage_url_1);
+                                if (!needs_authentication_1 && report_1[decodedUrl] !== undefined) {
+                                    report_1 = report_1[decodedUrl];
+                                    console.log("Successfully evaluated URL ".concat(decodedUrl));
                                 }
                                 else if (needs_authentication_1 && report_1.customHtml !== undefined) {
                                     report_1 = report_1.customHtml;

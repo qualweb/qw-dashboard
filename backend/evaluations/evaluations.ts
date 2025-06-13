@@ -288,10 +288,12 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
                 username,
                 password
             );
+
+            const decodedUrl = decodeURIComponent(webpage_url);
             
-            if (!needs_authentication && report[webpage_url] !== undefined) {
-                report = report[webpage_url];
-                console.log(`Successfully evaluated URL ${webpage_url}`);
+            if (!needs_authentication && report[decodedUrl] !== undefined) {
+                report = report[decodedUrl];
+                console.log(`Successfully evaluated URL ${decodedUrl}`);
             }
             else if (needs_authentication && report.customHtml !== undefined) {
                 report = report.customHtml;
