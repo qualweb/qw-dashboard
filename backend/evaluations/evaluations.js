@@ -235,7 +235,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                 }
                 console.log(webpage_ids);
                 _loop_1 = function (webpage_id) {
-                    var getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, browser_1, page, report_1, decodedUrl, result, setLatestEvalRequest_1, setLatestEvalResponse, error_4;
+                    var getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, webpage_url_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, browser_1, page, report_1, decodedUrl, neededEnconding_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_4;
                     return __generator(this, function (_b) {
                         switch (_b.label) {
                             case 0:
@@ -294,6 +294,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                             case 7:
                                 report_1 = _b.sent();
                                 decodedUrl = decodeURIComponent(webpage_url_1);
+                                neededEnconding_1 = webpage_url_1 !== decodedUrl;
                                 if (!needs_authentication_1 && report_1[decodedUrl] !== undefined) {
                                     report_1 = report_1[decodedUrl];
                                     console.log("Successfully evaluated URL ".concat(decodedUrl));
@@ -308,11 +309,11 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                 }
                                 return [4 /*yield*/, (function () { return __awaiter(void 0, void 0, void 0, function () {
                                         var browser_2, page_1, goto, webpageSizeInKB, buffer, screenshot, evaluations_request_1, _a, _b, response_1, error_5;
-                                        var _c, _d, _e, _f, _g, _h;
-                                        return __generator(this, function (_j) {
-                                            switch (_j.label) {
+                                        var _c, _d, _e, _f, _g, _h, _j, _k;
+                                        return __generator(this, function (_l) {
+                                            switch (_l.label) {
                                                 case 0:
-                                                    _j.trys.push([0, 15, , 16]);
+                                                    _l.trys.push([0, 15, , 16]);
                                                     return [4 /*yield*/, puppeteer_1.default.launch({
                                                             headless: true,
                                                             args: [
@@ -323,52 +324,52 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                                             timeout: 5000,
                                                         })];
                                                 case 1:
-                                                    browser_2 = _j.sent();
+                                                    browser_2 = _l.sent();
                                                     return [4 /*yield*/, browser_2.newPage()];
                                                 case 2:
-                                                    page_1 = _j.sent();
+                                                    page_1 = _l.sent();
                                                     return [4 /*yield*/, page_1.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
                                                 case 3:
-                                                    _j.sent();
+                                                    _l.sent();
                                                     return [4 /*yield*/, page_1.setViewport({
                                                             width: screen_width_1,
                                                             height: screen_height_1,
                                                             deviceScaleFactor: 1,
                                                         })];
                                                 case 4:
-                                                    _j.sent();
+                                                    _l.sent();
                                                     goto = void 0;
                                                     if (!needs_authentication_1) return [3 /*break*/, 7];
                                                     return [4 /*yield*/, page_1.goto(webpage_url_1, { waitUntil: 'networkidle0' })];
                                                 case 5:
-                                                    goto = _j.sent();
+                                                    goto = _l.sent();
                                                     return [4 /*yield*/, bypassLogin(page_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
                                                 case 6:
-                                                    _j.sent();
+                                                    _l.sent();
                                                     return [3 /*break*/, 9];
                                                 case 7: return [4 /*yield*/, page_1.goto(webpage_url_1, { waitUntil: 'networkidle0' })];
                                                 case 8:
-                                                    goto = _j.sent();
-                                                    _j.label = 9;
+                                                    goto = _l.sent();
+                                                    _l.label = 9;
                                                 case 9:
                                                     webpageSizeInKB = void 0;
                                                     if (!(goto && goto.ok())) return [3 /*break*/, 11];
                                                     return [4 /*yield*/, goto.buffer()];
                                                 case 10:
-                                                    buffer = _j.sent();
+                                                    buffer = _l.sent();
                                                     webpageSizeInKB = buffer.length / 1024;
                                                     console.log("Webpage size for ".concat(webpage_url_1, ": ").concat(webpageSizeInKB, " KB"));
-                                                    _j.label = 11;
+                                                    _l.label = 11;
                                                 case 11: return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(page_1, screen_width_1, screen_height_1)];
                                                 case 12:
-                                                    screenshot = _j.sent();
+                                                    screenshot = _l.sent();
                                                     evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
                                                     evaluations_request_1.setQualwebVersion(report_1.system.version);
-                                                    evaluations_request_1.setInputUrl(encodeURIComponent(!needs_authentication_1 ? ((_d = (_c = report_1.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "") : webpage_url_1));
-                                                    evaluations_request_1.setCompleteUrl((_f = (_e = report_1.system.url) === null || _e === void 0 ? void 0 : _e.completeUrl) !== null && _f !== void 0 ? _f : "");
+                                                    evaluations_request_1.setInputUrl(neededEnconding_1 ? encodeURIComponent(!needs_authentication_1 ? ((_d = (_c = report_1.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "") : webpage_url_1) : !needs_authentication_1 ? ((_f = (_e = report_1.system.url) === null || _e === void 0 ? void 0 : _e.inputUrl) !== null && _f !== void 0 ? _f : "") : webpage_url_1);
+                                                    evaluations_request_1.setCompleteUrl((_h = (_g = report_1.system.url) === null || _g === void 0 ? void 0 : _g.completeUrl) !== null && _h !== void 0 ? _h : "");
                                                     evaluations_request_1.setDom(report_1.system.page.dom.html);
-                                                    evaluations_request_1.setTitle((_g = report_1.system.page.dom.title) !== null && _g !== void 0 ? _g : "");
-                                                    evaluations_request_1.setElementCount((_h = report_1.system.page.dom.elementCount) !== null && _h !== void 0 ? _h : 0);
+                                                    evaluations_request_1.setTitle((_j = report_1.system.page.dom.title) !== null && _j !== void 0 ? _j : "");
+                                                    evaluations_request_1.setElementCount((_k = report_1.system.page.dom.elementCount) !== null && _k !== void 0 ? _k : 0);
                                                     evaluations_request_1.setPassed(report_1.metadata.passed);
                                                     evaluations_request_1.setWarning(report_1.metadata.warning);
                                                     evaluations_request_1.setFailed(report_1.metadata.failed);
@@ -376,7 +377,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                                     _b = (_a = evaluations_request_1).setModulesList;
                                                     return [4 /*yield*/, (0, process_evals_1.default)(report_1, page_1)];
                                                 case 13:
-                                                    _b.apply(_a, [_j.sent()]);
+                                                    _b.apply(_a, [_l.sent()]);
                                                     evaluations_request_1.setModulesQuantity(2);
                                                     evaluations_request_1.setMonitoredWebsiteId(Number(monitoring_id));
                                                     evaluations_request_1.setWebpageSizeKb(webpageSizeInKB !== null && webpageSizeInKB !== void 0 ? webpageSizeInKB : 0);
@@ -393,11 +394,11 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                                             });
                                                         })];
                                                 case 14:
-                                                    response_1 = _j.sent();
+                                                    response_1 = _l.sent();
                                                     console.log("Successfully added evaluation for URL ".concat(webpage_url_1));
                                                     return [2 /*return*/, { webpage_url: webpage_url_1, success: true, statusCode: response_1.getStatusCode() }];
                                                 case 15:
-                                                    error_5 = _j.sent();
+                                                    error_5 = _l.sent();
                                                     console.error("Error adding evaluation for URL ".concat(webpage_url_1, ":"), error_5);
                                                     return [2 /*return*/, { webpage_url: webpage_url_1, success: false, error: error_5 }];
                                                 case 16: return [2 /*return*/];
