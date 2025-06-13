@@ -364,7 +364,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                                                     screenshot = _j.sent();
                                                     evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
                                                     evaluations_request_1.setQualwebVersion(report_1.system.version);
-                                                    evaluations_request_1.setInputUrl(!needs_authentication_1 ? ((_d = (_c = report_1.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "") : webpage_url_1);
+                                                    evaluations_request_1.setInputUrl(encodeURIComponent(!needs_authentication_1 ? ((_d = (_c = report_1.system.url) === null || _c === void 0 ? void 0 : _c.inputUrl) !== null && _d !== void 0 ? _d : "") : webpage_url_1));
                                                     evaluations_request_1.setCompleteUrl((_f = (_e = report_1.system.url) === null || _e === void 0 ? void 0 : _e.completeUrl) !== null && _f !== void 0 ? _f : "");
                                                     evaluations_request_1.setDom(report_1.system.page.dom.html);
                                                     evaluations_request_1.setTitle((_g = report_1.system.page.dom.title) !== null && _g !== void 0 ? _g : "");

@@ -355,7 +355,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
 
                     const evaluations_request = new AddEvaluationRequest();
                     evaluations_request.setQualwebVersion(report.system.version);
-                    evaluations_request.setInputUrl(!needs_authentication ? (report.system.url?.inputUrl ?? "") : webpage_url);
+                    evaluations_request.setInputUrl(encodeURIComponent(!needs_authentication ? (report.system.url?.inputUrl ?? "") : webpage_url));
                     evaluations_request.setCompleteUrl(report.system.url?.completeUrl ?? "");
                     evaluations_request.setDom(report.system.page.dom.html);
                     evaluations_request.setTitle(report.system.page.dom.title ?? "");
