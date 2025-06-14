@@ -1,4 +1,12 @@
-const USERS_API_URL = 'https://qwdashboard.di.fc.ul.pt/api/users';
+let USERS_API_URL;
+const isProduction = import.meta.env.MODE === 'production';
+
+if (isProduction) {
+    USERS_API_URL = 'https://qwdashboard.di.fc.ul.pt/api/users';
+}
+else {
+    USERS_API_URL = 'http://localhost:8082/api/users';
+}
 
 export const registerUser = async(
     auth0_id: string | undefined,

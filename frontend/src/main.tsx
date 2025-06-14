@@ -8,6 +8,9 @@ import App from './App.tsx'
 const AUTH0_DOMAIN=import.meta.env.VITE_AUTH0_DOMAIN
 const AUTH0_CLIENT_ID=import.meta.env.VITE_AUTH0_CLIENT_ID
 
+const isProduction = import.meta.env.MODE === 'production';
+const redirect_uri = isProduction ? "https://qwdashboard.di.fc.ul.pt/websites-overview" : "http://localhost:8080/websites-overview";
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     { AUTH0_DOMAIN && AUTH0_CLIENT_ID ? (
@@ -15,7 +18,7 @@ createRoot(document.getElementById('root')!).render(
         domain={AUTH0_DOMAIN}
         clientId={AUTH0_CLIENT_ID}
         authorizationParams={{
-          redirect_uri: "https://qwdashboard.di.fc.ul.pt/websites-overview"
+          redirect_uri: redirect_uri
         }}
       >
         <App />

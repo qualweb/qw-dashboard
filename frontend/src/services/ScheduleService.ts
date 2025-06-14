@@ -1,4 +1,12 @@
-const SCHEDULER_API_URL = 'https://qwdashboard.di.fc.ul.pt:8083/api/scheduler';
+let SCHEDULER_API_URL;
+const isProduction = import.meta.env.MODE === 'production';
+
+if (isProduction) {
+    SCHEDULER_API_URL = 'https://qwdashboard.di.fc.ul.pt/api/scheduler';
+}
+else {
+    SCHEDULER_API_URL = 'http://localhost:8083/api/scheduler';
+}
 
 export const addSchedule = async (
     schedule_type: string,

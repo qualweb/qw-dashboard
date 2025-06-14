@@ -12,11 +12,9 @@
 
 .score-container {
     width: 60%;
-    height: 50rem;
+    min-height: 30rem;
     border-radius: 4rem;
     background-color: var(--secondary-color);
-    min-width: 25rem;
-    min-height: 25rem;
 }
 
 .issues {

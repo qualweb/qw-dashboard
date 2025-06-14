@@ -1,14 +1,13 @@
 .website-card-wrapper {
     list-style: none;
-    flex-grow: 1;
-    min-width: 30rem;
+    width: 100%;    
 }
 
 .website-card-link {
     display: flex;
     flex-direction: column;
-    min-width: 30rem;
     gap: 2rem;
+    width: 100%;
 }
 
 .website-card:hover {
@@ -30,6 +29,8 @@
     width: 100%;    
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .website-info {
@@ -46,6 +47,10 @@
     flex-direction: column;
     text-align: left;
     justify-content: center;
+}
+
+.website-name-url span {
+    word-break: break-all;
 }
 
 .website-card-url {
@@ -84,6 +89,7 @@
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    gap: 2rem;
 }
 
 .website-stats {

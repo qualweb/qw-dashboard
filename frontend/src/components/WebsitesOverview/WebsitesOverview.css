@@ -47,6 +47,7 @@
 
 .username {
     color: #FF7B00;
+    text-align: left;
 }
 
 .your-websites {
@@ -58,6 +59,7 @@
 .your-websites-header {
     display: flex;
     justify-content: space-between;
+    text-align: left;
 }
 
 .your-websites-list {

@@ -1,7 +1,7 @@
 .logout-button {
     background-color: #FF7B00;
     border-radius: 3rem;
-    padding: 1.5rem 2rem;
+    padding: 3vh 3vw;
     color: var(--terciary-color);
     z-index: 100;
 }
