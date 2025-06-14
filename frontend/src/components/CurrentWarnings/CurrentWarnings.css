@@ -6,7 +6,7 @@
 }
 
 .wrapper-warnings-list {
-    padding: 3rem 2rem;
+    padding: clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2rem);
     display: flex;
     flex-direction: column;
     gap: 3rem;

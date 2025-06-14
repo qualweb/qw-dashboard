@@ -56,14 +56,14 @@
 }
 
 .failed-tests-stats-list {
-    width: 95%;
+    width: 100%
 }
 
 .continuous-chart-container {
-    width: 90%;
     background-color: var(--secondary-color);
-    padding: 3rem;
-    border-radius: 4rem;
+    padding: clamp(1rem, 5vw, 3rem);
+    border-radius: clamp(1rem, 5vw, 4rem);
+    width: 100%;
 }
 
 .continuous-chart-wrapper {
@@ -72,7 +72,6 @@
     justify-content: center;
     align-items: center;
     gap: 2rem;
-    width: 100%;
 }
 
 .continuous-chart-title {
@@ -93,4 +92,8 @@
     display: flex;
     justify-content: flex-start;
     width: 95%;
+}
+
+.continuous-website-chart {
+    width: 100%;
 }

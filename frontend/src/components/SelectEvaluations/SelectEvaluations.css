@@ -26,22 +26,12 @@
     justify-content: space-around;
 }
 
-.compare-evaluations-separator {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-grow: 1;
-    justify-content: center;
-    padding: 10rem;
-}
-
 .compare-evaluations-wrapper {
     display: flex;
     flex-direction: column;
-    background-color: var(--terciary-color);
-    padding: 3rem 5rem;
-    border-radius: 3rem;
-    width: 50%;
+    background-color: var(--secondary-color);
+    padding: clamp(1rem, 5vw, 3rem) clamp(1rem, 5vw, 5rem);
+    border-radius: clamp(1rem, 5vw, 3rem);
     gap: 3rem;
 }
 
@@ -64,7 +54,9 @@
 
 .evaluations-selection {
     display: flex;
-    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3rem;
 }
 
 .evaluation-1 > h4, .evaluation-2 > h4 {
@@ -80,6 +72,7 @@
 
 .compare-evaluations-button {
     background: var(--seondary-color);
+    padding: clamp(1rem, 5vw, 1rem) clamp(1rem, 5vw, 2rem);
 }
 
 .compare-evaluations-button-wrapper {
@@ -95,7 +88,6 @@
     background-color: #FF7C01;
     color: var(--terciary-color);
     border-radius: 3rem;
-    height: 3.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -107,4 +99,30 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+}
+
+.select-evaluations {
+    display: flex;
+    width: 100vw;
+    overflow-y: scroll;
+    height: 100%;
+    flex-direction: column;
+}
+
+.select-evaluations-container {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 2rem;
+    width: 100%;
+}
+
+.compare-evaluations-separator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    margin: 3rem;
 }

@@ -1,7 +1,7 @@
 .history {
     width: 100%;
     max-height: 50rem;
-    border-radius: 4rem;
+    border-radius: clamp(1rem, 5vw, 4rem);
     background-color: var(--secondary-color);
     display: flex;
     flex-direction: column;
@@ -11,9 +11,11 @@
 .history-title {
     color: white;
     text-align: left;
-    padding-top: 4rem;
-    padding-left: 6rem;
     margin: 0;
+    display: flex;
+    align-items: center;
+    margin-top: clamp(3rem, 5vw, 5rem);
+    margin-left: clamp(3rem, 5vw, 5rem);
 }
 
 .history-list-wrapper {
@@ -21,10 +23,11 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    padding-bottom: 2.5rem;
     max-height: 100%;
-    padding-left: 5rem;
-    padding-right: 5rem;
+    padding-top: clamp(1rem, 5vw, 1.5rem);
+    padding-left: clamp(1rem, 5vw, 5rem);
+    padding-right: clamp(1rem, 5vw, 5rem);
+    padding-bottom: clamp(1rem, 5vw, 5rem);
 }
 
 .history-list {
@@ -43,11 +46,8 @@
     align-items: center;
     justify-content: space-between;
     background-color: var(--terciary-color);
-    padding-left: 3rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    padding-right: 3rem;
     border-radius: 1rem;
+    padding: 1rem clamp(1rem, 5vw, 3rem);
     flex-wrap: wrap;
     gap: 1rem;
 }

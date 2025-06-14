@@ -1,8 +1,7 @@
 .schedule-card {
     background-color: var(--terciary-color);
-    padding-left: 5rem;
-    padding-right: 3rem;
-    border-radius: 6rem;
+    border-radius: clamp(1rem, 5vw, 6rem);
+    padding: clamp(2rem, 5vw, 3rem) clamp(2rem, 5vw, 3.5rem);
 }
 
 .schedule-card-details {

@@ -24,10 +24,11 @@ function ContinuousChart(props: ContinuousChartProps) {
     useEffect(() => {
         const updateDimensions = () => {
             if (containerRef.current) {
-                const { clientWidth, clientHeight } = containerRef.current;
-
-                setWidth(clientWidth || 380);
-                setHeight(clientHeight || 200);
+                const { offsetWidth, offsetHeight } = containerRef.current;
+        
+                setWidth(offsetWidth || 380);
+                setHeight(offsetHeight || 200);
+                setIsReady(true);
 
             }
         };
@@ -49,7 +50,6 @@ function ContinuousChart(props: ContinuousChartProps) {
         return () => {
             clearTimeout(timer);
             resizeObserver.disconnect();
-            setIsReady(true);
         };
     }, [width, height, containerRef, props.selectedMetric]);
 

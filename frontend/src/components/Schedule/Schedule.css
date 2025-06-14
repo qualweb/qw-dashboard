@@ -184,9 +184,9 @@
     flex-direction: column;
     justify-content: space-between;
     background-color: var(--secondary-color);
-    border-radius: 3rem;
+    border-radius: clamp(1rem, 5vw, 3rem);
     width: 100%;
-    padding: 3rem;
+    padding: clamp(1rem, 5vw, 3rem);
     gap: 2.5rem;
 }
 

@@ -3,9 +3,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     background-color: var(--secondary-color);
-    padding: 2rem 3rem;
-    border-radius: 4rem;
+    padding: clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2.5rem);
+    border-radius: clamp(1rem, 5vw, 4rem);
     gap: 1.5rem;
 }
 
@@ -46,7 +47,7 @@
     background-color: var(--terciary-color);
     padding: 0.8rem 1.5rem;
     border-radius: 2rem;
-    width: 100%;
+    flex: 1;
     text-wrap: nowrap;
     overflow-y: hidden;
     overflow-x: auto;

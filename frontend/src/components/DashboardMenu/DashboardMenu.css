@@ -1,5 +1,8 @@
 @media(max-width: 60rem) {
-    body .sidebar {
+    .sidebar {
+        width: 100vw !important;
+        height: 100dvh !important;
+        overflow-y: auto;
     }
 }
 
@@ -223,7 +226,6 @@ img {
     position: fixed;
     top: 1rem;
     left: 16.5rem;
-    z-index: 1001;
     background-color: var(--terciary-color);
     display: flex;
     align-items: center;

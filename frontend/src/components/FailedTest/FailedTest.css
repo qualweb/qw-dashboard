@@ -10,6 +10,7 @@
     display: flex;
     align-items: center;
     gap: 2rem;
+    text-align: left;
 }
 
 .rule-code h4 {
@@ -28,8 +29,8 @@
     flex-direction: column;
     background-color: var(--terciary-color);
     width: 100%;
-    padding: 1.5rem 2.5rem;
-    border-radius: 3rem;
+    padding: clamp(1rem, 5vw, 1.5rem) clamp(1rem, 5vw, 2.5rem);
+    border-radius: clamp(1rem, 5vw, 3rem);
     gap: 2rem;
 }
 
@@ -37,6 +38,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+    text-align: left;
 }
 
 .rule-affected-webpages-button {
@@ -49,6 +51,8 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 2rem;
 }
 
 .rule-webpages-list {
@@ -66,8 +70,11 @@
     display: flex;
     align-items: center;
     gap: 2rem;
-    padding: 1rem 2rem;
-    border-radius: 3rem;
+    padding: 1rem clamp(1rem, 5vw, 2rem);
+    border-radius: clamp(1rem, 5vw, 3rem);
+    flex-wrap: wrap;
+    text-align: left;
+    word-break: break-all;
 }
 
 .new-webpage {

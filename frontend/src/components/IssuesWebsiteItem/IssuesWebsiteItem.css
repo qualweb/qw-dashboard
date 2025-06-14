@@ -3,6 +3,7 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    gap: 1rem;
 }
 
 .issue-item-container {
@@ -11,12 +12,11 @@
 
 .issue-item {
     background-color: var(--terciary-color);
-    border-radius: 3rem;
-    padding: 2rem 2.5rem;
+    border-radius: clamp(1rem, 5vw, 3rem);
+    padding: clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2.5rem);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 3rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -43,7 +43,7 @@
     align-items: center;
     gap: 0.8rem;
     cursor: pointer;
-    border-radius: 2rem;
+    border-radius: clamp(1rem, 5vw, 2rem);
     background-color: var(--secondary-color);
     padding: 0.5rem 1rem;
 }

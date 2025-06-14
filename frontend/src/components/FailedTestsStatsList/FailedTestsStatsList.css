@@ -14,8 +14,8 @@
     gap: 1rem;
     list-style: none;
     background-color: var(--secondary-color);
-    padding: 3rem;
-    border-radius: 4rem;
+    padding: clamp(1rem, 5vw, 3rem);
+    border-radius: clamp(1rem, 5vw, 4rem);
 }
 
 .failed-tests-title {

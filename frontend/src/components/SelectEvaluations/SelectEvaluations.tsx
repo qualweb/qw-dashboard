@@ -44,11 +44,11 @@ function SelectEvaluations() {
     });
 
     return (
-        <div className="compare-evaluations">
+        <div className="select-evaluations">
             <DashboardMenu monitoring_id={String(monitoring_id)} />
             <div className='compare-evaluations-separator'>    
                 {monitoring_id ? (
-                    <div className='compare-evaluations-container'>
+                    <div className='select-evaluations-container'>
                         <WebsiteIdentifier monitoring_id={String(monitoring_id)} />
                         <div className="compare-evaluations-wrapper">
                             <h3>Compare Evaluations</h3>

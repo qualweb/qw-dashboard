@@ -3,6 +3,6 @@
     flex-direction: column;
     gap: 2rem;
     background-color: var(--secondary-color);
-    border-radius: 4rem;
-    padding: 2.5rem;
+    border-radius: clamp(1rem, 5vw, 4rem);
+    padding: clamp(1rem, 5vw, 2.5rem);
 }

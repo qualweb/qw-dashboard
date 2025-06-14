@@ -247,11 +247,13 @@ function CompareWebsiteStats(props: CompareWebsiteStatsProps) {
                                 defaultValues={[metric]}
                             />
                         </div>
-                        <div className='continuous-chart-container'>
-                            <ContinuousChart
-                                chartData={chartData}
-                                selectedMetric={metric}
-                            />
+                        <div className="continuous-website-chart">
+                            <div className='continuous-chart-container'>
+                                <ContinuousChart
+                                    chartData={chartData}
+                                    selectedMetric={metric}
+                                />
+                            </div>
                         </div>
                     </div>
                 </>
