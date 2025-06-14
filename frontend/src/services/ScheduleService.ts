@@ -1,5 +1,5 @@
 let SCHEDULER_API_URL;
-const isProduction = import.meta.env.MODE === 'production';
+const isProduction = import.meta.env.VITE_MODE === 'production';
 
 if (isProduction) {
     SCHEDULER_API_URL = 'https://qwdashboard.di.fc.ul.pt/api/scheduler';

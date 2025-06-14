@@ -1,7 +1,7 @@
 // const MONITORING_API_URL = 'http://10.10.6.132:8081/api/monitoring';
 
 let MONITORING_API_URL;
-const isProduction = import.meta.env.MODE === 'production';
+const isProduction = import.meta.env.VITE_MODE === 'production';
 
 if (isProduction) {
     MONITORING_API_URL = 'https://qwdashboard.di.fc.ul.pt/api/monitoring';

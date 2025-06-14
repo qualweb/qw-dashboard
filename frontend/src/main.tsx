@@ -8,7 +8,7 @@ import App from './App.tsx'
 const AUTH0_DOMAIN=import.meta.env.VITE_AUTH0_DOMAIN
 const AUTH0_CLIENT_ID=import.meta.env.VITE_AUTH0_CLIENT_ID
 
-const isProduction = import.meta.env.MODE === 'production';
+const isProduction = import.meta.env.VITE_MODE === 'production';
 const redirect_uri = isProduction ? "https://qwdashboard.di.fc.ul.pt/websites-overview" : "http://localhost:8080/websites-overview";
 
 createRoot(document.getElementById('root')!).render(
