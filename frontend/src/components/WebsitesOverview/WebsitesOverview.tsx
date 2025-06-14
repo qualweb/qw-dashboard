@@ -1,5 +1,5 @@
 import LogoutButton from '../LogoutButton/LogoutButton';
-import WebsiteCard from '../WebsiteCard /WebsiteCard';
+import WebsiteCard from '../WebsiteCard/WebsiteCard';
 import { useAuth0 } from "@auth0/auth0-react";
 import './WebsitesOverview.css'
 import { useEffect, useState } from 'react';
