@@ -101,6 +101,7 @@ function  CategoryWebsite(props: CategoryWebsiteProps) {
                             evaluation_id={String(assertions.assertions[index].evaluation_id)}
                             webpage_url={assertions.assertions[index].webpage_url}
                             webpage_screenshot={webpageScreenshots[index]}
+                            assertion_outcome={props.outcome}
                         />
                     ))}
                     </div>

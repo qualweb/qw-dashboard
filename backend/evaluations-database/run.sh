@@ -1,2 +1,2 @@
 docker build -t evaluations-database-container -f Dockerfile .
-docker run --name evaluations-database-container -d -p 6000:6000 --network microservices -e DATABASE_HOST=postgres-database -e ISSUES_DATABASE_HOST=issues-database-container evaluations-database-container
+docker run -e TZ=Europe/Lisbon --name evaluations-database-container -d -p 6000:6000 --network microservices -e DATABASE_HOST=postgres-database -e ISSUES_DATABASE_HOST=issues-database-container evaluations-database-container

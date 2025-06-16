@@ -105,6 +105,15 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
     const website_name = req.body.website_name;
     const user_id = req.body.user_id;
 
+    function isSameDomain(url: string, targetDomain: string): boolean {
+        try {
+            const urlDomain = new URL(url).hostname;
+            return urlDomain === targetDomain || urlDomain === `www.${targetDomain}` || targetDomain === `www.${urlDomain}`;
+        } catch {
+            return false;
+        }
+    }
+
     async function run(urlToCrawl: string) {
         const urls: string[] = [];
         
@@ -114,11 +123,20 @@ app.post('/api/monitoring/crawl', (req: Request, res: Response) => {
         const crawler = new PuppeteerCrawler({
             requestQueue,
             async requestHandler({ request, page, enqueueLinks, log }) {
+                const originalUrl = request.url;
                 const finalUrl = page.url();
                 
-                if (!seenUrls.has(finalUrl)) {
+                const originalInSameDomain = isSameDomain(originalUrl, domain_name);
+                const finalInSameDomain = isSameDomain(finalUrl, domain_name);
+                
+                if (!seenUrls.has(finalUrl) && originalInSameDomain && finalInSameDomain) {
                     urls.push(finalUrl);
                     seenUrls.add(finalUrl);
+                    log.info(`Added URL from same domain: ${originalUrl} -> ${finalUrl}`);
+                } else if (originalInSameDomain && !finalInSameDomain) {
+                    log.info(`Skipped URL that redirected to different domain: ${originalUrl} -> ${finalUrl}`);
+                } else if (!originalInSameDomain) {
+                    log.info(`Skipped URL from different domain: ${originalUrl}`);
                 }
                 
                 await enqueueLinks({

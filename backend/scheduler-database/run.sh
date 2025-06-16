@@ -1,2 +1,2 @@
 docker build -t scheduler-database-container -f Dockerfile .
-docker run --name scheduler-database-container -d -p 6002:6002 --network microservices -e DATABASE_HOST=postgres-database scheduler-database-container
+docker run -e TZ=Europe/Lisbon --name scheduler-database-container -d -p 6002:6002 --network microservices -e DATABASE_HOST=postgres-database scheduler-database-container

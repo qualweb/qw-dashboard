@@ -63,10 +63,13 @@ function Visualize(props: VisualizeProps) {
 
     return (
         <>
-            <button className='visualize-dialog-trigger' onClick={(event) => {
-                setIsOpen(true);
-                handleInnerButtonClick(event);
-            }}>
+            <button 
+                className='visualize-dialog-trigger' 
+                aria-label='Open webpage screenshot with highlighted tested instance'
+                onClick={(event) => {
+                    setIsOpen(true);
+                    handleInnerButtonClick(event);
+                }}>
                 <Eye />
             </button>
             <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>

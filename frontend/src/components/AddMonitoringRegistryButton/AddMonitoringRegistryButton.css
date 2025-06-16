@@ -16,10 +16,7 @@
 .add-website-dialog-content {
     position: relative;
     background-color: #222222;
-    padding-top: 2.5rem;
-    padding-left: 3.5rem;
-    padding-right: 3.5rem;
-    padding-bottom: 3.5rem;
+    padding: clamp(2rem, 5vw, 3.5rem);
     border-radius: 3rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
@@ -40,6 +37,7 @@
     display: flex;
     width: 100%;
     gap: 6rem;
+    flex-wrap: wrap;
 }
 
 .website-dimensions {
@@ -134,4 +132,17 @@
 
 [data-scope="select"][data-part="trigger"] {
     background-color: var(--secondary-color);
+}
+
+@media (max-width: 60rem) {
+
+    .dialog-positioner {
+        height: 100%;
+    }
+
+    .add-website-dialog-content {
+        height: 100% !important;
+        overflow-y: auto;
+    }
+
 }

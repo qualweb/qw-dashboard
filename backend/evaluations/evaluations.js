@@ -70,6 +70,15 @@ app.post('/api/monitoring/crawl', function (req, res) {
     var display_height = req.body.display_height;
     var website_name = req.body.website_name;
     var user_id = req.body.user_id;
+    function isSameDomain(url, targetDomain) {
+        try {
+            var urlDomain = new URL(url).hostname;
+            return urlDomain === targetDomain || urlDomain === "www.".concat(targetDomain) || targetDomain === "www.".concat(urlDomain);
+        }
+        catch (_a) {
+            return false;
+        }
+    }
     function run(urlToCrawl) {
         return __awaiter(this, void 0, void 0, function () {
             var urls, requestQueue, seenUrls, crawler;
@@ -85,15 +94,25 @@ app.post('/api/monitoring/crawl', function (req, res) {
                             requestQueue: requestQueue,
                             requestHandler: function (_a) {
                                 return __awaiter(this, arguments, void 0, function (_b) {
-                                    var finalUrl;
+                                    var originalUrl, finalUrl, originalInSameDomain, finalInSameDomain;
                                     var request = _b.request, page = _b.page, enqueueLinks = _b.enqueueLinks, log = _b.log;
                                     return __generator(this, function (_c) {
                                         switch (_c.label) {
                                             case 0:
+                                                originalUrl = request.url;
                                                 finalUrl = page.url();
-                                                if (!seenUrls.has(finalUrl)) {
+                                                originalInSameDomain = isSameDomain(originalUrl, domain_name);
+                                                finalInSameDomain = isSameDomain(finalUrl, domain_name);
+                                                if (!seenUrls.has(finalUrl) && originalInSameDomain && finalInSameDomain) {
                                                     urls.push(finalUrl);
                                                     seenUrls.add(finalUrl);
+                                                    log.info("Added URL from same domain: ".concat(originalUrl, " -> ").concat(finalUrl));
+                                                }
+                                                else if (originalInSameDomain && !finalInSameDomain) {
+                                                    log.info("Skipped URL that redirected to different domain: ".concat(originalUrl, " -> ").concat(finalUrl));
+                                                }
+                                                else if (!originalInSameDomain) {
+                                                    log.info("Skipped URL from different domain: ".concat(originalUrl));
                                                 }
                                                 return [4 /*yield*/, enqueueLinks({
                                                         globs: ["http?(s)://".concat(new URL(urlToCrawl).hostname, "/**")],

@@ -234,6 +234,7 @@ function DashboardMenu (props: DashboardMenuProps) {
                                 <div className='list-item' role="menuitem">
                                     <Menu.Root>
                                         <Menu.Trigger
+                                            ref={el => menuItemsRef.current[menuItems.length] = el}
                                             tabIndex={0}
                                             onKeyDown={(e) => {
                                                 // Handle Escape to prevent it from closing outer menu

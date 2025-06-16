@@ -94,6 +94,7 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
                   evaluation_id={String(assertion.evaluation_id)}
                   webpage_url={assertion.webpage_url}
                   webpage_screenshot={props.webpage_screenshot}
+                  assertion_outcome= {props.outcome}
                 />
               ))}
             </div>

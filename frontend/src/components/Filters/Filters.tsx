@@ -132,11 +132,17 @@ function Filters(props: FiltersProps) {
                                 props.setStatusFilter(statusFilter);
                                 props.setWcagLevelFilter(wcagLevelFilter);
                                 props.setGuidelineFilter(guidelineFilter);
+
+                                setIsOpen(false)
                             }}>Apply</button>
                             <button className='dialog-button' onClick={() => {
                                 setStatusFilter([]);
                                 setWcagLevelFilter([]);
                                 setGuidelineFilter([]);
+
+                                props.setStatusFilter([]);
+                                props.setWcagLevelFilter([]);
+                                props.setGuidelineFilter([]); 
                             }}>Clear</button>
                         </div>
                     </Dialog.Content>
