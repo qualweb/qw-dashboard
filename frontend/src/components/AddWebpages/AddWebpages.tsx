@@ -12,7 +12,7 @@ interface AddWebpagesProps {
 }
 
 function AddWebpages(props: AddWebpagesProps) {
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
 
     const [webpages, setWebpages] = useState('');
     const [webpages_authentication, setWebpagesAuthentication] = useState('');
