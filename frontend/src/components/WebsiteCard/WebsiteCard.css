@@ -1,13 +1,8 @@
 .website-card-wrapper {
-    list-style: none;
-    width: 100%;    
-}
-
-.website-card-link {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    width: 100%;
 }
 
 .website-card:hover {
@@ -23,6 +18,10 @@
     border-radius: 3rem;
     padding: 4rem;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    box-sizing: border-box;
 }
 
 .website-card-above {

@@ -14,11 +14,14 @@
 }
 
 .add-website-dialog-content {
-    position: relative;
     background-color: #222222;
     padding: clamp(2rem, 5vw, 3.5rem);
     border-radius: 3rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .add-website-dialog-desc-content {

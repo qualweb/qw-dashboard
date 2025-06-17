@@ -70,7 +70,6 @@ function Assertion(props: AssertionProps) {
                                 {states.map((state) => (
                                     <Checkbox.Root key={state} checked={filters.includes(state)}>
                                         <Checkbox.Control onClick={(event) => {
-                                            toggleStatusFilter(state)
                                             handleInnerButtonClick(event)
                                             handleChange(event)
                                         }}>
@@ -79,7 +78,7 @@ function Assertion(props: AssertionProps) {
                                             </Checkbox.Indicator>
                                         </Checkbox.Control>
                                         <Checkbox.Label>{state.charAt(0).toUpperCase() + state.slice(1)}</Checkbox.Label>
-                                        <Checkbox.HiddenInput />
+                                        <Checkbox.HiddenInput onClick={() => {toggleStatusFilter(state)}}  />
                                     </Checkbox.Root>
                                 ))}
                             </div>

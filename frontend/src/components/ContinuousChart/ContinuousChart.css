@@ -15,10 +15,3 @@ line {
     height: 20rem;
 }
 
-.continuous-chart {
-    min-height: 200px;
-    min-width: 300px;
-    scroll-margin: 0;
-    position: relative;
-}
-

@@ -129,7 +129,12 @@ function Evaluate() {
                             <div className='webpage-container' key={item.value}>
                                 <div className='checkbox-webpage-container'>
                                     <Checkbox.Root className='checkbox-webpage' value={item.value} key={item.value}>
-                                        <Checkbox.Control className='checkbox-webpage-control' onClick={() => {
+                                        <Checkbox.Control className='checkbox-webpage-control'>
+                                            <Checkbox.Indicator className='checkbox-webpage-indicator'>
+                                                <CheckIcon />
+                                            </Checkbox.Indicator>
+                                        </Checkbox.Control>
+                                        <Checkbox.HiddenInput onClick={() => {
                                             const exists = webpagesToEval.some(([url]) => url === item.value);
 
                                             if (exists) {
@@ -139,20 +144,15 @@ function Evaluate() {
                                                 addWebpage([item.value, item.needs_authentication]);
                                                 console.log("Added:", item.value);
                                             }
-                                        }}>
-                                            <Checkbox.Indicator className='checkbox-webpage-indicator'>
-                                                <CheckIcon />
-                                            </Checkbox.Indicator>
-                                        </Checkbox.Control>
-                                        <Checkbox.HiddenInput />
+                                        }} />
                                         <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
                                     </Checkbox.Root>
                                     <div className="delete-auth">
                                         {item.needs_authentication ? <KeyRound /> : null}
-                                        <button className='checkbox-webpage-trash-button' onClick={() => {
+                                        <button className='checkbox-webpage-trash-button' aria-label='Delete and stop monitoring webpage' onClick={() => {
                                             stopMonitoringWebpage(item.value);
                                         }}>
-                                            <Trash2 />
+                                            <Trash2 aria-label='Trash icon' />
                                         </button>
                                     </div>
                                 </div>

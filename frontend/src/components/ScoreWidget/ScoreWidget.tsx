@@ -55,7 +55,7 @@ function ScoreWidget(props: ScoreWidgetProps) {
                 className="score-progress"
             >
                 <div className="score-value-container">
-                    <strong><Progress.ValueText className="score-value" /></strong>
+                    <strong><Progress.ValueText className="score-value" aria-label={"Score: " + Math.round(value) + "%"} /></strong>
                 </div>
                 <Progress.Circle className="score-circle">
                     <Progress.CircleTrack className="score-track" />

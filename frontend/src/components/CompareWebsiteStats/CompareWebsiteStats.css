@@ -64,6 +64,7 @@
     padding: clamp(1rem, 5vw, 3rem);
     border-radius: clamp(1rem, 5vw, 4rem);
     width: 100%;
+    box-sizing: border-box;
 }
 
 .continuous-chart-wrapper {
@@ -85,13 +86,14 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    width: 95%;
+    width: 100%;
 }
 
 .select-metric-container {
     display: flex;
     justify-content: flex-start;
-    width: 95%;
+    width: 100%;
+    margin-left: 5rem;
 }
 
 .continuous-website-chart {

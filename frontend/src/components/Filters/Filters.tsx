@@ -72,7 +72,7 @@ function Filters(props: FiltersProps) {
                     <Dialog.Content className="dialog-content">
                         <div className='dialog-header'>
                             <Dialog.Title className="dialog-title">Filters</Dialog.Title>
-                            <Dialog.CloseTrigger className="dialog-close-trigger"><X size={18} /></Dialog.CloseTrigger>
+                            <Dialog.CloseTrigger className="dialog-close-trigger" aria-label='Close dialog' ><X size={18} /></Dialog.CloseTrigger>
                         </div>
                         
                         <div className="filters-wrapper-2">
@@ -82,13 +82,13 @@ function Filters(props: FiltersProps) {
                                     <div className='wrapper-filters-options'>
                                         {wcagLevels.map((level) => (
                                             <Checkbox.Root key={level} checked={wcagLevelFilter.includes(level)}>
-                                                <Checkbox.Control onClick={() => {toggleWcagLevelFilter(level)}}>
+                                                <Checkbox.Control>
                                                     <Checkbox.Indicator>
                                                         <CheckIcon />
                                                     </Checkbox.Indicator>
                                                 </Checkbox.Control>
                                                 <Checkbox.Label>{level}</Checkbox.Label>
-                                                <Checkbox.HiddenInput className='checkbox-hidden-input'/>
+                                                <Checkbox.HiddenInput className='checkbox-hidden-input' onClick={() => {toggleWcagLevelFilter(level)}}/>
                                             </Checkbox.Root>
                                         ))}
                                     </div>
@@ -98,13 +98,13 @@ function Filters(props: FiltersProps) {
                                     <div className='wrapper-filters-options'>
                                         {states.map((state) => (
                                             <Checkbox.Root key={state} checked={statusFilter.includes(state)}>
-                                                <Checkbox.Control onClick={() => {toggleStatusFilter(state)}}>
+                                                <Checkbox.Control>
                                                     <Checkbox.Indicator>
                                                         <CheckIcon />
                                                     </Checkbox.Indicator>
                                                 </Checkbox.Control>
                                                 <Checkbox.Label>{state.charAt(0).toUpperCase() + state.slice(1)}</Checkbox.Label>
-                                                <Checkbox.HiddenInput />
+                                                <Checkbox.HiddenInput className='checkbox-hidden-input' onClick={() => {toggleStatusFilter(state)}} />
                                             </Checkbox.Root>
                                         ))}
                                     </div>
@@ -115,13 +115,13 @@ function Filters(props: FiltersProps) {
                                 <div className='wrapper-by-guideline'>
                                     {guidelines.map((guideline) => (
                                         <Checkbox.Root key={guideline.handle} checked={guidelineFilter.includes(guideline.num)}>
-                                            <Checkbox.Control onClick={() => {toggleGuidelineFilter(guideline.num)}}>
+                                            <Checkbox.Control>
                                                 <Checkbox.Indicator>
                                                     <CheckIcon />
                                                 </Checkbox.Indicator>
                                             </Checkbox.Control>
                                             <Checkbox.Label>{guideline.num} - {guideline.handle}</Checkbox.Label>
-                                            <Checkbox.HiddenInput className='checkbox-hidden-input'/>
+                                            <Checkbox.HiddenInput className='checkbox-hidden-input' onClick={() => {toggleGuidelineFilter(guideline.num)}}/>
                                         </Checkbox.Root>
                                     ))}
                                 </div>

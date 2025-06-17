@@ -421,6 +421,8 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
             cursor = conn.cursor()
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
+            login_webpage_id = None
+
             if request.needs_authentication:
                 cursor.execute('''
                     INSERT INTO LoginWebpage (

@@ -134,7 +134,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                     <Dialog.Content className='add-website-dialog-content'>
                         <div className='add-website-dialog-header'>
                             <Dialog.Title>Add New Website</Dialog.Title>
-                            <Dialog.CloseTrigger className='add-website-dialog-close'><X /></Dialog.CloseTrigger>
+                            <Dialog.CloseTrigger className='add-website-dialog-close' aria-label='Close dialog' ><X /></Dialog.CloseTrigger>
                         </div>
                         <Dialog.Description className='add-website-dialog-desc'>
                             <div className='add-website-dialog-desc-content'>

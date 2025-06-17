@@ -1,7 +1,7 @@
 .login-register-button {
     background-color: #FF7B00;
     border-radius: 3rem;
-    padding: 3vh 3vw;
+    padding: 1rem clamp(1rem, 2vw, 2rem);
     color: var(--terciary-color);
     z-index: 100;
 }
