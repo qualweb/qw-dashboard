@@ -19,7 +19,7 @@ function Evaluate() {
 
     const [webpagesToEval, setWebpagesToEval] = useState<[url: string, needs_authentication: boolean][]>([]);
     const [monitoredWebpages, setMonitoredWepages] = useState([]);
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [refreshTrigger, setRefreshTrigger] = useState(false);
     const [isOpen, setIsOpen] = useState(false)
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -37,7 +37,7 @@ function Evaluate() {
     }, [isEvaluated]);
 
     const refreshWebpages = () => {
-        setRefreshTrigger(prev => prev + 1);
+        setRefreshTrigger(!refreshTrigger);
     };
 
     useEffect(() => {
@@ -122,7 +122,10 @@ function Evaluate() {
                         <h2>Evaluate</h2>
                     </div>
                     <div className='add-webpages-container'>
-                        <AddWebpages monitoring_id={monitoring_id} />
+                        <AddWebpages 
+                            monitoring_id={monitoring_id}
+                            refreshTrigger={refreshWebpages}
+                        />
                     </div>
                     <Checkbox.Group className='webpages-container' name="framework" onValueChange={console.log}>
                         {collection.items.map((item) => (

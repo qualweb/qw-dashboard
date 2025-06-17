@@ -8,9 +8,12 @@ import { useState } from 'react';
 
 interface AddWebpagesProps {
     monitoring_id: string;
+    refreshTrigger: () => void;
 }
 
 function AddWebpages(props: AddWebpagesProps) {
+    const [isOpen, setIsOpen] = useState(true);
+
     const [webpages, setWebpages] = useState('');
     const [webpages_authentication, setWebpagesAuthentication] = useState('');
 
@@ -63,7 +66,7 @@ function AddWebpages(props: AddWebpagesProps) {
     };
 
     return (
-        <Dialog.Root>
+        <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>
             <Dialog.Trigger className='add-webpages-button'>+ Add Webpages</Dialog.Trigger>
             <Portal>
                 <Dialog.Backdrop className='add-webpages-backdrop' />
@@ -107,6 +110,8 @@ function AddWebpages(props: AddWebpagesProps) {
                             </div>
                             <button className='add-webpages-dialog-add-button' onClick={() => {
                                 handleAddWebpages(webpages, webpages_authentication);
+                                props.refreshTrigger();
+                                setIsOpen(false);
                             }}>Add Webpages</button>
                         </div>
                     </Dialog.Content>
