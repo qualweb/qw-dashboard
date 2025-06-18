@@ -25,7 +25,6 @@ CREATE TABLE MonitoringRegistry (
 
 CREATE TABLE LoginWebpage (
     id                      SERIAL PRIMARY KEY,
-    url                     VARCHAR NOT NULL,
     username_field          VARCHAR NOT NULL,
     password_field          VARCHAR NOT NULL,
     submit_button           VARCHAR NOT NULL

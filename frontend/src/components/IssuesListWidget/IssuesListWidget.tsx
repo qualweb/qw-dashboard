@@ -83,10 +83,17 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                 <div className='pills'>
                     <div className="title-pill"><h2>Current Accessibility Issues</h2></div>
                     <div className='filter-pills'>
-                        <Select.Root collection={filters} defaultValue={[selectedFilter]} >
+                        <Select.Root 
+                            collection={filters} 
+                            defaultValue={[selectedFilter]}
+                            aria-label='Filters' 
+                            onValueChange={(details) => {
+                                setSelectedFilter(details.value[0]);
+                            }}
+                        >
                             <Select.Control className='select-control'>
                                 <Select.Trigger className="select-trigger">
-                                    <strong><Select.ValueText className="select-value" placeholder={selectedFilter} /></strong>
+                                    <strong><Select.ValueText className="select-value" /></strong>
                                     <Select.Indicator className="select-indicator">
                                         <ChevronDown size={20} />
                                     </Select.Indicator>
@@ -97,7 +104,7 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                                     <Select.Content className="select-content">
                                         <Select.ItemGroup className="select-item-group">
                                             {filters.items.map((item) => (
-                                                <Select.Item key={item.value} item={item} className="select-item" onClick={() => {setSelectedFilter(item.value)}}>
+                                                <Select.Item key={item.value} item={item} className="select-item">
                                                     <Select.ItemText>{item.label}</Select.ItemText>
                                                     <Select.ItemIndicator>
                                                         <Check />

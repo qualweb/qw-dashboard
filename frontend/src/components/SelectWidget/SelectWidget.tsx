@@ -20,7 +20,13 @@ function SelectWidget(props: ScheduleWidgetProps) {
       };
 
     return (
-        <Select.Root collection={props.collection} defaultValue={props.defaultValues}>
+        <Select.Root 
+            collection={props.collection} 
+            defaultValue={props.defaultValues}
+            onValueChange={(details) => {
+                props.onValueChange(details.value[0]);
+            }}
+        >
             <Select.Label className='select-schedule-type-label'><strong>{props.label}</strong></Select.Label>
             <Select.Control>
                 <Select.Trigger className='select-schedule-type-trigger' onClick={(event) => {
@@ -38,7 +44,6 @@ function SelectWidget(props: ScheduleWidgetProps) {
                         <Select.ItemGroup className='select-group-item-schedule-type'>
                             {props.collection.items.map((item) => (
                                 <Select.Item key={item.value} item={item} className='select-item-schedule-type' onClick={(event) => {
-                                    props.onValueChange(item.value);
                                     handleInnerButtonClick(event);
                                 }}>
                                     <Select.ItemText>{item.label}</Select.ItemText>

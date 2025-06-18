@@ -55,7 +55,12 @@ function SelectEvaluations() {
                             <div className='evaluations-selection-button-wrapper'>
                                 <div className="evaluations-selection">
                                     <div className="evaluation-1">
-                                        <Select.Root collection={collection}>
+                                        <Select.Root 
+                                            collection={collection}
+                                            onValueChange={(details) => {
+                                                setFirstCycle(details.value[0]);
+                                            }}
+                                        >
                                             <Select.Label className='select-website-label'>
                                                 <strong>First monitoring cycle</strong>
                                             </Select.Label>
@@ -86,7 +91,12 @@ function SelectEvaluations() {
                                         </Select.Root>
                                     </div>
                                     <div className="evaluation-2">
-                                        <Select.Root collection={collection}>
+                                        <Select.Root 
+                                            collection={collection}
+                                            onValueChange={(details) => {
+                                                setSecondCycle(details.value[0]);
+                                            }}
+                                        >
                                             <Select.Label className='select-website-label'>
                                                 <strong>Second monitoring cycle</strong>
                                             </Select.Label>

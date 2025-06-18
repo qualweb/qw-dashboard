@@ -33,7 +33,7 @@ function HistoryItem(props: HistoryItemProps) {
                 <h4>{props.evaluation_url}</h4>
             </div>
             <div className='webpage-score-date'>
-                <div className='webpage-score' style={{
+                <div className='webpage-score' aria-label={'Score: ' + props.evaluation_score + '%'} style={{
                     backgroundColor: score_color
                 }}><strong>{props.evaluation_score}</strong></div>
                 <div className='evaluation-date'>
