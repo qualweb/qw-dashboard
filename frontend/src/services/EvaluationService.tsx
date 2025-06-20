@@ -3,6 +3,8 @@
 let MONITORING_API_URL;
 const isProduction = import.meta.env.VITE_MODE === 'production';
 
+
+
 if (isProduction) {
     MONITORING_API_URL = 'https://qwdashboard.di.fc.ul.pt/api/monitoring';
 }
@@ -103,6 +105,10 @@ export const runEvaluation = async (
     if (response_2.status !== 200) {
         throw new Error('It was not possible to evaluate the website.');
     }
+
+    const data = await response_2.json();
+
+    return data;
 }
 
 export const addLatestEvalsMonitoringCycle = async (
@@ -442,4 +448,10 @@ export const getChartData = async (
     }
 
     return data;
+}
+
+export const getEventSource = (
+    jobId: string
+) => {
+    return new EventSource(`${MONITORING_API_URL}/job-progress/${jobId}`);
 }

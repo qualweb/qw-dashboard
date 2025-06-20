@@ -7,6 +7,7 @@ import { getUser, registerUser } from '../../services/UserService';
 import { getUserWebsites } from '../../services/EvaluationService';
 import AddMonitoringRegistryButton from '../AddMonitoringRegistryButton/AddMonitoringRegistryButton';
 import LoadingWheel from '../LoadingWheel/LoadingWheel';
+import { Progress } from '@ark-ui/react/progress';
 
 function WebsitesOverview() {
     const { user, isAuthenticated } = useAuth0();
@@ -15,14 +16,17 @@ function WebsitesOverview() {
     const [user_id, setUser_id] = useState(-1);
     const [refresh, setRefresh] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadingWebsites, setLoadingWebsites] = useState(new Map());
 
+    
+    console.log(loadingWebsites);
+    
     const regreshTrigger = () => {
         setRefresh(!refresh);
     }
-
+    
     useEffect(() => {
         const checkRegister = async () => {
-
             const data = await getUser(user?.sub)
 
             if (data !== undefined && !data.exists) {
@@ -72,40 +76,57 @@ function WebsitesOverview() {
                     <div className='your-websites'>
                         <div className='your-websites-header'>
                             <h2>Your Websites</h2>
-                            <AddMonitoringRegistryButton 
-                                user_id={user_id}
-                                onChange={regreshTrigger}
-                            />
+                            { user_id > -1 && (
+                                <AddMonitoringRegistryButton 
+                                    user_id={user_id}
+                                    onChange={regreshTrigger}
+                                    onAdd={setLoadingWebsites}
+                                />
+                            )}
                         </div>
                         { isLoading ? (
                             <LoadingWheel />
                         ) : (
                             <ul className='your-websites-list'>
-                                {websites && websites.length > 0 ? 
-                                    websites.map((website) => (
-                                        <WebsiteCard 
-                                            key={website['id']}
-                                            id={website['id']}
-                                            name={website['name']}
-                                            url={website['main_url']}
-                                            is_mobile={website['is_mobile']}
-                                            is_landscape={website['is_landscape']}
-                                            display_width={website['display_width']}
-                                            display_height={website['display_height']}
-                                            webpages={website['webpages']}
-                                            latest_eval_day={website['latest_evaluation']['day']}
-                                            latest_eval_month={website['latest_evaluation']['month']}
-                                            latest_eval_year={website['latest_evaluation']['year']}
-                                            score={website['score']}
-                                            passed={website['passed']}
-                                            warnings={website['warnings']}
-                                            failed={website['failed']}
-                                            inapplicable={website['inapplicable']}
-                                        />
-                                    ))
-                                    : 
-                                    <li>No websites found</li>
-                                }
+                                {websites && websites.length > 0 ? (
+                                    <>
+                                        {websites.map((website) => (
+                                            <WebsiteCard 
+                                                key={website['id']}
+                                                id={website['id']}
+                                                name={website['name']}
+                                                url={website['main_url']}
+                                                is_mobile={website['is_mobile']}
+                                                is_landscape={website['is_landscape']}
+                                                display_width={website['display_width']}
+                                                display_height={website['display_height']}
+                                                webpages={website['webpages']}
+                                                latest_eval_day={website['latest_evaluation']['day']}
+                                                latest_eval_month={website['latest_evaluation']['month']}
+                                                latest_eval_year={website['latest_evaluation']['year']}
+                                                score={website['score']}
+                                                passed={website['passed']}
+                                                warnings={website['warnings']}
+                                                failed={website['failed']}
+                                                inapplicable={website['inapplicable']}
+                                            />
+                                        ))}
+                                        {loadingWebsites.size > 0 && 
+                                            Array.from(loadingWebsites.entries()).map(([id, progress]) => (
+                                                <li className="website-loading-card" key={`loading-${id}`}>
+                                                    <Progress.Root value={progress} className='progress-loading'>
+                                                        <Progress.ValueText />
+                                                        <Progress.Track className='track-loading'>
+                                                            <Progress.Range className='range-loading' />
+                                                        </Progress.Track>
+                                                    </Progress.Root>
+                                                </li>
+                                            ))
+                                        }
+                                    </>
+                                ) : (
+                                    <li>No websites found.</li>
+                                )}
                             </ul>
                         )}
                     </div>

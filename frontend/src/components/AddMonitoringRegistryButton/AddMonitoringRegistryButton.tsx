@@ -3,12 +3,14 @@ import { Dialog } from '@ark-ui/react/dialog';
 import { Portal } from '@ark-ui/react/portal';
 import { createListCollection, Select } from '@ark-ui/react/select';
 import { ChevronDownIcon, X, AlertCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { getMonitoredWebpages, runCrawler, runEvaluation } from '../../services/EvaluationService';
+import { useState, useEffect, useRef } from 'react';
+import { getEventSource, getMonitoredWebpages, runCrawler, runEvaluation } from '../../services/EvaluationService';
 
 interface AddMonitoringRegistryButtonProps {
     user_id: number;
     onChange: () => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onAdd: React.Dispatch<React.SetStateAction<Map<any, any>>>;
 }
 
 export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonProps) {
@@ -24,6 +26,74 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
     const [nameError, setNameError] = useState('');
     const [urlError, setUrlError] = useState('');
     const [dimensionsError, setDimensionsError] = useState('');
+
+    const [jobs, setJobs] = useState(new Map());
+    const [, setActiveConnections] = useState(new Map());
+    const connectionsRef = useRef(new Map());
+
+    // Simple storage - just job IDs
+    const ACTIVE_JOBS_KEY = `active_jobs_user_${props.user_id}`;
+
+    // Save only active job IDs
+    const saveActiveJobIds = () => {
+        try {
+            const activeJobIds = Array.from(jobs.keys()).filter(jobId => {
+                const job = jobs.get(jobId);
+                return job && (job.status === 'running' || job.status === 'queued');
+            });
+            localStorage.setItem(ACTIVE_JOBS_KEY, JSON.stringify(activeJobIds));
+        } catch (error) {
+            console.error('Failed to save active job IDs:', error);
+        }
+    };
+
+    // Load job IDs and reconnect
+    const loadAndReconnectJobs = () => {
+        try {
+            console.log(localStorage)
+            console.log(ACTIVE_JOBS_KEY)
+            const start = performance.now();
+            const stored = localStorage.getItem(ACTIVE_JOBS_KEY);
+            if (stored) {
+                const jobIds: string[] = JSON.parse(stored);
+                console.log(`Found ${jobIds.length} active jobs, reconnecting...`);
+                
+                // 🔥 ADD THIS: Initialize jobs in state
+                const initialJobs = new Map();
+                jobIds.forEach(jobId => {
+                    initialJobs.set(jobId, {
+                        jobId,
+                        status: 'queued',
+                        created: new Date().toISOString(),
+                        last_updated: new Date().toISOString()
+                    });
+                });
+                console.log('Initial jobs:', initialJobs);
+
+                setJobs(initialJobs); 
+                
+                jobIds.forEach(jobId => {
+                    setTimeout(() => startProgressTracking(jobId), 1000);
+                });
+
+                console.log('Active jobs loaded:', jobIds);
+                const end = performance.now();
+                console.log(`localStorage read took ${end - start}ms`);   
+            }
+        } catch (error) {
+            console.error('Failed to load job IDs:', error);
+        }
+    };
+
+    useEffect(() => {
+        loadAndReconnectJobs(); // Remove the setTimeout
+    }, []);
+
+    useEffect(() => {
+        if (jobs.size > 0) {
+            saveActiveJobIds();
+        }
+    }, [jobs]);
 
     const validateName = () => {
         if (!websiteName.trim()) {
@@ -95,14 +165,110 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const needs_authentication = webpages.map((webpage : any) => webpage['needs_authentication']);
 
-                await runEvaluation(
+                const data = await runEvaluation(
                     String(monitoring_registry_id), 
                     webpage_ids, 
                     needs_authentication
                 );
 
+                // Create new job entry
+                const newJob = {
+                    jobId: data.jobId,
+                    monitoringId: monitoring_registry_id,
+                    totalWebpages: data.total_webpages,
+                    status: 'queued',
+                    total: data.total_webpages,
+                    completed: 0,
+                    error_count: 0,
+                    current_webpage: '',
+                    created: new Date().toISOString(),
+                    last_updated: new Date().toISOString()
+                };
+
+                setJobs(prev => new Map(prev.set(data.jobId, newJob)));
+
+                console.log('Job ID:', data.jobId);
+                console.log(jobs);
+                
+                startProgressTracking(data.jobId);
+
                 props.onChange();
             }
+        }
+    };
+
+    // Start SSE connection for a specific job
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const startProgressTracking = (jobId: any) => {
+        if (connectionsRef.current.has(jobId)) {
+        return;
+        }
+
+        const eventSource = getEventSource(jobId);
+        
+        connectionsRef.current.set(jobId, eventSource);
+        setActiveConnections(new Map(connectionsRef.current));
+
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                
+                if (data.error) {
+                    stopProgressTracking(jobId);
+                    return;
+                }
+
+                setJobs(prev => {
+                    const updated = new Map(prev);
+                    const existingJob = updated.get(jobId) || {};
+                    
+                    updated.set(jobId, {
+                        ...existingJob,
+                        ...data,
+                        jobId: jobId,
+                        last_updated: new Date().toISOString()
+                    });
+                    
+                    return updated;
+                });
+                
+                const progress = `${data.completed}/${data.total}`;
+                const percentage = Math.round((data.completed / data.total) * 100);
+                console.error(`Job ${jobId}: ${progress} completed (${percentage}%)`);
+
+                props.onAdd((prev) => {
+                    const newMap = new Map(prev);
+                    newMap.set(jobId, percentage);
+                    return newMap;
+                });
+
+                // Check if job is completed
+                if (data.status === 'completed') {
+                    console.error(`🎉 Job ${jobId} completed successfully!`, 'success');
+                    stopProgressTracking(jobId);
+                } else if (data.status === 'failed') {
+                    console.error(`❌ Job ${jobId} failed`, 'error');
+                    stopProgressTracking(jobId);
+                }
+            } catch (error) {
+                console.error(`Error processing job ${jobId}: ${error}`, error);
+            }
+        };
+
+        // Handle connection errors
+        eventSource.onerror = (error) => {
+        console.error('SSE Error:', error);
+        };
+        
+    
+    };
+
+    const stopProgressTracking = (jobId : string) => {
+        const eventSource = connectionsRef.current.get(jobId);
+        if (eventSource) {
+          eventSource.close();
+          connectionsRef.current.delete(jobId);
+          setActiveConnections(new Map(connectionsRef.current));
         }
     };
     

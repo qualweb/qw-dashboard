@@ -44,6 +44,7 @@ function SelectWidget(props: ScheduleWidgetProps) {
                         <Select.ItemGroup className='select-group-item-schedule-type'>
                             {props.collection.items.map((item) => (
                                 <Select.Item key={item.value} item={item} className='select-item-schedule-type' onClick={(event) => {
+                                    props.onValueChange(item.value);
                                     handleInnerButtonClick(event);
                                 }}>
                                     <Select.ItemText>{item.label}</Select.ItemText>

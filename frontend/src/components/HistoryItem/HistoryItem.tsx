@@ -27,7 +27,7 @@ function HistoryItem(props: HistoryItemProps) {
     };
 
     return (
-        <li className='history-item'>
+        <li className='history-item' tabIndex={0}>
             <div className='webpage-title-url'>
                 <h3>{props.evaluation_title}</h3>
                 <h4>{props.evaluation_url}</h4>

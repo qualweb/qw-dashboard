@@ -24,7 +24,7 @@ function HistoryWidget(props: HistoryWidgetProps) {
         <div className='history'>
             <h2 className='history-title'><strong>Evaluation History</strong></h2>
             <div className='history-list-wrapper'>
-                <ul className='history-list'>
+                <ul className='history-list' tabIndex={0}>
                     {evaluations && evaluations.map((evaluation) =>
                         <HistoryItem 
                             key={evaluation['id']}

@@ -63,6 +63,8 @@ import { convertAssertionResults, convertDate, convertEvaluationHistory, convert
 import getModules, { takeWebpageScreenshot } from './process_evals';
 import { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer';
+import RedisConnection from './RedisConnection';
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -93,6 +95,95 @@ const client = new EvaluationsClient(
         "grpc.max_send_message_length": 100 * 1024 * 1024
     }
 );
+
+const redis_ip = process.env.REDIS_HOST;
+const redisConnection = new RedisConnection(String(redis_ip), 6379);
+const redis = redisConnection.getClient();
+
+const initializeRedis = async (): Promise<void> => {
+    try {
+        await redisConnection.testConnection();
+        console.log('🚀 Redis initialized successfully');
+    } catch (error) {
+        console.error('💥 Failed to initialize Redis:', error);
+    }
+};
+
+const startEvaluationJob = async (
+    monitoring_id: string,
+    webpage_ids: string[],
+    username?: string,
+    password?: string
+): Promise<string> => {
+    const jobId = uuidv4();
+    
+    try {
+        await redis.hset(`job:${jobId}`, {
+            total: webpage_ids.length,
+            completed: 0,
+            status: 'queued',
+            created: Date.now().toString(),
+            monitoring_id,
+            current_webpage: '',
+            error_count: 0
+        });
+        
+        await redis.lpush('evaluation_queue', JSON.stringify({
+            jobId,
+            monitoring_id,
+            webpage_ids,
+            username,
+            password
+        }));
+        
+        console.log(`📋 Job ${jobId} queued for processing`);
+        return jobId;
+    } catch (error) {
+        console.error('Error creating evaluation job:', error);
+        throw error;
+    }
+};
+
+const updateJobProgress = async (
+    jobId: string,
+    completed: number,
+    currentWebpage: string,
+    status: string = 'running'
+): Promise<void> => {
+    try {
+        await redis.hset(`job:${jobId}`, {
+            completed: completed.toString(),
+            status,
+            current_webpage: currentWebpage,
+            last_updated: Date.now().toString()
+        });
+        
+        console.log(`📊 Job ${jobId}: ${completed} webpages completed`);
+    } catch (error) {
+        console.error('Error updating job progress:', error);
+    }
+};
+
+const markJobCompleted = async (jobId: string, success: boolean = true): Promise<void> => {
+    try {
+        await redis.hset(`job:${jobId}`, {
+            status: success ? 'completed' : 'failed',
+            completed_at: Date.now().toString()
+        });
+        
+        console.log(`✅ Job ${jobId} marked as ${success ? 'completed' : 'failed'}`);
+    } catch (error) {
+        console.error('Error marking job completed:', error);
+    }
+};
+
+const incrementJobErrors = async (jobId: string): Promise<void> => {
+    try {
+        await redis.hincrby(`job:${jobId}`, 'error_count', 1);
+    } catch (error) {
+        console.error('Error incrementing job errors:', error);
+    }
+};
 
 // This endpoint executes the crawling of the URLs in the domain of the input URL
 app.post('/api/monitoring/crawl', (req: Request, res: Response) => { 
@@ -239,221 +330,347 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
     const username = req.body.username;
     const password = req.body.password;
 
-    if (webpage_ids.length === 0) {
+    if (!webpage_ids || webpage_ids.length === 0) {
         return res.status(400).json({ message: 'No webpages to evaluate' });
     }
+
+    try {
+        // Start the job and return immediately
+        const jobId = await startEvaluationJob(monitoring_id, webpage_ids, username, password);
+        
+        return res.status(200).json({ 
+            message: 'Evaluation job started',
+            jobId,
+            total_webpages: webpage_ids.length,
+            status: 'queued'
+        });
+    } catch (error) {
+        console.error('Error starting evaluation job:', error);
+        return res.status(500).json({ 
+            message: 'Failed to start evaluation job', 
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+
+// Job worker process (runs separately or in background)
+const processEvaluationJobs = async () => {
+    console.log('🚀 Starting evaluation job worker...');
     
-    console.log(webpage_ids)
-
-    for (const webpage_id of webpage_ids) {
-        console.log(`Evaluating webpage with ID: ${webpage_id}`);
+    while (true) {
         try {
-            const getEvaluationInfoRequest = new GetEvaluationInfoRequest();
-            getEvaluationInfoRequest.setMonitoringRegistryId(Number(monitoring_id));
-            getEvaluationInfoRequest.setWebpageId(Number(webpage_id));
-
-            const response = await new Promise<GetEvaluationInfoResponse>((resolve, reject) => {
-                client.getEvaluationInfo(getEvaluationInfoRequest, (err: Error, response : GetEvaluationInfoResponse) => {
-                    if (err) reject(err);
-                    else resolve(response);
-                });
-            });
-
-            const screen_width = response.getDisplayWidth();
-            const screen_height = response.getDisplayHeight();
-            const webpage_url = response.getWebpageUrl();
-            const is_mobile = response.getIsMobile();
-            const is_landscape = response.getIsLandscape();
-
-            const needs_authentication = response.getNeedsAuthentication();
-            const username_field_selector = response.getUsernameFieldSelector();
-            const password_field_selector = response.getPasswordFieldSelector();
-            const login_button_selector = response.getLoginButtonSelector();
-
-
-            const browser : Browser = await puppeteer.launch({
-                headless: true,
-                args: [
-                    '--disable-gpu',
-                    '--no-sandbox',
-                    '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-                ],
-                timeout: 5000,
-            });
+            // Block for up to 10 seconds waiting for a job
+            const result = await redis.brpop('evaluation_queue', 10);
             
-            const page : Page = await browser.newPage();
-
-            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
-
-            await page.setViewport({
-                width: screen_width,
-                height: screen_height,
-                deviceScaleFactor: 1,
-            });
-
-            console.log(`Evaluating URL ${webpage_url}`);
-
-            let report = await evaluate(
-                webpage_url,
-                screen_width,
-                screen_height,
-                is_mobile,
-                is_landscape,
-                needs_authentication,
-                username_field_selector,
-                password_field_selector,
-                login_button_selector,
-                username,
-                password
-            );
-
-            const decodedUrl = decodeURIComponent(webpage_url);
-            const neededEnconding = webpage_url !== decodedUrl;
-            
-            if (!needs_authentication && report[decodedUrl] !== undefined) {
-                report = report[decodedUrl];
-                console.log(`Successfully evaluated URL ${decodedUrl}`);
-            }
-            else if (needs_authentication && report.customHtml !== undefined) {
-                report = report.customHtml;
-                console.log(`Successfully evaluated URL ${webpage_url} behind authentication`);
-            }
-            else {
-                console.error(`Error evaluating URL ${webpage_url}`);
+            if (!result) {
+                // No job available, continue polling
                 continue;
             }
-
-            const result = await ( async () => {
+            
+            const [, jobData] = result;
+            const job = JSON.parse(jobData);
+            const { jobId, monitoring_id, webpage_ids, username, password } = job;
+            
+            console.log(`🔄 Processing job ${jobId} with ${webpage_ids.length} webpages`);
+            
+            // Update job status to running
+            await redis.hset(`job:${jobId}`, 'status', 'running');
+            
+            let completedCount = 0;
+            
+            for (const webpage_id of webpage_ids) {
                 try {
-                    const browser : Browser = await puppeteer.launch({
-                        headless: true,
-                        args: [
-                            '--disable-gpu',
-                            '--no-sandbox',
-                            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-                        ],
-                        timeout: 5000,
-                    });
+                    await updateJobProgress(jobId, completedCount, `Processing webpage ${webpage_id}`, 'running');
                     
-                    const page : Page = await browser.newPage();
-
-                    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
-
-                    await page.setViewport({
-                        width: screen_width,
-                        height: screen_height,
-                        deviceScaleFactor: 1,
-                    });
-
-                    let goto;
-
-                    if (needs_authentication) {
-                        goto = await page.goto(webpage_url, { waitUntil: 'networkidle0' });
-            
-                        await bypassLogin(
-                            page, 
-                            username_field_selector, 
-                            password_field_selector, 
-                            login_button_selector,
-                            username,
-                            password
-                        );
-                    } else {
-                        goto = await page.goto(webpage_url, { waitUntil: 'networkidle0' });
-                    }
-
-                    let webpageSizeInKB;
-
-                    if (goto && goto.ok()) {
-                        const buffer = await goto.buffer();
-                        webpageSizeInKB = buffer.length / 1024;
-                        console.log(`Webpage size for ${webpage_url}: ${webpageSizeInKB} KB`);
+                    // Your existing evaluation logic here
+                    const result = await evaluateWebpage(monitoring_id, webpage_id, username, password);
+                    
+                    if (result) {
+                        if (result.success) {
+                            completedCount++;
+                            await updateJobProgress(jobId, completedCount, `Completed webpage ${webpage_id}`, 'running');
+                        } else {
+                            await incrementJobErrors(jobId);
+                            console.error(`Failed to evaluate webpage ${webpage_id}:`);
+                        }
                     }
                     
-                    const screenshot = await takeWebpageScreenshot(page, screen_width, screen_height);
-
-                    const evaluations_request = new AddEvaluationRequest();
-                    evaluations_request.setQualwebVersion(report.system.version);
-                    evaluations_request.setInputUrl(neededEnconding ? encodeURIComponent(!needs_authentication ? (report.system.url?.inputUrl ?? "") : webpage_url) : !needs_authentication ? (report.system.url?.inputUrl ?? "") : webpage_url);
-                    evaluations_request.setCompleteUrl(report.system.url?.completeUrl ?? "");
-                    evaluations_request.setDom(report.system.page.dom.html);
-                    evaluations_request.setTitle(report.system.page.dom.title ?? "");
-                    evaluations_request.setElementCount(report.system.page.dom.elementCount ?? 0);
-                    evaluations_request.setPassed(report.metadata.passed);
-                    evaluations_request.setWarning(report.metadata.warning);
-                    evaluations_request.setFailed(report.metadata.failed);
-                    evaluations_request.setInapplicable(report.metadata.inapplicable);
-                    evaluations_request.setModulesList(await getModules(report, page));
-                    evaluations_request.setModulesQuantity(2);
-                    evaluations_request.setMonitoredWebsiteId(Number(monitoring_id));
-                    evaluations_request.setWebpageSizeKb(webpageSizeInKB ?? 0);
-
-                    if (screenshot) {
-                        evaluations_request.setScreenshot(screenshot);
-                    }
-
-                    browser.close(); 
-
-                    const response = await new Promise<AddEvaluationResponse>((resolve, reject) => {
-                        client.addEvaluation(evaluations_request, (err: Error, response: AddEvaluationResponse) => {
-                            if (err) reject(err);
-                            else resolve(response);
-                        });
-                    });
-                    
-                    console.log(`Successfully added evaluation for URL ${webpage_url}`);
-                    return { webpage_url, success: true, statusCode: response.getStatusCode() };
                 } catch (error) {
-                    console.error(`Error adding evaluation for URL ${webpage_url}:`, error);
-                    return { webpage_url, success: false, error };
+                    await incrementJobErrors(jobId);
+                    console.error(`Error evaluating webpage ${webpage_id}:`, error);
                 }
-            })();
-            
-            if (!result.success) {
-                return res.status(500).json({ 
-                    message: 'Evaluation failed',
-                    result 
-                });
             }
-
-            const setLatestEvalRequest = new SetLatestEvaluationRequest();
-            setLatestEvalRequest.setMonitoringRegistryId(Number(monitoring_id));
-
-            const setLatestEvalResponse = await new Promise<SetLatestEvaluationResponse>((resolve, reject) => {
-                client.setLatestEvaluation(setLatestEvalRequest, (err: Error, callResponse: SetLatestEvaluationResponse) => {
-                    if (err) reject(err);
-                    else resolve(callResponse);
-                });
-            });
-
-            if (setLatestEvalResponse.getStatusCode() !== 200) {
-                return res.status(setLatestEvalResponse.getStatusCode()).json({
-                    message: 'Failed to set latest evaluation',
-                    statusCode: setLatestEvalResponse.getStatusCode()
-                });
+            
+            try {
+                const monitoring_cycle_id = await createMonitoringCycle(monitoring_id);
+                await addLatestEvalsMonitoringCycle(monitoring_cycle_id);
+                await calculateScores(monitoring_id);
+                
+                await markJobCompleted(jobId, true);
+                console.log(`✅ Job ${jobId} completed successfully`);
+            } catch (error) {
+                await markJobCompleted(jobId, false);
+                console.error(`❌ Job ${jobId} failed during post-processing:`, error);
             }
             
         } catch (error) {
-            console.error('Error during evaluation:', error);
-            res.status(500).json({ message: 'Error processing evaluations', error });
+            console.error('Error in job worker:', error);
+            await new Promise(resolve => setTimeout(resolve, 5000));
         }
     }
-    
+};
 
+const evaluateWebpage = async (monitoring_id: string, webpage_id: string, username?: string, password?: string) => {
+    console.log(`Evaluating webpage with ID: ${webpage_id}`);
+    let webpage_url = "";
+    
     try {
-        const monitoring_cycle_id = await createMonitoringCycle(String(monitoring_id));
-        
-        await addLatestEvalsMonitoringCycle(monitoring_cycle_id);
-        
-        await calculateScores(String(monitoring_id));
-        
-        return res.status(200).json({ 
-            message: 'Evaluations processing complete',
-            success: true
+        const getEvaluationInfoRequest = new GetEvaluationInfoRequest();
+        getEvaluationInfoRequest.setMonitoringRegistryId(Number(monitoring_id));
+        getEvaluationInfoRequest.setWebpageId(Number(webpage_id));
+
+        const response = await new Promise<GetEvaluationInfoResponse>((resolve, reject) => {
+            client.getEvaluationInfo(getEvaluationInfoRequest, (err: Error, response : GetEvaluationInfoResponse) => {
+                if (err) reject(err);
+                else resolve(response);
+            });
         });
+
+        const screen_width = response.getDisplayWidth();
+        const screen_height = response.getDisplayHeight();
+        webpage_url = response.getWebpageUrl();
+        const is_mobile = response.getIsMobile();
+        const is_landscape = response.getIsLandscape();
+
+        const needs_authentication = response.getNeedsAuthentication();
+        const username_field_selector = response.getUsernameFieldSelector();
+        const password_field_selector = response.getPasswordFieldSelector();
+        const login_button_selector = response.getLoginButtonSelector();
+
+
+        const browser : Browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--disable-gpu',
+                '--no-sandbox',
+                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+            ],
+            timeout: 5000,
+        });
+        
+        const page : Page = await browser.newPage();
+
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
+
+        await page.setViewport({
+            width: screen_width,
+            height: screen_height,
+            deviceScaleFactor: 1,
+        });
+
+        console.log(`Evaluating URL ${webpage_url}`);
+
+        let report = await evaluate(
+            webpage_url,
+            screen_width,
+            screen_height,
+            is_mobile,
+            is_landscape,
+            needs_authentication,
+            username_field_selector,
+            password_field_selector,
+            login_button_selector,
+            username,
+            password
+        );
+
+        const decodedUrl = decodeURIComponent(webpage_url);
+        const neededEnconding = webpage_url !== decodedUrl;
+        
+        if (!needs_authentication && report[decodedUrl] !== undefined) {
+            report = report[decodedUrl];
+            console.log(`Successfully evaluated URL ${decodedUrl}`);
+        }
+        else if (needs_authentication && report.customHtml !== undefined) {
+            report = report.customHtml;
+            console.log(`Successfully evaluated URL ${webpage_url} behind authentication`);
+        }
+        else {
+            console.error(`Error evaluating URL ${webpage_url}`);
+            return;
+        }
+
+        const result = await ( async () => {
+            try {
+                const browser : Browser = await puppeteer.launch({
+                    headless: true,
+                    args: [
+                        '--disable-gpu',
+                        '--no-sandbox',
+                        '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
+                    ],
+                    timeout: 5000,
+                });
+                
+                const page : Page = await browser.newPage();
+
+                await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
+
+                await page.setViewport({
+                    width: screen_width,
+                    height: screen_height,
+                    deviceScaleFactor: 1,
+                });
+
+                let goto;
+
+                if (needs_authentication && username && password) {
+                    goto = await page.goto(webpage_url, { waitUntil: 'networkidle0' });
+        
+                    await bypassLogin(
+                        page, 
+                        username_field_selector, 
+                        password_field_selector, 
+                        login_button_selector,
+                        username,
+                        password
+                    );
+                } else {
+                    goto = await page.goto(webpage_url, { waitUntil: 'networkidle0' });
+                }
+
+                let webpageSizeInKB;
+
+                if (goto && goto.ok()) {
+                    const buffer = await goto.buffer();
+                    webpageSizeInKB = buffer.length / 1024;
+                    console.log(`Webpage size for ${webpage_url}: ${webpageSizeInKB} KB`);
+                }
+                
+                const screenshot = await takeWebpageScreenshot(page, screen_width, screen_height);
+
+                const evaluations_request = new AddEvaluationRequest();
+                evaluations_request.setQualwebVersion(report.system.version);
+                evaluations_request.setInputUrl(neededEnconding ? encodeURIComponent(!needs_authentication ? (report.system.url?.inputUrl ?? "") : webpage_url) : !needs_authentication ? (report.system.url?.inputUrl ?? "") : webpage_url);
+                evaluations_request.setCompleteUrl(report.system.url?.completeUrl ?? "");
+                evaluations_request.setDom(report.system.page.dom.html);
+                evaluations_request.setTitle(report.system.page.dom.title ?? "");
+                evaluations_request.setElementCount(report.system.page.dom.elementCount ?? 0);
+                evaluations_request.setPassed(report.metadata.passed);
+                evaluations_request.setWarning(report.metadata.warning);
+                evaluations_request.setFailed(report.metadata.failed);
+                evaluations_request.setInapplicable(report.metadata.inapplicable);
+                evaluations_request.setModulesList(await getModules(report, page));
+                evaluations_request.setModulesQuantity(2);
+                evaluations_request.setMonitoredWebsiteId(Number(monitoring_id));
+                evaluations_request.setWebpageSizeKb(webpageSizeInKB ?? 0);
+
+                if (screenshot) {
+                    evaluations_request.setScreenshot(screenshot);
+                }
+
+                browser.close(); 
+
+                const response = await new Promise<AddEvaluationResponse>((resolve, reject) => {
+                    client.addEvaluation(evaluations_request, (err: Error, response: AddEvaluationResponse) => {
+                        if (err) reject(err);
+                        else resolve(response);
+                    });
+                });
+                
+                console.log(`Successfully added evaluation for URL ${webpage_url}`);
+                return { webpage_url, success: true, statusCode: response.getStatusCode() };
+            } catch (error) {
+                console.error(`Error adding evaluation for URL ${webpage_url}:`, error);
+                return { webpage_url, success: false, error };
+            }
+        })();
+        
+        if (!result.success) {
+            console.log(`Error evaluating URL ${webpage_url}`);
+            return { success: false };
+        }
+
+        const setLatestEvalRequest = new SetLatestEvaluationRequest();
+        setLatestEvalRequest.setMonitoringRegistryId(Number(monitoring_id));
+
+        const setLatestEvalResponse = await new Promise<SetLatestEvaluationResponse>((resolve, reject) => {
+            client.setLatestEvaluation(setLatestEvalRequest, (err: Error, callResponse: SetLatestEvaluationResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
+            });
+        });
+
+        if (setLatestEvalResponse.getStatusCode() !== 200) {
+            console.log(`Error evaluating URL ${webpage_url}`);
+            return { success: false };
+        }
+
+        console.log(`Successfully evaluated URL ${webpage_url}`);
+        return { success: true };
+        
     } catch (error) {
-        console.error('Error during evaluations processing:', error);
-        return res.status(500).json({ message: 'Error processing evaluations', error });
+        console.log(`Successfully evaluated URL ${webpage_url}`);
+        return { success: false };
+    }
+};
+
+app.get('/api/monitoring/job-progress/:jobId', async (req: Request, res: Response) => {
+    const jobId = req.params.jobId;
+    
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control'
+    });
+
+    const sendUpdate = async () => {
+        try {
+            const job = await redis.hgetall(`job:${jobId}`);
+            if (job && Object.keys(job).length > 0) {
+                const jobData = {
+                    total: parseInt(job.total) || 0,
+                    completed: parseInt(job.completed) || 0,
+                    status: job.status || 'unknown',
+                    current_webpage: job.current_webpage || '',
+                    error_count: parseInt(job.error_count) || 0,
+                    created: job.created ? new Date(parseInt(job.created)).toISOString() : null,
+                    last_updated: job.last_updated ? new Date(parseInt(job.last_updated)).toISOString() : null
+                };
+                
+                res.write(`data: ${JSON.stringify(jobData)}\n\n`);
+                return job.status !== 'completed' && job.status !== 'failed';
+            } else {
+                res.write(`data: ${JSON.stringify({ error: 'Job not found' })}\n\n`);
+                return false;
+            }
+        } catch (error) {
+            console.error('Error fetching job progress:', error);
+            res.write(`data: ${JSON.stringify({ error: 'Failed to fetch job progress' })}\n\n`);
+            return false;
+        }
+    };
+
+    // Send initial state
+    const shouldContinue = await sendUpdate();
+    
+    if (shouldContinue) {
+        const interval = setInterval(async () => {
+            const continues = await sendUpdate();
+            if (!continues) {
+                clearInterval(interval);
+                res.end();
+            }
+        }, 1000);
+        
+        req.on('close', () => {
+            clearInterval(interval);
+            console.log(`Client disconnected from job ${jobId} progress stream`);
+        });
+    } else {
+        res.end();
     }
 });
 
@@ -1215,8 +1432,19 @@ app.get('/api/monitoring/:monitoring_id/comparison/:first_cycle/:second_cycle/fa
     }
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
     console.log(`Server is running on http://localhost:${port}`);
+
+    await initializeRedis();
+    
+    console.log('🚀 Starting job worker...');
+    processEvaluationJobs().catch(error => {
+        console.error('Job worker crashed:', error);
+        setTimeout(() => {
+            console.log('🔄 Restarting job worker...');
+            processEvaluationJobs();
+        }, 5000);
+    });
 });
 
 async function bypassLogin(
