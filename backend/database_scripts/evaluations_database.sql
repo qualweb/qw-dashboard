@@ -18,7 +18,7 @@ CREATE TABLE MonitoringRegistry (
     display_width           INTEGER NOT NULL,
     display_height          INTEGER NOT NULL,
     latest_evaluation       TIMESTAMP,
-    score                   FLOAT,
+    score                   FLOAT DEFAULT -1.0,
     user_id                 INTEGER NOT NULL,
     website_name            VARCHAR NOT NULL
 );

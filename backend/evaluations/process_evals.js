@@ -245,14 +245,12 @@ function getResults(assertion, page) {
                                 new_element.setPointer(original.pointer);
                                 bounding = boundingBoxMap.get(original.pointer);
                                 if (!bounding || bounding.x === undefined) {
-                                    console.log("Bounding box not found: ".concat(original.pointer, " ").concat(page.url()));
                                     continue;
                                 }
                                 new_element.setX(bounding.x);
                                 new_element.setY(bounding.y);
                                 new_element.setWidth(bounding.width);
                                 new_element.setHeight(bounding.height);
-                                console.log("Bounding box found:", bounding, original.pointer);
                             }
                             elements.push(new_element);
                         }

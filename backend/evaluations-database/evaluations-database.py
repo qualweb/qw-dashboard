@@ -1150,7 +1150,8 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         main_url, is_mobile, is_landscape, 
                         display_width, display_height, 
                         latest_evaluation, score FROM MonitoringRegistry
-                WHERE user_id = %s
+                WHERE user_id = %s AND score != -1.0
+                ORDER BY latest_evaluation DESC
             ''', (request.user_id, ))
 
             registries = cursor.fetchall()

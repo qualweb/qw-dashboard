@@ -5,12 +5,13 @@ import { createListCollection, Select } from '@ark-ui/react/select';
 import { ChevronDownIcon, X, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { getEventSource, getMonitoredWebpages, runCrawler, runEvaluation } from '../../services/EvaluationService';
+import LoadingWheel from '../LoadingWheel/LoadingWheel';
 
 interface AddMonitoringRegistryButtonProps {
     user_id: number;
-    onChange: () => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onAdd: React.Dispatch<React.SetStateAction<Map<any, any>>>;
+    refreshTrigger: () => void;
 }
 
 export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonProps) {
@@ -30,6 +31,8 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
     const [jobs, setJobs] = useState(new Map());
     const [, setActiveConnections] = useState(new Map());
     const connectionsRef = useRef(new Map());
+
+    const [isCrawling, setIsCrawling] = useState(false);
 
     // Simple storage - just job IDs
     const ACTIVE_JOBS_KEY = `active_jobs_user_${props.user_id}`;
@@ -142,8 +145,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
         const areDimensionsValid = validateDimensions();
         
         if (isNameValid && isUrlValid && areDimensionsValid) {
-            setIsOpen(false);
-
+            setIsCrawling(true);
             const monitoring_registry_id = await runCrawler(
                 websiteName,
                 websiteUrl, 
@@ -153,6 +155,9 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 Number(height),
                 props.user_id
             );
+            setIsCrawling(false);
+
+            setIsOpen(false);
 
             const webpages = await getMonitoredWebpages(monitoring_registry_id);
             console.log(webpages);
@@ -191,8 +196,6 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 console.log(jobs);
                 
                 startProgressTracking(data.jobId);
-
-                props.onChange();
             }
         }
     };
@@ -246,6 +249,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 if (data.status === 'completed') {
                     console.error(`🎉 Job ${jobId} completed successfully!`, 'success');
                     stopProgressTracking(jobId);
+                    props.refreshTrigger();
                 } else if (data.status === 'failed') {
                     console.error(`❌ Job ${jobId} failed`, 'error');
                     stopProgressTracking(jobId);
@@ -424,12 +428,19 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                     </Select.Root>
                                 </div>
                             </div>
-                            <button 
-                                className='start-monitoring-button'
-                                onClick={handleSubmit}
-                            >
-                                <strong>Start Monitoring</strong>
-                            </button>
+                            { isCrawling ? (
+                                <div className='start-monitoring-button'>
+                                    <LoadingWheel isLoading={isCrawling} />
+                                    <span>Crawling in progress...</span>
+                                </div>
+                            ) : (
+                                <button 
+                                    className='start-monitoring-button'
+                                    onClick={handleSubmit}
+                                >
+                                    <strong>Start Monitoring</strong>
+                                </button>
+                            )}
                         </Dialog.Description>
                     </Dialog.Content>
                 </Dialog.Positioner>

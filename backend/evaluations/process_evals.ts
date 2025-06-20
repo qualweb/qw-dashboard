@@ -204,7 +204,6 @@ async function getResults(assertion: QualwebAssertion, page: Page): Promise<[Res
 
                 const bounding = boundingBoxMap.get(original.pointer);
                 if (!bounding || bounding.x === undefined) {
-                    console.log(`Bounding box not found: ${original.pointer} ${page.url()}`);
                     continue;
                 }
 
@@ -213,7 +212,6 @@ async function getResults(assertion: QualwebAssertion, page: Page): Promise<[Res
                 new_element.setWidth(bounding.width!);
                 new_element.setHeight(bounding.height!);
 
-                console.log("Bounding box found:", bounding, original.pointer);
             }
 
             elements.push(new_element);

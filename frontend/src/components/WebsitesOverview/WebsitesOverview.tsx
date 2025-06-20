@@ -21,7 +21,7 @@ function WebsitesOverview() {
     
     console.log(loadingWebsites);
     
-    const regreshTrigger = () => {
+    const refreshTrigger = () => {
         setRefresh(!refresh);
     }
     
@@ -58,6 +58,13 @@ function WebsitesOverview() {
         checkRegister();
     }, [user, user_id, refresh]);
 
+    useEffect(() => {
+        loadingWebsites.forEach((progress, id) => {
+            if (progress === 100) {
+                loadingWebsites.delete(id);
+            }
+        })
+    }, [loadingWebsites]);
     
     return (
         isAuthenticated && (
@@ -79,8 +86,8 @@ function WebsitesOverview() {
                             { user_id > -1 && (
                                 <AddMonitoringRegistryButton 
                                     user_id={user_id}
-                                    onChange={regreshTrigger}
                                     onAdd={setLoadingWebsites}
+                                    refreshTrigger={refreshTrigger}
                                 />
                             )}
                         </div>
@@ -90,6 +97,21 @@ function WebsitesOverview() {
                             <ul className='your-websites-list'>
                                 {websites && websites.length > 0 ? (
                                     <>
+                                        {loadingWebsites.size > 0 && 
+                                            Array.from(loadingWebsites.entries()).map(([id, progress]) => (
+                                                <li className="website-loading-card" key={`loading-${id}`}>
+                                                    <Progress.Root value={progress} className='progress-loading'>
+                                                        <div className="label">
+                                                            <span><strong>Evaluating website: </strong></span>
+                                                            <Progress.ValueText />
+                                                        </div>
+                                                        <Progress.Track className='track-loading'>
+                                                            <Progress.Range className='range-loading' />
+                                                        </Progress.Track>
+                                                    </Progress.Root>
+                                                </li>
+                                            ))
+                                        }
                                         {websites.map((website) => (
                                             <WebsiteCard 
                                                 key={website['id']}
@@ -111,18 +133,6 @@ function WebsitesOverview() {
                                                 inapplicable={website['inapplicable']}
                                             />
                                         ))}
-                                        {loadingWebsites.size > 0 && 
-                                            Array.from(loadingWebsites.entries()).map(([id, progress]) => (
-                                                <li className="website-loading-card" key={`loading-${id}`}>
-                                                    <Progress.Root value={progress} className='progress-loading'>
-                                                        <Progress.ValueText />
-                                                        <Progress.Track className='track-loading'>
-                                                            <Progress.Range className='range-loading' />
-                                                        </Progress.Track>
-                                                    </Progress.Root>
-                                                </li>
-                                            ))
-                                        }
                                     </>
                                 ) : (
                                     <li>No websites found.</li>

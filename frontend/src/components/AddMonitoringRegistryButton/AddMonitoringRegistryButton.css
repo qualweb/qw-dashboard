@@ -108,6 +108,10 @@
     color: var(--terciary-color);
     height: 3rem;
     border-radius: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .start-monitoring-button:hover {
