@@ -447,27 +447,6 @@ const evaluateWebpage = async (monitoring_id: string, webpage_id: string, userna
         const password_field_selector = response.getPasswordFieldSelector();
         const login_button_selector = response.getLoginButtonSelector();
 
-
-        const browser : Browser = await puppeteer.launch({
-            headless: true,
-            args: [
-                '--disable-gpu',
-                '--no-sandbox',
-                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-            ],
-            timeout: 5000,
-        });
-        
-        const page : Page = await browser.newPage();
-
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
-
-        await page.setViewport({
-            width: screen_width,
-            height: screen_height,
-            deviceScaleFactor: 1,
-        });
-
         console.log(`Evaluating URL ${webpage_url}`);
 
         let report = await evaluate(

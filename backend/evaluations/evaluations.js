@@ -529,7 +529,7 @@ var processEvaluationJobs = function () { return __awaiter(void 0, void 0, void 
     });
 }); };
 var evaluateWebpage = function (monitoring_id, webpage_id, username, password) { return __awaiter(void 0, void 0, void 0, function () {
-    var webpage_url, getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, browser_1, page, report_1, decodedUrl, neededEnconding_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_12;
+    var webpage_url, getEvaluationInfoRequest_1, response, screen_width_1, screen_height_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, report_1, decodedUrl, neededEnconding_1, result, setLatestEvalRequest_1, setLatestEvalResponse, error_12;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -537,7 +537,7 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                 webpage_url = "";
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 10, , 11]);
+                _a.trys.push([1, 6, , 7]);
                 getEvaluationInfoRequest_1 = new evaluations_pb_1.GetEvaluationInfoRequest();
                 getEvaluationInfoRequest_1.setMonitoringRegistryId(Number(monitoring_id));
                 getEvaluationInfoRequest_1.setWebpageId(Number(webpage_id));
@@ -560,33 +560,9 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                 username_field_selector_1 = response.getUsernameFieldSelector();
                 password_field_selector_1 = response.getPasswordFieldSelector();
                 login_button_selector_1 = response.getLoginButtonSelector();
-                return [4 /*yield*/, puppeteer_1.default.launch({
-                        headless: true,
-                        args: [
-                            '--disable-gpu',
-                            '--no-sandbox',
-                            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36', // Modern UA
-                        ],
-                        timeout: 5000,
-                    })];
-            case 3:
-                browser_1 = _a.sent();
-                return [4 /*yield*/, browser_1.newPage()];
-            case 4:
-                page = _a.sent();
-                return [4 /*yield*/, page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
-            case 5:
-                _a.sent();
-                return [4 /*yield*/, page.setViewport({
-                        width: screen_width_1,
-                        height: screen_height_1,
-                        deviceScaleFactor: 1,
-                    })];
-            case 6:
-                _a.sent();
                 console.log("Evaluating URL ".concat(webpage_url));
                 return [4 /*yield*/, evaluate(webpage_url, screen_width_1, screen_height_1, is_mobile, is_landscape, needs_authentication_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
-            case 7:
+            case 3:
                 report_1 = _a.sent();
                 decodedUrl = decodeURIComponent(webpage_url);
                 neededEnconding_1 = webpage_url !== decodedUrl;
@@ -603,7 +579,7 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                     return [2 /*return*/];
                 }
                 return [4 /*yield*/, (function () { return __awaiter(void 0, void 0, void 0, function () {
-                        var browser_2, page_1, goto, webpageSizeInKB, buffer, screenshot, evaluations_request_1, _a, _b, response_1, error_13;
+                        var browser_1, page, goto, webpageSizeInKB, buffer, screenshot, evaluations_request_1, _a, _b, response_1, error_13;
                         var _c, _d, _e, _f, _g, _h, _j, _k;
                         return __generator(this, function (_l) {
                             switch (_l.label) {
@@ -619,14 +595,14 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                                             timeout: 5000,
                                         })];
                                 case 1:
-                                    browser_2 = _l.sent();
-                                    return [4 /*yield*/, browser_2.newPage()];
+                                    browser_1 = _l.sent();
+                                    return [4 /*yield*/, browser_1.newPage()];
                                 case 2:
-                                    page_1 = _l.sent();
-                                    return [4 /*yield*/, page_1.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
+                                    page = _l.sent();
+                                    return [4 /*yield*/, page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')];
                                 case 3:
                                     _l.sent();
-                                    return [4 /*yield*/, page_1.setViewport({
+                                    return [4 /*yield*/, page.setViewport({
                                             width: screen_width_1,
                                             height: screen_height_1,
                                             deviceScaleFactor: 1,
@@ -635,14 +611,14 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                                     _l.sent();
                                     goto = void 0;
                                     if (!(needs_authentication_1 && username && password)) return [3 /*break*/, 7];
-                                    return [4 /*yield*/, page_1.goto(webpage_url, { waitUntil: 'networkidle0' })];
+                                    return [4 /*yield*/, page.goto(webpage_url, { waitUntil: 'networkidle0' })];
                                 case 5:
                                     goto = _l.sent();
-                                    return [4 /*yield*/, bypassLogin(page_1, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
+                                    return [4 /*yield*/, bypassLogin(page, username_field_selector_1, password_field_selector_1, login_button_selector_1, username, password)];
                                 case 6:
                                     _l.sent();
                                     return [3 /*break*/, 9];
-                                case 7: return [4 /*yield*/, page_1.goto(webpage_url, { waitUntil: 'networkidle0' })];
+                                case 7: return [4 /*yield*/, page.goto(webpage_url, { waitUntil: 'networkidle0' })];
                                 case 8:
                                     goto = _l.sent();
                                     _l.label = 9;
@@ -655,7 +631,7 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                                     webpageSizeInKB = buffer.length / 1024;
                                     console.log("Webpage size for ".concat(webpage_url, ": ").concat(webpageSizeInKB, " KB"));
                                     _l.label = 11;
-                                case 11: return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(page_1, screen_width_1, screen_height_1)];
+                                case 11: return [4 /*yield*/, (0, process_evals_1.takeWebpageScreenshot)(page, screen_width_1, screen_height_1)];
                                 case 12:
                                     screenshot = _l.sent();
                                     evaluations_request_1 = new evaluations_pb_1.AddEvaluationRequest();
@@ -670,7 +646,7 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                                     evaluations_request_1.setFailed(report_1.metadata.failed);
                                     evaluations_request_1.setInapplicable(report_1.metadata.inapplicable);
                                     _b = (_a = evaluations_request_1).setModulesList;
-                                    return [4 /*yield*/, (0, process_evals_1.default)(report_1, page_1)];
+                                    return [4 /*yield*/, (0, process_evals_1.default)(report_1, page)];
                                 case 13:
                                     _b.apply(_a, [_l.sent()]);
                                     evaluations_request_1.setModulesQuantity(2);
@@ -679,7 +655,7 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                                     if (screenshot) {
                                         evaluations_request_1.setScreenshot(screenshot);
                                     }
-                                    browser_2.close();
+                                    browser_1.close();
                                     return [4 /*yield*/, new Promise(function (resolve, reject) {
                                             client.addEvaluation(evaluations_request_1, function (err, response) {
                                                 if (err)
@@ -700,7 +676,7 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                             }
                         });
                     }); })()];
-            case 8:
+            case 4:
                 result = _a.sent();
                 if (!result.success) {
                     console.log("Error evaluating URL ".concat(webpage_url));
@@ -716,7 +692,7 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                                 resolve(callResponse);
                         });
                     })];
-            case 9:
+            case 5:
                 setLatestEvalResponse = _a.sent();
                 if (setLatestEvalResponse.getStatusCode() !== 200) {
                     console.log("Error evaluating URL ".concat(webpage_url));
@@ -724,11 +700,11 @@ var evaluateWebpage = function (monitoring_id, webpage_id, username, password) {
                 }
                 console.log("Successfully evaluated URL ".concat(webpage_url));
                 return [2 /*return*/, { success: true }];
-            case 10:
+            case 6:
                 error_12 = _a.sent();
                 console.log("Successfully evaluated URL ".concat(webpage_url));
                 return [2 /*return*/, { success: false }];
-            case 11: return [2 /*return*/];
+            case 7: return [2 /*return*/];
         }
     });
 }); };
