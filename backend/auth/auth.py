@@ -86,6 +86,8 @@ def verify_token(token):
         
         jwks = get_jwks()
         
+        print(jwks['keys'], flush=True, file=sys.stderr)
+
         rsa_key = {}
         for key in jwks['keys']:
             if key['kid'] == unverified_header['kid']:
