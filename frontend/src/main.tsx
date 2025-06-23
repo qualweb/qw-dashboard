@@ -7,6 +7,7 @@ import App from './App.tsx'
 
 const AUTH0_DOMAIN=import.meta.env.VITE_AUTH0_DOMAIN
 const AUTH0_CLIENT_ID=import.meta.env.VITE_AUTH0_CLIENT_ID
+const AUTH0_AUDIENCE=import.meta.env.VITE_AUTH0_AUDIENCE
 
 const isProduction = import.meta.env.VITE_MODE === 'production';
 const redirect_uri = isProduction ? "https://qwdashboard.di.fc.ul.pt/websites-overview" : "http://localhost:8080/websites-overview";
@@ -19,8 +20,8 @@ createRoot(document.getElementById('root')!).render(
         clientId={AUTH0_CLIENT_ID}
         authorizationParams={{
           redirect_uri: redirect_uri,
-          audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-          scope: "openid profile email read:users write:users"
+          audience: AUTH0_AUDIENCE,
+          scope: "read:users write:users"
         }}
       >
         <App />
