@@ -21,7 +21,6 @@ createRoot(document.getElementById('root')!).render(
         authorizationParams={{
           redirect_uri: redirect_uri,
           audience: AUTH0_AUDIENCE,
-          scope: "read:users write:users"
         }}
       >
         <App />
