@@ -6,16 +6,19 @@ import { Calendar, CheckCheck, CheckIcon, Clock3, KeyRound } from 'lucide-react'
 import { Checkbox } from '@ark-ui/react/checkbox';
 import { createListCollection } from '@ark-ui/react/collection';
 import { useEffect, useState } from 'react';
-import { getMonitoredWebpages } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import { Webpage } from '../Types/Types';
 import { Portal } from '@ark-ui/react/portal';
 import { DatePicker } from '@ark-ui/react/date-picker';
 import SelectWidget from '../SelectWidget/SelectWidget';
-import { addSchedule } from '../../services/ScheduleService';
+import { useSchedulerApi } from '../../services/ScheduleService';
 import SchedulesList from '../SchedulesList/SchedulesList';
 import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
 
 function Schedule() {
+    const { getMonitoredWebpages } = useMonitoringApi();
+    const { addSchedule } = useSchedulerApi();
+
     const { monitoring_id } = useParams();
 
     const [webpagesToEval, setWebpagesToEval] = useState<[url: string, needs_authentication: boolean][]>([]);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './HistoryWidget.css';
-import { getHistoryEvaluations } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import HistoryItem from '../HistoryItem/HistoryItem';
 
 interface HistoryWidgetProps {
@@ -8,6 +8,8 @@ interface HistoryWidgetProps {
 }
 
 function HistoryWidget(props: HistoryWidgetProps) {
+    const { getHistoryEvaluations } = useMonitoringApi();
+
     const [evaluations, setEvaluations] = useState([]);
     
     useEffect(() => {

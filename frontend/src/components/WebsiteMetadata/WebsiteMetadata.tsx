@@ -3,9 +3,11 @@ import './WebsiteMetadata.css'
 import DashboardMenu from '../DashboardMenu/DashboardMenu';
 import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
 import { useEffect, useState } from 'react';
-import { getMonitoredWebpages } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 
 function WebsiteMetadata() {
+    const { getMonitoredWebpages } = useMonitoringApi();
+
     const { monitoring_id } = useParams();
 
     const [ webpages, setWebpages ] = useState([]);

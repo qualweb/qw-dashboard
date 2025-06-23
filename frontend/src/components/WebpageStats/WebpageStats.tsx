@@ -3,7 +3,7 @@ import './WebpageStats.css'
 import { useEffect, useState } from 'react';
 import CompareWebpageStats from '../CompareWebpageStats/CompareWebpageStats';
 import ContinuousChart from '../ContinuousChart/ContinuousChart';
-import { getChartData } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import SelectWidget from '../SelectWidget/SelectWidget';
 import { createListCollection } from '@ark-ui/react/collection';
 
@@ -15,6 +15,8 @@ interface WebpageStatsProps {
 }
 
 function WebpageStats(props: WebpageStatsProps) {
+    const { getChartData } = useMonitoringApi();
+
     const [expanded, setExpanded] = useState(false);
     const [chartData, setChartData] = useState([]);
     const [metric, setMetric] = useState('score');

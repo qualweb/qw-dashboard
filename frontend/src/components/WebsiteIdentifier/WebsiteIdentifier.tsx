@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import './WebsiteIdentifier.css'
-import { getMonitoringRegistry, getWebsiteFavicon } from '../../services/EvaluationService';
+import { useMonitoringApi, getWebsiteFavicon } from '../../services/EvaluationService';
 
 interface WebsiteIdentifierProps {
     monitoring_id: string;
 }
 
 function WebsiteIdentifier(props: WebsiteIdentifierProps) {
+    const { getMonitoringRegistry } = useMonitoringApi();
+
     const [favicon, setFavicon] = useState("");
     const [website, setWebsite] = useState();
 

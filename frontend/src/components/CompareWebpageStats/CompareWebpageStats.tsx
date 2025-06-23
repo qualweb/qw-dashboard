@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DownIcon, UpIcon, MinusIcon } from '../../assets/Icons';
 import './CompareWebpageStats.css'
-import { getWebpageComparisonData } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 
 interface CompareWebpageStatsProps {
     webpage_id: string;
@@ -10,6 +10,7 @@ interface CompareWebpageStatsProps {
 }
 
 function CompareWebpageStats(props: CompareWebpageStatsProps) {
+    const { getWebpageComparisonData } = useMonitoringApi();
 
     const [fst_cycle_data, setFstCycleData] = useState();
     const [snd_cycle_data, setSndCycleData] = useState();

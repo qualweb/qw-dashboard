@@ -4,7 +4,7 @@ import { Portal } from '@ark-ui/react/portal';
 import { createListCollection, Select } from '@ark-ui/react/select';
 import { ChevronDownIcon, X, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { getEventSource, getMonitoredWebpages, runCrawler, runEvaluation } from '../../services/EvaluationService';
+import { getEventSource, useMonitoringApi } from '../../services/EvaluationService';
 import LoadingWheel from '../LoadingWheel/LoadingWheel';
 
 interface AddMonitoringRegistryButtonProps {
@@ -15,6 +15,8 @@ interface AddMonitoringRegistryButtonProps {
 }
 
 export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonProps) {
+    const { runCrawler, runEvaluation, getMonitoredWebpages } = useMonitoringApi();
+
     const [isOpen, setIsOpen] = useState(false);
     const [screenOrientation, setScreenOrientation] = useState('Horizontal');
     const [device, setDevice] = useState('Desktop');

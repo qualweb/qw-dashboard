@@ -3,13 +3,17 @@ import WebsiteCard from '../WebsiteCard/WebsiteCard';
 import { useAuth0 } from "@auth0/auth0-react";
 import './WebsitesOverview.css'
 import { useEffect, useState } from 'react';
-import { getUser, registerUser } from '../../services/UserService';
-import { getUserWebsites } from '../../services/EvaluationService';
+import { useUserApi } from '../../services/UserService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import AddMonitoringRegistryButton from '../AddMonitoringRegistryButton/AddMonitoringRegistryButton';
 import LoadingWheel from '../LoadingWheel/LoadingWheel';
 import { Progress } from '@ark-ui/react/progress';
 
 function WebsitesOverview() {
+    const { getUserWebsites } = useMonitoringApi();
+    
+    const { registerUser, getUser } = useUserApi();
+
     const { user, isAuthenticated } = useAuth0();
 
     const [websites, setWebsites] = useState([]);

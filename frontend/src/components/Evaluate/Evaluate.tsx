@@ -6,7 +6,7 @@ import { Checkbox } from '@ark-ui/react/checkbox';
 import { Chart } from '../../assets/Icons';
 import { createListCollection } from '@ark-ui/react/collection';
 import { useEffect, useState } from 'react';
-import { deleteWebpage, getMonitoredWebpages, runEvaluation } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import { Webpage } from '../Types/Types';
 import AddWebpages from '../AddWebpages/AddWebpages';
 import { Dialog } from '@ark-ui/react/dialog';
@@ -15,6 +15,8 @@ import { Field } from '@ark-ui/react/field';
 import LoadingWheel from '../LoadingWheel/LoadingWheel';
 
 function Evaluate() {
+    const { runEvaluation, getMonitoredWebpages, deleteWebpage } = useMonitoringApi();
+
     const { monitoring_id } = useParams();
 
     const [webpagesToEval, setWebpagesToEval] = useState<[url: string, needs_authentication: boolean][]>([]);

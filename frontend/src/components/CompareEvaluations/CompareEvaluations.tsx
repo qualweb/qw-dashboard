@@ -5,9 +5,11 @@ import WebpagesList from '../WebpagesList/WebpagesList';
 import './CompareEvaluations.css';
 import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
 import { useEffect, useState } from 'react';
-import { getWebsiteMonitoringCycle } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 
 function CompareEvaluations() {
+    const { getWebsiteMonitoringCycle } = useMonitoringApi();
+
     const { monitoring_id, first_cycle, second_cycle } = useParams();
     const [fst_cycle, setFstCycle] = useState();
     const [snd_cycle, setSndCycle] = useState();

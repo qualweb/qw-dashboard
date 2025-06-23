@@ -1,7 +1,7 @@
 import './Result.css';
 import { ResultElement } from '../Types/Types.ts';
 import { useEffect, useState } from 'react';
-import { getResultElement } from '../../services/EvaluationService.tsx';
+import { useMonitoringApi } from '../../services/EvaluationService.tsx';
 import Element from '../Element/Element.tsx';
 import { CheckIcon, FailIcon, InapplicableIcon, Warning2Icon } from '../../assets/Icons.tsx';
 
@@ -23,6 +23,8 @@ const categoryConfig = {
 };
 
 function Result(props: ResultProps) {
+  const { getResultElement } = useMonitoringApi();
+
   const [element, setElement] = useState<ResultElement>();
 
   useEffect(() => {

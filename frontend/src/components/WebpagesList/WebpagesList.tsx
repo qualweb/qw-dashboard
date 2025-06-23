@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import './WebpagesList.css'
-import { getMonitoredWebpages } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import WebpageStats from '../WebpageStats/WebpageStats';
 
 interface WebpagesListProps {
@@ -11,6 +11,8 @@ interface WebpagesListProps {
 }
 
 function WebpagesList(props: WebpagesListProps) {
+    const { getMonitoredWebpages } = useMonitoringApi();
+
     const [webpages, setWebpages] = useState([]);
 
     useEffect(() => {

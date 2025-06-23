@@ -5,10 +5,12 @@ import { createListCollection, Select } from "@ark-ui/react/select";
 import { Portal } from "@ark-ui/react/portal";
 import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from 'react';
-import { getWebsiteMonitoringCycles } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
 
 function SelectEvaluations() {
+    const { getWebsiteMonitoringCycles } = useMonitoringApi();
+
     const { monitoring_id } = useParams();
 
     const [monitoringCycles, setMonitoringCycles] = useState([]);

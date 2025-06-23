@@ -2,7 +2,7 @@ import "./IssuesWebsiteItem.css";
 import { Globe, ChevronDown } from 'lucide-react';
 import { useEffect, useState } from "react";
 import CategoryPerWebpage from "../CategoryPerWebpage/CategoryPerWebpage.tsx";
-import { getWebpageScreenshot } from "../../services/EvaluationService.tsx";
+import { useMonitoringApi } from "../../services/EvaluationService.tsx";
 
 interface IssueItemProps {
   evaluation_id: string;
@@ -13,6 +13,8 @@ interface IssueItemProps {
 }
 
 function IssuesWebsiteItem(props: IssueItemProps) {
+  const { getWebpageScreenshot } = useMonitoringApi();
+
   const [expanded, setExpanded] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

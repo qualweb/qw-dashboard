@@ -2,7 +2,7 @@ import './Assertion.css';
 import { useEffect, useState } from 'react';
 import { CheckIcon, ChevronDown } from 'lucide-react';
 import Result from '../Result/Result.tsx';
-import { getAssertionResults } from '../../services/EvaluationService.tsx';
+import { useMonitoringApi } from '../../services/EvaluationService.tsx';
 import { Checkbox } from '@ark-ui/react/checkbox';
 
 interface AssertionProps {
@@ -18,6 +18,8 @@ interface AssertionProps {
 }
 
 function Assertion(props: AssertionProps) {
+    const { getAssertionResults } = useMonitoringApi();
+
     const [expanded, setExpanded] = useState(false);
     const [results, setResults] = useState([]);
     const [filters, setFilters] = useState<string[]>([]);
