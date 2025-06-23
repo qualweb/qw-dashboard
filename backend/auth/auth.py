@@ -86,6 +86,10 @@ def verify_token(token):
         
         jwks = get_jwks()
         
+        print("Unverified Header:", flush=True, file=sys.stderr)
+        print(unverified_header, flush=True, file=sys.stderr)
+
+        print("JWKS:", flush=True, file=sys.stderr)
         print(jwks['keys'], flush=True, file=sys.stderr)
 
         rsa_key = {}
