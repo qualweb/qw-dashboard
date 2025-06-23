@@ -171,7 +171,8 @@ def auth():
         token = get_token_from_header()
         payload = verify_token(token)
         
-        response = app.make_response('', 200)
+        response = jsonify({'status': 'authenticated'})
+        response.status_code = 200
         
         response.headers['X-User-ID'] = payload.get('sub', '')
         response.headers['X-User-Email'] = payload.get('email', '')
