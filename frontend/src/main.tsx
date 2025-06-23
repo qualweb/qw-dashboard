@@ -9,6 +9,10 @@ const AUTH0_DOMAIN=import.meta.env.VITE_AUTH0_DOMAIN
 const AUTH0_CLIENT_ID=import.meta.env.VITE_AUTH0_CLIENT_ID
 const AUTH0_AUDIENCE=import.meta.env.VITE_AUTH0_AUDIENCE
 
+console.log(AUTH0_DOMAIN)
+console.log(AUTH0_CLIENT_ID)
+console.log(AUTH0_AUDIENCE)
+
 const isProduction = import.meta.env.VITE_MODE === 'production';
 const redirect_uri = isProduction ? "https://qwdashboard.di.fc.ul.pt/websites-overview" : "http://localhost:8080/websites-overview";
 
