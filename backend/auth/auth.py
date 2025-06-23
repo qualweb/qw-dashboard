@@ -133,7 +133,7 @@ def verify_token(token):
         }, 401)
 
 
-@app.route('/auth', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+@app.route('/auth-verify', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 def auth():
     try:
         token = get_token_from_header()
