@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from functools import wraps
 import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, DecodeError, InvalidSignatureError
 import requests
 import json
 from urllib.parse import urljoin
@@ -113,13 +114,13 @@ def verify_token(token):
         
         return payload
         
-    except jwt.ExpiredSignatureError:
+    except ExpiredSignatureError:
         raise AuthError({
             'code': 'token_expired',
             'description': 'Token has expired'
         }, 401)
     
-    except jwt.JWTClaimsError:
+    except (InvalidTokenError, DecodeError, InvalidSignatureError):
         raise AuthError({
             'code': 'invalid_claims',
             'description': 'Incorrect claims, please check the audience and issuer'
