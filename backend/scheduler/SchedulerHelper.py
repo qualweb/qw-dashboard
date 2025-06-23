@@ -90,7 +90,7 @@ class Scheduler:
         print(f"Evaluating monitoring_id: {monitoring_id} with webpages_ids: {webpage_ids}", file=sys.stderr, flush=True)
 
         request_body = {
-            'webpage_ids': webpage_ids
+            'webpage_ids': list(webpage_ids)
         }   
 
         evaluation = requests.post(
