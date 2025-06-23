@@ -51,6 +51,9 @@ def get_jwks():
 
 def get_token_from_header():
     auth_header = request.headers.get('Authorization')
+
+    print("Authorization Header:", flush=True, file=sys.stderr)
+    print(auth_header, flush=True, file=sys.stderr)
     
     if not auth_header:
         raise AuthError({
