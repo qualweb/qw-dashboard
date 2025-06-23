@@ -32,12 +32,18 @@ def get_jwks():
         return jwks_cache['keys']
     
     try:
+        print("Fetching JWKS...", flush=True, file=sys.stderr)
+        print(f"AUTH0_DOMAIN: {AUTH0_DOMAIN}", flush=True, file=sys.stderr)
+
         jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
         response = requests.get(jwks_url, timeout=10)
         response.raise_for_status()
         
         jwks = response.json()
         
+        print("Fetched JWKS:", flush=True, file=sys.stderr)
+        print(jwks, flush=True, file=sys.stderr)
+
         jwks_cache['keys'] = jwks
         jwks_cache['expires'] = datetime.now() + timedelta(seconds=JWKS_CACHE_DURATION)
         
