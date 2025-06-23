@@ -7,8 +7,10 @@ import json
 from urllib.parse import urljoin
 import os
 from datetime import datetime, timedelta
-import logging
 import sys
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+import base64
 
 app = Flask(__name__)
 
@@ -89,6 +91,26 @@ def get_token_from_header():
     
     return parts[1]
 
+def jwk_to_pem(jwk):
+    try:
+        n = base64.urlsafe_b64decode(jwk['n'] + '==')
+        e = base64.urlsafe_b64decode(jwk['e'] + '==')
+        
+        n_int = int.from_bytes(n, 'big')
+        e_int = int.from_bytes(e, 'big')
+        
+        public_key = rsa.RSAPublicNumbers(e_int, n_int).public_key()
+        
+        pem = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+        
+        return pem
+    except Exception as e:
+        print(f"Error converting JWK to PEM: {str(e)}", flush=True, file=sys.stderr)
+        raise
+
 def verify_token(token):
     try:
         unverified_header = jwt.get_unverified_header(token)
@@ -104,14 +126,7 @@ def verify_token(token):
         rsa_key = {}
         for key in jwks['keys']:
             if key['kid'] == unverified_header['kid']:
-                rsa_key = {
-                    'kty': key['kty'],
-                    'kid': key['kid'],
-                    'use': key['use'],
-                    'n': key['n'],
-                    'e': key['e']
-                }
-                
+                rsa_key = jwk_to_pem(key)
                 break
         
         if not rsa_key:
