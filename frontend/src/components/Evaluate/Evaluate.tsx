@@ -104,8 +104,6 @@ function Evaluate() {
 
     const hiddenInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
-    console.log(hiddenInputRefs)
-
     return (
         <div className='evaluate-wrapper'>
             <DashboardMenu monitoring_id={String(monitoring_id)} />
@@ -149,7 +147,6 @@ function Evaluate() {
                                                 e.preventDefault();
                                                 
                                                 hiddenInputRefs.current[item.value]?.click();
-
                                             }
                                         }}
                                         aria-label={(() => {
