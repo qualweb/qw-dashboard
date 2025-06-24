@@ -149,16 +149,14 @@ function Evaluate() {
                                                 e.preventDefault();
                                                 
                                                 hiddenInputRefs.current[item.value]?.click();
+
                                             }
                                         }}
                                         aria-label={(() => {
-                                            if (webpagesToEval.some(webpage => webpage[0] === item.value)) {
-                                                return item.needs_authentication ? `Ticked, checkbox ${item.label} requires authentication` : `Ticked, checkbox ${item.label}`;
-                                            } else {
-                                                return item.needs_authentication ? `Unticked, checkbox ${item.label} requires authentication` : `Unticked, checkbox ${item.label}`;
-                                            }
+                                            return item.needs_authentication ? `${item.label} requires authentication` : `${item.label}`;
                                         })()}
                                         role='checkbox'
+                                        aria-checked={webpagesToEval.some(webpage => webpage[0] === item.value)} 
                                     >
                                         <Checkbox.HiddenInput className='checkbox-webpage-hidden-input' 
                                             ref={(el) => {
