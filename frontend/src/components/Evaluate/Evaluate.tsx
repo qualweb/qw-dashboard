@@ -5,7 +5,7 @@ import { CheckCheck, CheckIcon, KeyRound, Trash2, X } from 'lucide-react';
 import { Checkbox } from '@ark-ui/react/checkbox';
 import { Chart } from '../../assets/Icons';
 import { createListCollection } from '@ark-ui/react/collection';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMonitoringApi } from '../../services/EvaluationService';
 import { Webpage } from '../Types/Types';
 import AddWebpages from '../AddWebpages/AddWebpages';
@@ -63,18 +63,6 @@ function Evaluate() {
         items: items,
     });
 
-    const addWebpage = (url_auth: [string, boolean]): void => {
-        setWebpagesToEval(prev => {
-            const exists = prev.some(([url]) => url === url_auth[0]);
-            if (exists) return prev;
-            return [...prev, url_auth];
-        });
-    };
-    
-    const removeWebpage = (webpage: string) => {
-        setWebpagesToEval(prev => prev.filter(([url]) => url !== webpage));
-    };
-    
     const stopMonitoringWebpage = async (webpage: string) => {
         const removeWebpage = async () => {
             await deleteWebpage(webpage);
@@ -114,6 +102,10 @@ function Evaluate() {
         return webpagesToEval.some(([, needs_authentication]) => needs_authentication );
     };
 
+    const hiddenInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
+    console.log(hiddenInputRefs)
+
     return (
         <div className='evaluate-wrapper'>
             <DashboardMenu monitoring_id={String(monitoring_id)} />
@@ -129,27 +121,59 @@ function Evaluate() {
                             refreshTrigger={refreshWebpages}
                         />
                     </div>
-                    <Checkbox.Group className='webpages-container' name="framework" onValueChange={console.log}>
+                    <Checkbox.Group 
+                        className='webpages-container' 
+                        name="framework" 
+                        onValueChange={(details) => {
+                            const selectedValues = Array.from(details.values());
+                            
+                            const newWebpagesToEval: [string, boolean][] = [];
+                            
+                            selectedValues.forEach(value => {
+                                const item = collection.items.find(item => item.value === value);
+                                if (item) {
+                                    newWebpagesToEval.push([item.value, item.needs_authentication]);
+                                }
+                            });
+                            
+                            setWebpagesToEval(newWebpagesToEval);
+                        }}
+                    >
                         {collection.items.map((item) => (
                             <div className='webpage-container' key={item.value}>
                                 <div className='checkbox-webpage-container'>
-                                    <Checkbox.Root className='checkbox-webpage' value={item.value} key={item.value}>
+                                    <Checkbox.Root className='checkbox-webpage' value={item.value} key={item.value}
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === ' ') {
+                                                e.preventDefault();
+                                                
+                                                hiddenInputRefs.current[item.value]?.click();
+                                            }
+                                        }}
+                                        aria-label={(() => {
+                                            if (webpagesToEval.some(webpage => webpage[0] === item.value)) {
+                                                return item.needs_authentication ? `Ticked, checkbox ${item.label} requires authentication` : `Ticked, checkbox ${item.label}`;
+                                            } else {
+                                                return item.needs_authentication ? `Unticked, checkbox ${item.label} requires authentication` : `Unticked, checkbox ${item.label}`;
+                                            }
+                                        })()}
+                                        role='checkbox'
+                                    >
+                                        <Checkbox.HiddenInput className='checkbox-webpage-hidden-input' 
+                                            ref={(el) => {
+                                                hiddenInputRefs.current[item.value] = el;
+                                            }}
+                                            onClick={() => {
+                                                console.log('Checkbox clicked:', item.value);
+                                            }}
+                                            tabIndex={-1}
+                                        />
                                         <Checkbox.Control className='checkbox-webpage-control'>
                                             <Checkbox.Indicator className='checkbox-webpage-indicator'>
                                                 <CheckIcon />
                                             </Checkbox.Indicator>
                                         </Checkbox.Control>
-                                        <Checkbox.HiddenInput onClick={() => {
-                                            const exists = webpagesToEval.some(([url]) => url === item.value);
-
-                                            if (exists) {
-                                                removeWebpage(item.value);
-                                                console.log("Removed:", item.value);
-                                            } else {
-                                                addWebpage([item.value, item.needs_authentication]);
-                                                console.log("Added:", item.value);
-                                            }
-                                        }} />
                                         <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
                                     </Checkbox.Root>
                                     <div className="delete-auth">
