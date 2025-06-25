@@ -251,10 +251,12 @@ function CompareWebsiteStats(props: CompareWebsiteStatsProps) {
                         </div>
                         <div className="continuous-website-chart">
                             <div className='continuous-chart-container'>
-                                <ContinuousChart
-                                    chartData={chartData}
-                                    selectedMetric={metric}
-                                />
+                                {chartData && chartData.length !== 0 ? (
+                                    <ContinuousChart
+                                        chartData={chartData}
+                                        selectedMetric={metric}
+                                    />
+                                ) : null}
                             </div>
                         </div>
                     </div>
