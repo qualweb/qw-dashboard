@@ -34,7 +34,9 @@
 
 .add-webpages-container {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 2rem;
 }
 
 .webpages-container {
@@ -184,4 +186,14 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+.select-add-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.checkbox-all {
+    cursor: pointer;
 }
