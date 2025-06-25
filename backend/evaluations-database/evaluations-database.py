@@ -1857,7 +1857,7 @@ def serve():
 if __name__ == "__main__":
     connection_pool = psycopg2.pool.ThreadedConnectionPool(
         minconn = 1,
-        maxconn = 10,
+        maxconn = 50,
         dbname = POSTGRES_DB,
         user = POSTGRES_USER,
         password = POSTGRES_PASSWORD,
