@@ -26,6 +26,8 @@ createRoot(document.getElementById('root')!).render(
           redirect_uri: redirect_uri,
           audience: AUTH0_AUDIENCE,
         }}
+        cacheLocation="localstorage"
+        useRefreshTokens={true}
       >
         <App />
       </Auth0Provider>
