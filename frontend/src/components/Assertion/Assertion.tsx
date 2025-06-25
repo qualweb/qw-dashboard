@@ -146,6 +146,7 @@ function Assertion(props: AssertionProps) {
                                     webpage_url={props.webpage_url}
                                     webpage_screenshot={props.webpage_screenshot}
                                     verdict={result["verdict"]}
+                                    elements={result["elements"] || []}
                                 />
                             ) :
                             filters.includes(result["verdict"]) ? (
@@ -157,6 +158,7 @@ function Assertion(props: AssertionProps) {
                                     webpage_url={props.webpage_url}
                                     webpage_screenshot={props.webpage_screenshot}
                                     verdict={result["verdict"]}
+                                    elements={result["elements"] || []}
                                 />
                             ) : null
                         ))}

@@ -272,6 +272,7 @@ message ResultResponse {
     int32 id = 1;
     string description = 2;
     string verdict = 3;
+    repeated ElementResponse elements = 4;
 }
 
 message GetResultElementsRequest {

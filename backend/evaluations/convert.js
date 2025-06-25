@@ -29,7 +29,8 @@ function convertAssertionResults(assertionResults) {
     return assertionResults.map(function (element) { return ({
         id: element.getId(),
         verdict: element.getVerdict(),
-        description: element.getDescription()
+        description: element.getDescription(),
+        elements: element.getElementsList().map(convertResultElement),
     }); });
 }
 function convertResultElement(element) {

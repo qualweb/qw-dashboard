@@ -21,7 +21,8 @@ export function convertAssertionResults(assertionResults: ResultResponse[]) {
   return assertionResults.map(element => ({
     id: element.getId(),
     verdict: element.getVerdict(),
-    description: element.getDescription()
+    description: element.getDescription(),
+    elements: element.getElementsList().map(convertResultElement),
   }))
 }
 

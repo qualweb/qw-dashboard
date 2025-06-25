@@ -247,19 +247,35 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
                     for g in range(request.modules[i].assertions[k].metadata.results_quantity):
                         cursor.execute('''
-                            INSERT INTO Issue (
-                                assertion_id, verdict, description, result_code
-                            ) VALUES (
-                                %s, %s, %s, %s
-                            ) RETURNING id
+                            SELECT id FROM Issue
+                            WHERE assertion_id = %s
+                            AND verdict = %s
+                            AND description = %s
                         ''', (
                             assertion_id, 
                             request.modules[i].assertions[k].metadata.results[g].verdict, 
-                            request.modules[i].assertions[k].metadata.results[g].description, 
-                            request.modules[i].assertions[k].metadata.results[g].result_code
+                            request.modules[i].assertions[k].metadata.results[g].description
                         ))
 
-                        issue_id = cursor.fetchone()[0]
+                        issue_id = cursor.fetchone()
+
+                        if issue_id is None:
+                            cursor.execute('''
+                                INSERT INTO Issue (
+                                    assertion_id, verdict, description, result_code
+                                ) VALUES (
+                                    %s, %s, %s, %s
+                                ) RETURNING id
+                            ''', (
+                                assertion_id, 
+                                request.modules[i].assertions[k].metadata.results[g].verdict, 
+                                request.modules[i].assertions[k].metadata.results[g].description, 
+                                request.modules[i].assertions[k].metadata.results[g].result_code
+                            ))
+
+                            issue_id = cursor.fetchone()
+
+                        issue_id = issue_id[0]
 
                         for y in range(request.modules[i].assertions[k].metadata.results[g].elements_quantity):
 
@@ -1030,11 +1046,33 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             response = []
             for result in results:
+                cursor.execute('''
+                    SELECT id, html_code, pointer, x, y, width, height FROM Element
+                    WHERE issue_id = %s
+                ''', (result[0], )) 
+
+                elements = cursor.fetchall()            
+
+                elements_list = []
+                for element in elements:
+                    elements_list.append(
+                        ElementResponse(
+                            id=element[0],
+                            html_code=element[1],
+                            pointer=element[2],
+                            x=element[3],
+                            y=element[4],
+                            width=element[5],
+                            height=element[6]
+                        )
+                    )
+
                 response.append(
                     ResultResponse(
                         id=result[0],
                         description=result[3],
-                        verdict=result[2]
+                        verdict=result[2],
+                        elements=elements_list,
                     )
                 )
 

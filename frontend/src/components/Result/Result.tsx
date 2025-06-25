@@ -1,7 +1,5 @@
 import './Result.css';
 import { ResultElement } from '../Types/Types.ts';
-import { useEffect, useState } from 'react';
-import { useMonitoringApi } from '../../services/EvaluationService.tsx';
 import Element from '../Element/Element.tsx';
 import { CheckIcon, FailIcon, InapplicableIcon, Warning2Icon } from '../../assets/Icons.tsx';
 
@@ -13,6 +11,8 @@ interface ResultProps {
   webpage_url: string;
   webpage_screenshot: string;
   verdict: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  elements: any[];
 }
 
 const categoryConfig = {
@@ -23,20 +23,6 @@ const categoryConfig = {
 };
 
 function Result(props: ResultProps) {
-  const { getResultElement } = useMonitoringApi();
-
-  const [element, setElement] = useState<ResultElement>();
-
-  useEffect(() => {
-    const fetchElement = async () => {
-      const data = await getResultElement(props.id);
-      console.log("Fetched element data:", data);
-      setElement(data.element);
-    };
-
-    fetchElement();
-  }, [props.id]);
-
   let { icon, className } = categoryConfig.passed;
 
   if (props.verdict === "warning") {
@@ -63,7 +49,7 @@ function Result(props: ResultProps) {
         </div>
         <span className="result-url">{props.webpage_url ? `(${props.webpage_url})` : ''}</span>
       </div>
-      {element && 
+      {props.elements && props.elements.map((element: ResultElement) =>
         <Element 
           key={element.id} 
           id={String(element.id)} 
@@ -76,7 +62,7 @@ function Result(props: ResultProps) {
           width={element.width}
           height={element.height}
         />
-      }
+      )}
     </div>
   );
 };
