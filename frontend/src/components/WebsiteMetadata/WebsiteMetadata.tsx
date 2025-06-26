@@ -1,11 +1,21 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './WebsiteMetadata.css'
 import DashboardMenu from '../DashboardMenu/DashboardMenu';
 import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
 import { useEffect, useState } from 'react';
 import { useMonitoringApi } from '../../services/EvaluationService';
+import { useAuth0 } from '@auth0/auth0-react';
 
 function WebsiteMetadata() {
+    const { isAuthenticated, isLoading } = useAuth0();
+    const navigate = useNavigate();
+        
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+        navigate('/');
+        }
+    }, [isLoading, isAuthenticated]);
+
     const { getMonitoredWebpages } = useMonitoringApi();
 
     const { monitoring_id } = useParams();

@@ -1,4 +1,4 @@
-import { useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CompareWebsiteStats from '../CompareWebsiteStats/CompareWebsiteStats';
 import DashboardMenu from '../DashboardMenu/DashboardMenu';
 import WebpagesList from '../WebpagesList/WebpagesList';
@@ -9,8 +9,15 @@ import { useMonitoringApi } from '../../services/EvaluationService';
 import { useAuth0 } from '@auth0/auth0-react';
 
 function CompareEvaluations() {
-    const { isLoading } = useAuth0();
-    
+    const { isAuthenticated, isLoading } = useAuth0();
+    const navigate = useNavigate();
+        
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+        navigate('/');
+        }
+    }, [isLoading, isAuthenticated]);
+
     const { getWebsiteMonitoringCycle } = useMonitoringApi();
 
     const { monitoring_id, first_cycle, second_cycle } = useParams();

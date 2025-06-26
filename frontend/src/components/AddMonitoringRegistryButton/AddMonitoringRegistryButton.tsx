@@ -17,6 +17,7 @@ interface AddMonitoringRegistryButtonProps {
 export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonProps) {
     const { runCrawler, runEvaluation, getMonitoredWebpages } = useMonitoringApi();
 
+    const [isCrawling, setIsCrawling] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [screenOrientation, setScreenOrientation] = useState('Horizontal');
     const [device, setDevice] = useState('Desktop');
@@ -34,12 +35,8 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
     const [, setActiveConnections] = useState(new Map());
     const connectionsRef = useRef(new Map());
 
-    const [isCrawling, setIsCrawling] = useState(false);
-
-    // Simple storage - just job IDs
     const ACTIVE_JOBS_KEY = `active_jobs_user_${props.user_id}`;
 
-    // Save only active job IDs
     const saveActiveJobIds = () => {
         try {
             const activeJobIds = Array.from(jobs.keys()).filter(jobId => {
@@ -52,7 +49,6 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
         }
     };
 
-    // Load job IDs and reconnect
     const loadAndReconnectJobs = () => {
         try {
             console.log(localStorage)
@@ -63,7 +59,6 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 const jobIds: string[] = JSON.parse(stored);
                 console.log(`Found ${jobIds.length} active jobs, reconnecting...`);
                 
-                // 🔥 ADD THIS: Initialize jobs in state
                 const initialJobs = new Map();
                 jobIds.forEach(jobId => {
                     initialJobs.set(jobId, {
@@ -91,7 +86,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
     };
 
     useEffect(() => {
-        loadAndReconnectJobs(); // Remove the setTimeout
+        loadAndReconnectJobs();
     }, []);
 
     useEffect(() => {
@@ -178,7 +173,6 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                     needs_authentication
                 );
 
-                // Create new job entry
                 const newJob = {
                     jobId: data.jobId,
                     monitoringId: monitoring_registry_id,
@@ -202,8 +196,6 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
         }
     };
 
-    // Start SSE connection for a specific job
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const startProgressTracking = (jobId: any) => {
         if (connectionsRef.current.has(jobId)) {
         return;
@@ -248,7 +240,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 });
 
                 // Check if job is completed
-                if (data.status === 'completed') {
+                if (percentage === 100 || data.status === 'completed') {
                     console.error(`🎉 Job ${jobId} completed successfully!`, 'success');
                     stopProgressTracking(jobId);
                     props.refreshTrigger();

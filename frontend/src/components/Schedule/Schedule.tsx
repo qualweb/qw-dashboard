@@ -1,6 +1,6 @@
 import './Schedule.css'
 
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DashboardMenu from '../DashboardMenu/DashboardMenu';
 import { Calendar, CheckCheck, CheckIcon, Clock3, KeyRound } from 'lucide-react';
 import { Checkbox } from '@ark-ui/react/checkbox';
@@ -14,8 +14,18 @@ import SelectWidget from '../SelectWidget/SelectWidget';
 import { useSchedulerApi } from '../../services/ScheduleService';
 import SchedulesList from '../SchedulesList/SchedulesList';
 import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
+import { useAuth0 } from '@auth0/auth0-react';
 
 function Schedule() {
+    const { isAuthenticated, isLoading } = useAuth0();
+    const navigate = useNavigate();
+        
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+        navigate('/');
+        }
+    }, [isLoading, isAuthenticated]);
+
     const { getMonitoredWebpages } = useMonitoringApi();
     const { addSchedule } = useSchedulerApi();
 

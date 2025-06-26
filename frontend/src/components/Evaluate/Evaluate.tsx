@@ -1,20 +1,30 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DashboardMenu from '../DashboardMenu/DashboardMenu';
 import './Evaluate.css'
-import { CheckCheck, CheckIcon, KeyRound, Trash2, X } from 'lucide-react';
+import { CheckIcon, KeyRound, Trash2, X } from 'lucide-react';
 import { Checkbox } from '@ark-ui/react/checkbox';
 import { Chart } from '../../assets/Icons';
 import { createListCollection } from '@ark-ui/react/collection';
 import { useEffect, useRef, useState } from 'react';
-import { useMonitoringApi } from '../../services/EvaluationService';
+import { getEventSource, useMonitoringApi } from '../../services/EvaluationService';
 import { Webpage } from '../Types/Types';
 import AddWebpages from '../AddWebpages/AddWebpages';
 import { Dialog } from '@ark-ui/react/dialog';
 import { Portal } from '@ark-ui/react/portal';
 import { Field } from '@ark-ui/react/field';
-import LoadingWheel from '../LoadingWheel/LoadingWheel';
+import { useAuth0 } from '@auth0/auth0-react';
+import { Progress } from '@ark-ui/react/progress';
 
 function Evaluate() {
+    const { isAuthenticated, isLoading } = useAuth0();
+    const navigate = useNavigate();
+        
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+        navigate('/');
+        }
+    }, [isLoading, isAuthenticated]);
+
     const { runEvaluation, getMonitoredWebpages, deleteWebpage } = useMonitoringApi();
 
     const { monitoring_id } = useParams();
@@ -25,7 +35,6 @@ function Evaluate() {
     const [isOpen, setIsOpen] = useState(false)
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [isEvaluating, setIsEvaluating] = useState(false);
     const [isEvaluated, setIsEvaluated] = useState(false);
 
     useEffect(() => {
@@ -73,8 +82,6 @@ function Evaluate() {
     }
 
     const evaluateWebpages = async (username?: string, password?: string): Promise<void> => {
-        setIsEvaluating(true);
-
         if (!monitoring_id) return;
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,7 +93,7 @@ function Evaluate() {
         console.log("Evaluating webpages with IDs:", webpage_ids);
         console.log("Needs authentication:", needs_authentication);
 
-        await runEvaluation(
+        const data = await runEvaluation(
             String(monitoring_id), 
             webpage_ids, 
             needs_authentication,
@@ -94,7 +101,26 @@ function Evaluate() {
             password
         );
     
-        setIsEvaluating(false);
+        const newJob = {
+            jobId: data.jobId,
+            monitoringId: monitoring_id,
+            totalWebpages: data.total_webpages,
+            status: 'queued',
+            total: data.total_webpages,
+            completed: 0,
+            error_count: 0,
+            current_webpage: '',
+            created: new Date().toISOString(),
+            last_updated: new Date().toISOString()
+        };
+
+        setJobs(prev => new Map(prev.set(data.jobId, newJob)));
+
+        console.log('Job ID:', data.jobId);
+        console.log(jobs);
+        
+        startProgressTracking(data.jobId);
+
         setIsEvaluated(true);
     };
 
@@ -105,6 +131,147 @@ function Evaluate() {
     const hiddenInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
     const hiddenInputSelectAllRef = useRef<HTMLElement | null>();
     const [selectAll, setSelectAll] = useState(false);
+
+    const [jobs, setJobs] = useState(new Map());
+    const [, setActiveConnections] = useState(new Map());
+    const connectionsRef = useRef(new Map());
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [loadingWebsite, setLoadingWebsite] = useState<[any, number]>();
+    const ACTIVE_JOBS_KEY = `active_jobs_user_${monitoring_id}`;
+
+    const saveActiveJobIds = () => {
+        try {
+            const activeJobIds = Array.from(jobs.keys()).filter(jobId => {
+                const job = jobs.get(jobId);
+                return job && (job.status === 'running' || job.status === 'queued');
+            });
+            localStorage.setItem(ACTIVE_JOBS_KEY, JSON.stringify(activeJobIds));
+        } catch (error) {
+            console.error('Failed to save active job IDs:', error);
+        }
+    };
+
+    const loadAndReconnectJobs = () => {
+        try {
+            console.log(localStorage)
+            console.log(ACTIVE_JOBS_KEY)
+            const start = performance.now();
+            const stored = localStorage.getItem(ACTIVE_JOBS_KEY);
+            if (stored) {
+                const jobIds: string[] = JSON.parse(stored);
+                console.log(`Found ${jobIds.length} active jobs, reconnecting...`);
+                
+                const initialJobs = new Map();
+                jobIds.forEach(jobId => {
+                    initialJobs.set(jobId, {
+                        jobId,
+                        status: 'queued',
+                        created: new Date().toISOString(),
+                        last_updated: new Date().toISOString()
+                    });
+                });
+                console.log('Initial jobs:', initialJobs);
+
+                setJobs(initialJobs); 
+                
+                jobIds.forEach(jobId => {
+                    setTimeout(() => startProgressTracking(jobId), 1000);
+                });
+
+                console.log('Active jobs loaded:', jobIds);
+                const end = performance.now();
+                console.log(`localStorage read took ${end - start}ms`);   
+            }
+        } catch (error) {
+            console.error('Failed to load job IDs:', error);
+        }
+    };
+
+    useEffect(() => {
+        loadAndReconnectJobs();
+    }, []);
+
+    useEffect(() => {
+        if (jobs.size > 0) {
+            saveActiveJobIds();
+        }
+    }, [jobs]);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const startProgressTracking = (jobId: any) => {
+        if (connectionsRef.current.has(jobId)) {
+        return;
+        }
+
+        const eventSource = getEventSource(jobId);
+        
+        connectionsRef.current.set(jobId, eventSource);
+        setActiveConnections(new Map(connectionsRef.current));
+
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                
+                if (data.error) {
+                    stopProgressTracking(jobId);
+                    return;
+                }
+
+                setJobs(prev => {
+                    const updated = new Map(prev);
+                    const existingJob = updated.get(jobId) || {};
+                    
+                    updated.set(jobId, {
+                        ...existingJob,
+                        ...data,
+                        jobId: jobId,
+                        last_updated: new Date().toISOString()
+                    });
+                    
+                    return updated;
+                });
+                
+                const progress = `${data.completed}/${data.total}`;
+                const percentage = Math.round((data.completed / data.total) * 100);
+                console.error(`Job ${jobId}: ${progress} completed (${percentage}%)`);
+
+                setLoadingWebsite([jobId, percentage]);
+
+                // Check if job is completed
+                if (percentage === 100 || data.status === 'completed') {
+                    console.error(`🎉 Job ${jobId} completed successfully!`, 'success');
+                    stopProgressTracking(jobId);
+                } else if (data.status === 'failed') {
+                    console.error(`❌ Job ${jobId} failed`, 'error');
+                    stopProgressTracking(jobId);
+                }
+            } catch (error) {
+                console.error(`Error processing job ${jobId}: ${error}`, error);
+            }
+        };
+
+        // Handle connection errors
+        eventSource.onerror = (error) => {
+            console.error('SSE Error:', error);
+        };
+        
+    
+    };
+
+    const stopProgressTracking = (jobId : string) => {
+        const eventSource = connectionsRef.current.get(jobId);
+        if (eventSource) {
+          eventSource.close();
+          connectionsRef.current.delete(jobId);
+          setActiveConnections(new Map(connectionsRef.current));
+        }
+    };
+
+    useEffect(() => {
+        if (loadingWebsite && loadingWebsite[1] === 100) {
+            setLoadingWebsite(undefined);
+        }
+    }, [loadingWebsite]);
 
     return (
         <div className='evaluate-wrapper'>
@@ -237,22 +404,31 @@ function Evaluate() {
                     </div>
                     <div className='evaluate-button-container'>
                         <div className="evaluate-button-wrapper">
-                            <button className='evaluate-button' onClick={() => {
-                                if (hasWebpagesNeedingAuth()) {
-                                    setIsOpen(true);
-                                    return;
-                                }
+                            { !loadingWebsite ? (
+                                <button className='evaluate-button' onClick={() => {
+                                    if (hasWebpagesNeedingAuth()) {
+                                        setIsOpen(true);
+                                        return;
+                                    }
 
-                                evaluateWebpages();
-                            }}>
-                                <LoadingWheel isLoading={isEvaluating} />
-                                Evaluate
-                            </button>
-                            {isEvaluated ? (
-                                <div className='schedule-check-container'>
-                                    <CheckCheck />
-                                </div>
-                            ) : null}
+                                    evaluateWebpages();
+
+                                    setWebpagesToEval([]);
+                                    if (selectAll) {
+                                        setSelectAll(false);
+                                    }
+                                }}>Evaluate</button>
+                            ) : (
+                                <Progress.Root value={loadingWebsite[1]} className='progress-loading'>
+                                    <div className="label">
+                                        <span><strong>Evaluating website: </strong></span>
+                                        <Progress.ValueText />
+                                    </div>
+                                    <Progress.Track className='track-loading'>
+                                        <Progress.Range className='range-loading' />
+                                    </Progress.Track>
+                                </Progress.Root>
+                            )}
                         </div>
                     </div>
                     <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>
