@@ -110,13 +110,12 @@ const initializeRedis = async (): Promise<void> => {
 };
 
 const startEvaluationJob = async (
+    jobId: string,
     monitoring_id: string,
     webpage_ids: string[],
     username?: string,
     password?: string
 ): Promise<string> => {
-    const jobId = uuidv4();
-    
     try {
         await redis.hset(`job:${jobId}`, {
             total: webpage_ids.length,
@@ -337,15 +336,19 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
     }
 
     try {
+        const jobId = uuidv4();
+
         // Start the job and return immediately
-        const jobId = await startEvaluationJob(monitoring_id, webpage_ids, username, password);
-        
-        return res.status(200).json({ 
+        res.status(200).json({ 
             message: 'Evaluation job started',
             jobId,
             total_webpages: webpage_ids.length,
             status: 'queued'
         });
+
+        await startEvaluationJob(jobId,monitoring_id, webpage_ids, username, password);
+        
+        return;
     } catch (error) {
         console.error('Error starting evaluation job:', error);
         return res.status(500).json({ 
@@ -361,8 +364,10 @@ const processEvaluationJobs = async () => {
     
     while (true) {
         try {
+            
             // Block for up to 10 seconds waiting for a job
             const result = await redis.brpop('evaluation_queue', 10);
+            
             
             if (!result) {
                 // No job available, continue polling
