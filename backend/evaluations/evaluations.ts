@@ -135,6 +135,8 @@ const startEvaluationJob = async (
             username,
             password
         }));
+
+        await updateJobProgress(jobId, 0, `Waiting to process website`, 'queued');
         
         console.log(`📋 Job ${jobId} queued for processing`);
         return jobId;

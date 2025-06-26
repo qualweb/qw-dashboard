@@ -101,7 +101,7 @@ var startEvaluationJob = function (monitoring_id, webpage_ids, username, passwor
                 jobId = (0, uuid_1.v4)();
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 4, , 5]);
+                _a.trys.push([1, 5, , 6]);
                 return [4 /*yield*/, redis.hset("job:".concat(jobId), {
                         total: webpage_ids.length,
                         completed: 0,
@@ -122,13 +122,16 @@ var startEvaluationJob = function (monitoring_id, webpage_ids, username, passwor
                     }))];
             case 3:
                 _a.sent();
+                return [4 /*yield*/, updateJobProgress(jobId, 0, "Waiting to process website", 'queued')];
+            case 4:
+                _a.sent();
                 console.log("\uD83D\uDCCB Job ".concat(jobId, " queued for processing"));
                 return [2 /*return*/, jobId];
-            case 4:
+            case 5:
                 error_2 = _a.sent();
                 console.error('Error creating evaluation job:', error_2);
                 throw error_2;
-            case 5: return [2 /*return*/];
+            case 6: return [2 /*return*/];
         }
     });
 }); };
