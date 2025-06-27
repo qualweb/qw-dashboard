@@ -115,202 +115,306 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
     
     def AddEvaluation(self, request, context):
         conn = None
-
         try:
             conn = connection_pool.getconn()
-            cursor = conn.cursor()
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-
-            cursor.execute('''
-                UPDATE Webpage
-                SET num_elements = %s, page_size_kb = %s
-                WHERE url = %s AND monitoring_registry_id = %s
-            ''', (request.element_count, request.webpage_size_kb, request.input_url, request.monitored_website_id))
-
-            cursor.execute('''
-                INSERT INTO Evaluation (
-                    qualweb_version, monitored_website_id, input_url,
-                    complete_url,
-                    dom, title, element_count, passed, warning, failed, inapplicable, screenshot
-                ) VALUES (
-                    %s, %s, %s,
-                    %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s
-                ) RETURNING id
-            ''', (
-                str(request.qualweb_version), str(request.monitored_website_id), str(request.input_url), 
-                str(request.complete_url),
-                str(request.dom), str(request.title), str(request.element_count), 
-                str(int(request.passed)), str(int(request.warning)), str(int(request.failed)), str(int(request.inapplicable)),
-                request.screenshot
-            ))
-
-            print("Hello", file=sys.stderr, flush=True)
-
-            evaluation_id = cursor.fetchone()[0]
-
-            for i in range(request.modules_quantity):
+            conn.autocommit = False
+            
+            with conn.cursor() as cursor:
                 cursor.execute('''
-                    INSERT INTO Module (
-                        evaluation_id, module_type, passed, warning, failed, inapplicable               
-                    ) VALUES (
-                        %s, %s, %s, %s, %s, %s
-                    ) RETURNING id
+                    UPDATE Webpage
+                    SET num_elements = %s, page_size_kb = %s
+                    WHERE url = %s AND monitoring_registry_id = %s
                 ''', (
-                    evaluation_id, str(request.modules[i].type), request.modules[i].passed, request.modules[i].warning, 
-                    request.modules[i].failed, request.modules[i].inapplicable
+                    request.element_count, 
+                    request.webpage_size_kb, 
+                    request.input_url, 
+                    request.monitored_website_id
                 ))
 
-                module_id = cursor.fetchone()[0]
+                cursor.execute('''
+                    INSERT INTO Evaluation (
+                        qualweb_version, monitored_website_id, input_url, complete_url,
+                        dom, title, element_count, passed, warning, failed, inapplicable, screenshot
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id
+                ''', (
+                    request.qualweb_version, request.monitored_website_id, request.input_url,
+                    request.complete_url, request.dom, request.title, request.element_count,
+                    int(request.passed), int(request.warning), int(request.failed), 
+                    int(request.inapplicable), request.screenshot
+                ))
+                
+                evaluation_id = cursor.fetchone()[0]
 
-                for k in range(request.modules[i].assertions_quantity):
-                    cursor.execute('''
-                        SELECT id FROM Assertion_Metadata               
-                        WHERE code = %s
-                    ''', (request.modules[i].assertions[k].metadata.code, ))
-
-                    exists_assertion_metadata_id = cursor.fetchone()
-
-                    if exists_assertion_metadata_id is None:
-                        cursor.execute('''
-                            INSERT INTO Assertion_Metadata (
-                                code, assertion_name, description, url, mapping, target_elements, target_attributes, parent_module_type
-                            ) VALUES (
-                                %s, %s, %s, %s, %s, %s, %s, %s
-                            ) RETURNING id
-                        ''', (
-                            request.modules[i].assertions[k].metadata.code, request.modules[i].assertions[k].metadata.name,
-                            request.modules[i].assertions[k].metadata.description, request.modules[i].assertions[k].metadata.url, 
-                            request.modules[i].assertions[k].metadata.mapping, 
-                            [str(x) for x in request.modules[i].assertions[k].metadata.target_elements],
-                            [str(x) for x in request.modules[i].assertions[k].metadata.target_attributes],
-                            str(request.modules[i].type)
-                        ))
-
-                        assertion_metadata_id = cursor.fetchone()[0]
-                    else:
-                        assertion_metadata_id = exists_assertion_metadata_id[0]
-
-                    cursor.execute('''
-                        INSERT INTO Assertion (
-                            module_id, assertion_metadata_id,  passed, warning, failed, inapplicable, outcome, description              
-                        ) VALUES (
-                            %s, %s, %s, %s, %s, %s, %s, %s
-                        ) RETURNING id
-                    ''', (
-                        module_id, assertion_metadata_id, request.modules[i].assertions[k].passed, request.modules[i].assertions[k].warning, 
-                        request.modules[i].assertions[k].failed, request.modules[i].assertions[k].inapplicable,
-                        str(request.modules[i].assertions[k].outcome), str(request.modules[i].assertions[k].description)
+                module_data = []
+                for module in request.modules:
+                    module_data.append((
+                        evaluation_id, module.type, module.passed, module.warning,
+                        module.failed, module.inapplicable
                     ))
+                
+                cursor.executemany('''
+                    INSERT INTO Module (evaluation_id, module_type, passed, warning, failed, inapplicable)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                ''', module_data)
+                
+                cursor.execute('''
+                    SELECT id FROM Module 
+                    WHERE evaluation_id = %s 
+                    ORDER BY id DESC 
+                    LIMIT %s
+                ''', (evaluation_id, len(request.modules)))
+                
+                module_ids = [row[0] for row in cursor.fetchall()]
+                module_ids.reverse()
 
-                    assertion_id = cursor.fetchone()[0]
-
-                    for h in range(request.modules[i].assertions[k].metadata.success_criteria_quantity):
-
-                        cursor.execute('''
-                            INSERT INTO Success_Criteria (
-                                success_criteria_name, success_criteria_level, principle, success_criteria_url
-                            ) VALUES (
-                                %s, %s, %s, %s
-                            ) ON CONFLICT (success_criteria_name, success_criteria_level) DO NOTHING
-                        ''', (
-                            request.modules[i].assertions[k].metadata.success_criteria[h].name,
-                            request.modules[i].assertions[k].metadata.success_criteria[h].level,
-                            request.modules[i].assertions[k].metadata.success_criteria[h].principle,
-                            request.modules[i].assertions[k].metadata.success_criteria[h].url
-                        ))
-
-                        # Then select the values - they'll either be from the just-inserted row or the pre-existing one
-                        cursor.execute('''
-                            SELECT success_criteria_name, success_criteria_level FROM Success_Criteria               
-                            WHERE success_criteria_name = %s AND success_criteria_level = %s
-                        ''', (
-                            request.modules[i].assertions[k].metadata.success_criteria[h].name,
-                            request.modules[i].assertions[k].metadata.success_criteria[h].level      
-                        ))
-
-                        success_criteria_name_level = cursor.fetchone()
-                        success_criteria_name = success_criteria_name_level[0]
-                        success_criteria_level = success_criteria_name_level[1]
-
-                        cursor.execute('''
-                            INSERT INTO Assertion_Metadata_Success_Criteria (
-                                assertion_metadata_id,
-                                success_criteria_name,
-                                success_criteria_level       
-                            ) VALUES (
-                                %s, %s, %s
-                            ) ON CONFLICT (assertion_metadata_id, success_criteria_name, success_criteria_level) DO NOTHING
-                        ''', (
-                            assertion_metadata_id, success_criteria_name, success_criteria_level
-                        ))
-
-                    for g in range(request.modules[i].assertions[k].metadata.results_quantity):
-                        cursor.execute('''
-                            SELECT id FROM Issue
-                            WHERE assertion_id = %s
-                            AND verdict = %s
-                            AND description = %s
-                        ''', (
-                            assertion_id, 
-                            request.modules[i].assertions[k].metadata.results[g].verdict, 
-                            request.modules[i].assertions[k].metadata.results[g].description
-                        ))
-
-                        issue_id = cursor.fetchone()
-
-                        if issue_id is None:
-                            cursor.execute('''
-                                INSERT INTO Issue (
-                                    assertion_id, verdict, description, result_code
-                                ) VALUES (
-                                    %s, %s, %s, %s
-                                ) RETURNING id
-                            ''', (
-                                assertion_id, 
-                                request.modules[i].assertions[k].metadata.results[g].verdict, 
-                                request.modules[i].assertions[k].metadata.results[g].description, 
-                                request.modules[i].assertions[k].metadata.results[g].result_code
-                            ))
-
-                            issue_id = cursor.fetchone()
-
-                        issue_id = issue_id[0]
-
-                        for y in range(request.modules[i].assertions[k].metadata.results[g].elements_quantity):
-
-                            cursor.execute('''
-                                INSERT INTO Element (
-                                    issue_id, html_code, pointer, x, y, width, height
-                                ) VALUES (
-                                    %s, %s, %s, %s, %s, %s, %s
-                                )
-                            ''', (
-                                issue_id, 
-                                request.modules[i].assertions[k].metadata.results[g].elements[y].html_code, 
-                                request.modules[i].assertions[k].metadata.results[g].elements[y].pointer,
-                                request.modules[i].assertions[k].metadata.results[g].elements[y].x,
-                                request.modules[i].assertions[k].metadata.results[g].elements[y].y,
-                                request.modules[i].assertions[k].metadata.results[g].elements[y].width,
-                                request.modules[i].assertions[k].metadata.results[g].elements[y].height
-                            ))
-
-            conn.commit()
-            cursor.close()
+                self.process_assertions_batch(cursor, request.modules, module_ids)
+                
+                conn.commit()
+                print(f"Successfully inserted evaluation {evaluation_id}", file=sys.stderr, flush=True)
+                
+            return AddEvaluationResponse(status_code=200)
             
-            print("Insert successful", file=sys.stderr, flush=True)
         except Exception as e:
-            print(f"Error occurred: {e}", file=sys.stderr, flush=True)
+            print(f"Error in AddEvaluation: {e}", file=sys.stderr, flush=True)
             if conn:
                 conn.rollback()
-
             return AddEvaluationResponse(status_code=500)
+            
         finally:
             if conn:
                 connection_pool.putconn(conn)
 
-        return AddEvaluationResponse(status_code=200)
-    
+
+    def process_assertions_batch(self, cursor, modules, module_ids):
+        all_codes = set()
+        for module in modules:
+            for assertion in module.assertions:
+                all_codes.add(assertion.metadata.code)
+        
+        existing_metadata = {}
+        if all_codes:
+            code_list = list(all_codes)
+            cursor.execute('''
+                SELECT code, id FROM Assertion_Metadata 
+                WHERE code = ANY(%s::text[])
+            ''', (code_list,))
+            
+            existing_metadata = {code: id for code, id in cursor.fetchall()}
+        
+        new_metadata = []
+        for module in modules:
+            for assertion in module.assertions:
+                if assertion.metadata.code not in existing_metadata:
+                    target_elements = [str(x) for x in assertion.metadata.target_elements] if assertion.metadata.target_elements else []
+                    target_attributes = [str(x) for x in assertion.metadata.target_attributes] if assertion.metadata.target_attributes else []
+                    
+                    new_metadata.append((
+                        assertion.metadata.code, assertion.metadata.name,
+                        assertion.metadata.description, assertion.metadata.url,
+                        assertion.metadata.mapping,
+                        target_elements,
+                        target_attributes,
+                        module.type
+                    ))
+        
+        if new_metadata:
+            cursor.executemany('''
+                INSERT INTO Assertion_Metadata (
+                    code, assertion_name, description, url, mapping, 
+                    target_elements, target_attributes, parent_module_type
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ''', new_metadata)
+            
+            new_codes = [meta[0] for meta in new_metadata]
+            cursor.execute('''
+                SELECT code, id FROM Assertion_Metadata 
+                WHERE code = ANY(%s::text[])
+            ''', (new_codes,))
+            
+            for code, id in cursor.fetchall():
+                existing_metadata[code] = id
+
+        assertion_data = []
+        assertion_lookup = []
+        
+        for module_idx, module in enumerate(modules):
+            module_id = module_ids[module_idx]
+            for assertion_idx, assertion in enumerate(module.assertions):
+                metadata_id = existing_metadata[assertion.metadata.code]
+                assertion_data.append((
+                    module_id, metadata_id, assertion.passed, assertion.warning,
+                    assertion.failed, assertion.inapplicable, assertion.outcome,
+                    assertion.description
+                ))
+                assertion_lookup.append((module_idx, assertion_idx, metadata_id))
+        
+        if assertion_data:
+            cursor.executemany('''
+                INSERT INTO Assertion (
+                    module_id, assertion_metadata_id, passed, warning, failed, 
+                    inapplicable, outcome, description
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ''', assertion_data)
+            
+            cursor.execute('''
+                SELECT id FROM Assertion 
+                WHERE module_id = ANY(%s::integer[]) 
+                ORDER BY id DESC 
+                LIMIT %s
+            ''', (module_ids, len(assertion_data)))
+            
+            assertion_ids = [row[0] for row in cursor.fetchall()]
+            assertion_ids.reverse()
+
+            self.process_success_criteria_batch(cursor, modules, assertion_lookup, assertion_ids)
+            self.process_results_batch(cursor, modules, assertion_lookup, assertion_ids)
+
+    def process_success_criteria_batch(self, cursor, modules, assertion_lookup, assertion_ids):
+        all_criteria = set()
+        for module in modules:
+            for assertion in module.assertions:
+                for criteria in assertion.metadata.success_criteria:
+                    all_criteria.add((criteria.name, criteria.level))
+        
+        if not all_criteria:
+            return
+        
+        criteria_list = list(all_criteria)
+        if criteria_list:
+            placeholders = ','.join(['(%s,%s)'] * len(criteria_list))
+            query = f'''
+                SELECT success_criteria_name, success_criteria_level 
+                FROM Success_Criteria 
+                WHERE (success_criteria_name, success_criteria_level) IN ({placeholders})
+            '''
+            flattened_params = [item for pair in criteria_list for item in pair]
+            cursor.execute(query, flattened_params)
+            
+            existing_criteria = set((row[0], row[1]) for row in cursor.fetchall())
+            new_criteria = all_criteria - existing_criteria
+            
+            if new_criteria:
+                criteria_to_insert = []
+                for name, level in new_criteria:
+                    principle = next((c.principle for m in modules for a in m.assertions 
+                                    for c in a.metadata.success_criteria 
+                                    if c.name == name and c.level == level), None)
+                    url = next((c.url for m in modules for a in m.assertions 
+                            for c in a.metadata.success_criteria 
+                            if c.name == name and c.level == level), None)
+                    criteria_to_insert.append((name, level, principle, url))
+                
+                cursor.executemany('''
+                    INSERT INTO Success_Criteria (
+                        success_criteria_name, success_criteria_level, principle, success_criteria_url
+                    ) VALUES (%s, %s, %s, %s)
+                ''', criteria_to_insert)
+        
+        relationship_data = []
+        for idx, (module_idx, assertion_idx, metadata_id) in enumerate(assertion_lookup):
+            assertion = modules[module_idx].assertions[assertion_idx]
+            
+            for criteria in assertion.metadata.success_criteria:
+                relationship_data.append((metadata_id, criteria.name, criteria.level))
+        
+        if relationship_data:
+            unique_metadata_ids = list(set(r[0] for r in relationship_data))
+            cursor.execute('''
+                SELECT assertion_metadata_id, success_criteria_name, success_criteria_level
+                FROM Assertion_Metadata_Success_Criteria
+                WHERE assertion_metadata_id = ANY(%s::integer[])
+            ''', (unique_metadata_ids,))
+            
+            existing_relationships = set((row[0], row[1], row[2]) for row in cursor.fetchall())
+            new_relationships = [r for r in relationship_data if tuple(r) not in existing_relationships]
+            
+            if new_relationships:
+                cursor.executemany('''
+                    INSERT INTO Assertion_Metadata_Success_Criteria (
+                        assertion_metadata_id, success_criteria_name, success_criteria_level
+                    ) VALUES (%s, %s, %s)
+                ''', new_relationships)
+
+    def process_results_batch(self, cursor, modules, assertion_lookup, assertion_ids):
+        issue_data = []
+        issue_lookup = []
+        
+        for idx, (module_idx, assertion_idx, metadata_id) in enumerate(assertion_lookup):
+            assertion_id = assertion_ids[idx]
+            assertion = modules[module_idx].assertions[assertion_idx]
+            
+            for result_idx, result in enumerate(assertion.metadata.results):
+                issue_data.append((
+                    assertion_id, result.verdict, result.description, result.result_code
+                ))
+                issue_lookup.append((module_idx, assertion_idx, result_idx))
+        
+        if not issue_data:
+            return
+        
+        existing_issues = {}
+        
+        if issue_data:
+            unique_assertion_ids = list(set(item[0] for item in issue_data))
+            
+            cursor.execute('''
+                SELECT id, assertion_id, verdict, description 
+                FROM Issue 
+                WHERE assertion_id = ANY(%s::integer[])
+            ''', (unique_assertion_ids,))
+            
+            for id, assertion_id, verdict, description in cursor.fetchall():
+                existing_issues[(assertion_id, verdict, description)] = id
+            
+            new_issues = []
+            for assertion_id, verdict, description, result_code in issue_data:
+                key = (assertion_id, verdict, description)
+                if key not in existing_issues:
+                    new_issues.append((assertion_id, verdict, description, result_code))
+            
+            if new_issues:
+                cursor.executemany('''
+                    INSERT INTO Issue (assertion_id, verdict, description, result_code)
+                    VALUES (%s, %s, %s, %s)
+                ''', new_issues)
+                
+                cursor.execute('''
+                    SELECT id, assertion_id, verdict, description 
+                    FROM Issue 
+                    WHERE assertion_id = ANY(%s::integer[]) AND id > (
+                        SELECT COALESCE(MAX(id), 0) FROM Issue WHERE assertion_id = ANY(%s::integer[])
+                    ) - %s
+                ''', (unique_assertion_ids, unique_assertion_ids, len(new_issues)))
+                
+                for id, assertion_id, verdict, description in cursor.fetchall():
+                    existing_issues[(assertion_id, verdict, description)] = id
+        
+        element_data = []
+        for idx, (module_idx, assertion_idx, result_idx) in enumerate(issue_lookup):
+            assertion_id = assertion_ids[
+                next(i for i, (m, a, _) in enumerate(assertion_lookup) 
+                    if m == module_idx and a == assertion_idx)
+            ]
+            result = modules[module_idx].assertions[assertion_idx].metadata.results[result_idx]
+            issue_key = (assertion_id, result.verdict, result.description)
+            
+            if issue_key in existing_issues:
+                issue_id = existing_issues[issue_key]
+                
+                for element in result.elements:
+                    element_data.append((
+                        issue_id, element.html_code, element.pointer,
+                        element.x, element.y, element.width, element.height
+                    ))
+        
+        if element_data:
+            cursor.executemany('''
+                INSERT INTO Element (
+                    issue_id, html_code, pointer, x, y, width, height
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ''', element_data)
+
     def SetAccessibilityMetric(self, request, context):
         conn = None
 
@@ -566,7 +670,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
                     assertions = cursor.fetchall()
 
-                    # Get the success criteria and results for each assertion
                     for assertion in assertions:
                         cursor.execute('''
                             SELECT * FROM Assertion_Metadata
@@ -878,7 +981,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             webpage = cursor.fetchone()[0]
 
-            # Get ACT module with evaluation id
             cursor.execute('''
                 SELECT id FROM Module
                 WHERE evaluation_id = %s
@@ -887,7 +989,6 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
 
             module_id = cursor.fetchone()[0]
 
-            # Get the assertions that have a given outcome and that their assertion metadata is connected to success criteria in a given list
             cursor.execute('''
                 SELECT * FROM Assertion
                 WHERE module_id = %s

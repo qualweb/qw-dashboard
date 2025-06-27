@@ -15,7 +15,7 @@ function WebsitesOverview() {
     const { registerUser, getUser } = useUserApi();
     const [websites, setWebsites] = useState([]);
     const [user_id, setUser_id] = useState(-1);
-    const [refresh, setRefresh] = useState(false);
+    const [refresh, setRefresh] = useState(0);
     const [loadingWebsites, setLoadingWebsites] = useState(new Map());
     const { user, isAuthenticated, isLoading } = useAuth0();
     
@@ -26,7 +26,7 @@ function WebsitesOverview() {
     }, [isLoading, isAuthenticated]);
 
     const refreshTrigger = () => {
-        setRefresh(!refresh);
+        setRefresh(prev => prev + 1);
     }
     
     useEffect(() => {

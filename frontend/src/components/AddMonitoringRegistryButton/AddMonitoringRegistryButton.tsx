@@ -239,23 +239,28 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                     return newMap;
                 });
 
-                // Check if job is completed
-                if (percentage === 100 || data.status === 'completed') {
+                if (data.status === 'completed') {
                     console.error(`🎉 Job ${jobId} completed successfully!`, 'success');
                     stopProgressTracking(jobId);
-                    props.refreshTrigger();
+
+                    setTimeout(() => {
+                        props.refreshTrigger();
+                    }, 1000);
                 } else if (data.status === 'failed') {
                     console.error(`❌ Job ${jobId} failed`, 'error');
                     stopProgressTracking(jobId);
+
+                    setTimeout(() => {
+                        props.refreshTrigger();
+                    }, 1000);
                 }
             } catch (error) {
                 console.error(`Error processing job ${jobId}: ${error}`, error);
             }
         };
 
-        // Handle connection errors
         eventSource.onerror = (error) => {
-        console.error('SSE Error:', error);
+            console.error('SSE Error:', error);
         };
         
     
