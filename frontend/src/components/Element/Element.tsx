@@ -12,24 +12,27 @@ interface ElementProps {
     y : number;
     width : number;
     height : number;
+    style : React.CSSProperties;
 }
 
 function Element(props: ElementProps) {
     return (
-        <div className='result-content' style={{width: "90%"}}>
-          <div className='code-snippet'>
-            {props.html_code}
-          </div>
-          <div className='location-visualize-wrapper'>
-            <IssueLocation pointer={props.pointer} />
-            <Visualize 
-              webpage_screenshot={props.webpage_screenshot} 
-              issueX={props.x} 
-              issueY={props.y} 
-              issueWidth={props.width} 
-              issueHeight={props.height}
-            />
-          </div>
+        <div style={props.style}>
+          <div className='result-content'> 
+            <div className='code-snippet'>
+              {props.html_code}
+            </div>
+            <div className='location-visualize-wrapper'>
+              <IssueLocation pointer={props.pointer} />
+              <Visualize 
+                webpage_screenshot={props.webpage_screenshot} 
+                issueX={props.x} 
+                issueY={props.y} 
+                issueWidth={props.width} 
+                issueHeight={props.height}
+              />
+            </div>
+          </div> 
         </div>
     );
 }

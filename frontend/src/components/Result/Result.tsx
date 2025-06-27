@@ -2,6 +2,7 @@ import './Result.css';
 import { ResultElement } from '../Types/Types.ts';
 import Element from '../Element/Element.tsx';
 import { CheckIcon, FailIcon, InapplicableIcon, Warning2Icon } from '../../assets/Icons.tsx';
+import { FixedSizeList } from 'react-window';
 
 
 interface ResultProps {
@@ -49,20 +50,31 @@ function Result(props: ResultProps) {
         </div>
         <span className="result-url">{props.webpage_url ? `(${props.webpage_url})` : ''}</span>
       </div>
-      {props.elements && props.elements.map((element: ResultElement) =>
-        <Element 
-          key={element.id} 
-          id={String(element.id)} 
-          html_code={element.htmlCode} 
-          pointer= {element.pointer} 
-          evaluation_id={props.evaluation_id}
-          webpage_screenshot={props.webpage_screenshot}
-          x={element.x}
-          y={element.y}
-          width={element.width}
-          height={element.height}
-        />
-      )}
+
+      <FixedSizeList
+        height={300}
+        width="95%"
+        itemCount={props.elements.length}
+        itemSize={80}
+        direction='vertical'
+
+      >
+        {({ index, style }) => (
+          <Element 
+            key={props.elements[index].id} 
+            id={String(props.elements[index].id)} 
+            html_code={props.elements[index].htmlCode} 
+            pointer= {props.elements[index].pointer} 
+            evaluation_id={props.evaluation_id}
+            webpage_screenshot={props.webpage_screenshot}
+            x={props.elements[index].x}
+            y={props.elements[index].y}
+            width={props.elements[index].width}
+            height={props.elements[index].height}
+            style={style}
+          />
+        )}
+      </FixedSizeList>
     </div>
   );
 };
