@@ -65,7 +65,7 @@ CREATE TABLE Evaluation (
     warning                 INTEGER NOT NULL,
     failed                  INTEGER NOT NULL,
     inapplicable            INTEGER NOT NULL,
-    score                   FLOAT,
+    score                   FLOAT DEFAULT -1.0,
     screenshot              BYTEA,
 
     FOREIGN KEY (monitored_website_id) REFERENCES MonitoringRegistry(id) ON DELETE CASCADE
