@@ -1126,71 +1126,87 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
     
     def GetAssertionResults(self, request, context):
         conn = None
-
         try:
             conn = connection_pool.getconn()
             cursor = conn.cursor()
             
+            # Single query with JOIN
             cursor.execute('''
-                SELECT * FROM Issue
-                WHERE assertion_id = %s
+                SELECT 
+                    i.id as issue_id,
+                    i.description,
+                    i.verdict,
+                    e.id as element_id,
+                    e.html_code,
+                    e.pointer,
+                    e.x,
+                    e.y,
+                    e.width,
+                    e.height
+                FROM Issue i
+                LEFT JOIN Element e ON i.id = e.issue_id
+                WHERE i.assertion_id = %s
                 ORDER BY 
-                    CASE verdict
+                    CASE i.verdict
                         WHEN 'passed' THEN 1
                         WHEN 'warning' THEN 2
                         WHEN 'failed' THEN 3
                         WHEN 'inapplicable' THEN 4
                     END;
-            ''', (request.assertion_id, ))
-
+            ''', (request.assertion_id,))
+            
             results = cursor.fetchall()
-
-            response = []
-            for result in results:
-                cursor.execute('''
-                    SELECT id, html_code, pointer, x, y, width, height FROM Element
-                    WHERE issue_id = %s
-                ''', (result[0], )) 
-
-                elements = cursor.fetchall()            
-
-                elements_list = []
-                for element in elements:
-                    elements_list.append(
+            
+            # Group results by issue
+            issues_dict = {}
+            for row in results:
+                issue_id = row[0]
+                if issue_id not in issues_dict:
+                    issues_dict[issue_id] = {
+                        'id': issue_id,
+                        'description': row[1],
+                        'verdict': row[2],
+                        'elements': []
+                    }
+                
+                if row[3] is not None:
+                    issues_dict[issue_id]['elements'].append(
                         ElementResponse(
-                            id=element[0],
-                            html_code=element[1],
-                            pointer=element[2],
-                            x=element[3],
-                            y=element[4],
-                            width=element[5],
-                            height=element[6]
+                            id=row[3],
+                            html_code=row[4],
+                            pointer=row[5],
+                            x=row[6],
+                            y=row[7],
+                            width=row[8],
+                            height=row[9]
                         )
                     )
-
-                if len(elements_list) > 0:
+            
+            response = []
+            for issue_data in issues_dict.values():
+                if len(issue_data['elements']) > 0:
                     response.append(
                         ResultResponse(
-                            id=result[0],
-                            description=result[3],
-                            verdict=result[2],
-                            elements=elements_list,
+                            id=issue_data['id'],
+                            description=issue_data['description'],
+                            verdict=issue_data['verdict'],
+                            elements=issue_data['elements']
                         )
                     )
-
+            
             cursor.close()
+            
         except Exception as e:
             print(f"Error occurred: {e}", file=sys.stderr, flush=True)
             if conn:
                 conn.rollback()
-
             return GetAssertionResultsResponse(status_code=500)
         finally:
             if conn:
                 connection_pool.putconn(conn)
-        
+                
         return GetAssertionResultsResponse(status_code=200, results=response)
-    
+
     def GetResultElement(self, request, context):
         conn = None
 
