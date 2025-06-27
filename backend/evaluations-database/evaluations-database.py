@@ -1168,14 +1168,15 @@ class EvaluationsDatabaseService(evaluations_pb2_grpc.EvaluationsServicer):
                         )
                     )
 
-                response.append(
-                    ResultResponse(
-                        id=result[0],
-                        description=result[3],
-                        verdict=result[2],
-                        elements=elements_list,
+                if len(elements_list) > 0:
+                    response.append(
+                        ResultResponse(
+                            id=result[0],
+                            description=result[3],
+                            verdict=result[2],
+                            elements=elements_list,
+                        )
                     )
-                )
 
             cursor.close()
         except Exception as e:
