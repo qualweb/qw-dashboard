@@ -4,6 +4,8 @@
     justify-content: center;
     width: 100% !important;
     gap: 5rem;
+    height: 60rem;
+    overflow-y: auto;
 }
 
 .tests-item {
