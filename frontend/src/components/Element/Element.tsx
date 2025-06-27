@@ -16,7 +16,7 @@ interface ElementProps {
 
 function Element(props: ElementProps) {
     return (
-        <div className='result-content'>
+        <div className='result-content' style={{width: "90%"}}>
           <div className='code-snippet'>
             {props.html_code}
           </div>
