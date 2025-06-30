@@ -140,6 +140,26 @@ function ContinuousChart(props: ContinuousChartProps) {
         [props.selectedMetric]: item.y
     }));
 
+    let metric = '';
+
+    switch (props.selectedMetric) {
+        case 'score':
+            metric = 'Score'
+            break
+        case 'total_fails':
+            metric = 'Total fails'
+            break
+        case 'inaccessibility_percentage':
+            metric = 'Inaccessibility Percentage'
+            break
+        case 'pages_with_more_than_one_fail':
+            metric = 'Pages with > 1 Fail'
+            break
+        case 'average_fails_per_page':
+            metric = 'Average Fails per Page'
+            break
+    }
+
     return (
         <div className="continuous-chart" ref={containerRef} >
             {dataTransformed.length > 0 && isReady ? (
@@ -147,10 +167,10 @@ function ContinuousChart(props: ContinuousChartProps) {
                     data={accessibilityData}
                     type="Single line chart"
                     selectorType={{ element: "circle" }}
-                    title={`${props.selectedMetric} over time`}
+                    title={`${metric} over time`}
                     manualDescriptions={{
                         longer: `This line chart shows the progression of ${props.selectedMetric} across ${dataTransformed.length} data points over time. The values range from ${yExtent[0]?.toFixed(2)} to ${yExtent[1]?.toFixed(2)}.`,
-                        shorter: `${props.selectedMetric} trends over time with ${dataTransformed.length} data points.`,
+                        shorter: `${metric} trends over time with ${dataTransformed.length} data points.`,
                     }}
                     context={"Data portrays the growth in population in India in the last decade "}
                     insights="The chart shows the trend of the selected metric over time, with data points representing specific dates and values. The x-axis represents time, while the y-axis represents the metric value. The line connects these points to illustrate the trend."
