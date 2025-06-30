@@ -1,6 +1,6 @@
-import { Form1, Form3, Form4 } from '../../assets/Icons';
 import './Homepage.css';
 import LoginButton from '../LoginButton/LoginButton';
+import evaluation from '../../assets/evaluation.svg'
 
 function Homepage() {
     return (
@@ -16,39 +16,20 @@ function Homepage() {
                     <LoginButton />
                 </div>
             </div>
-            <div className='homepage-content'>
-                <div className='start-monitoring-container'>
-                    <div>
-                        <div className='start-monitoring-title'>
-                            <h2>Website URL</h2>
+            <main className='homepage-content'>
+                <div className="homepage-wrapper">
+                    <div className='introduction'>
+                        <div className="qwdashboard">
+                            <h2>Qualweb</h2>
+                            <h3>Web Accessibility Monitoring Dashboard</h3>
                         </div>
-                        <div className='start-monitoring-input-button'>
-                            <input type='text' placeholder='Enter your website URL' />
-                            <button><strong>Start Monitoring</strong></button>
-                        </div>
+                        <p className='qwdashboard-desc'>Monitor your websites for accessibility compliance with automated WCAG Techniques and ACT Rules testing.</p>
+                    </div>
+                    <div className="evaluation-illustration">
+                        <img src={evaluation} alt="Dashboard illustration" />
                     </div>
                 </div>
-            </div>
-            <div className='forms'>
-                <div className='form-1'>
-                    { Form1 }
-                </div>
-                <div className='form-2'>
-                    { Form1 }
-                </div>
-                <div className='form-3'>
-                    { Form3 }
-                </div>
-                <div className='form-5'>
-                    { Form4 }
-                </div>
-                <div className='form-6'>
-                    { Form1 }
-                </div>
-                <div className='form-7'>
-                    { Form1 }
-                </div>
-            </div>
+            </main>
         </div>
     );
 }
