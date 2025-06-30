@@ -1,18 +1,16 @@
 import './Homepage.css';
 import LoginButton from '../LoginButton/LoginButton';
 import evaluation from '../../assets/evaluation.svg'
+import logo from '../../assets/qualweb_monitoring_logo.png'
 
 function Homepage() {
     return (
         <div className='homepage-container'>
             <div className='header-wrapper'>
                 <div className='homepage-header'>
-                    <h1>
-                        <span className="qualweb">Qualweb</span>
-                        <div>
-                            <span className="monitoring">Monitoring</span>
-                        </div>
-                    </h1>
+                    <div className="qwdashboard-logo">
+                        <img src={logo} alt="Qualweb Dashboard logo" />
+                    </div>
                     <LoginButton />
                 </div>
             </div>

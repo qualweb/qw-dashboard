@@ -50,6 +50,7 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1.5rem;
 }
 
 .header-wrapper {
@@ -111,4 +112,14 @@ html, body {
     flex-direction: column;
     justify-content: center;
     gap: 1.5rem;
+}
+
+.qwdashboard-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qwdashboard-logo img {
+    min-width: 1rem;
 }
