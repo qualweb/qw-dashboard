@@ -33,9 +33,11 @@ function HistoryItem(props: HistoryItemProps) {
                 <h4>{props.evaluation_url}</h4>
             </div>
             <div className='webpage-score-date'>
-                <div className='webpage-score' aria-label={'Score: ' + props.evaluation_score + '%'} style={{
+                <span className='webpage-score' aria-label={'Score: ' + props.evaluation_score + '%'} style={{
                     backgroundColor: score_color
-                }}><strong>{props.evaluation_score}</strong></div>
+                }}>
+                    <strong>{props.evaluation_score}</strong>
+                </span>
                 <div className='evaluation-date'>
                     <span><strong>{padZero(props.evaluation_day)}/{padZero(props.evaluation_month)}/{props.evaluation_year}</strong></span>
                     <span><strong>{padZero(props.evaluation_hour)}:{padZero(props.evaluation_minute)}:{padZero(props.evaluation_second)}</strong></span>

@@ -35,6 +35,15 @@ function WebsiteCard(props: WebsiteCardProps) {
         getFavicon();
     })
 
+    const score = Math.floor(props.score * 100);
+
+    let score_color = 'rgba(17, 249, 52, 0.186)';
+    if (score < 50) {
+        score_color = 'rgba(255, 0, 0, 0.186)';
+    } else if (score >= 50 && score < 75) {
+        score_color = 'rgba(255, 221, 0, 0.186)';
+    }
+
     return (
         <li className='website-card-wrapper'>
             <Link className='website-card' to={`/dashboard/${props.id}`}>
@@ -51,9 +60,11 @@ function WebsiteCard(props: WebsiteCardProps) {
                             <span className='website-card-last-eval-text'><strong>Latest Evaluation</strong></span>
                             <span className='website-card-last-eval-date'><strong>{props.latest_eval_day}/{props.latest_eval_month}/{props.latest_eval_year}</strong></span>
                         </div>
-                        <div className='website-score'>
-                            <span><strong>{Math.floor(props.score * 100)}</strong></span>
-                        </div>
+                        <span className='website-score' aria-label={'Score: ' + score + '%'} style={{
+                            backgroundColor: score_color
+                        }}>
+                            <strong>score</strong>
+                        </span>
                     </div>
                 </div>
                 <div className='website-card-under'>
