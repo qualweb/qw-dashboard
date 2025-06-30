@@ -3,7 +3,7 @@ import './AddWebpages.css'
 import { Portal } from '@ark-ui/react/portal';
 import { Field } from '@ark-ui/react/field';
 import { X } from 'lucide-react';
-import { addWebpages } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import { useState } from 'react';
 
 interface AddWebpagesProps {
@@ -12,6 +12,8 @@ interface AddWebpagesProps {
 }
 
 function AddWebpages(props: AddWebpagesProps) {
+    const { addWebpages } = useMonitoringApi();
+
     const [isOpen, setIsOpen] = useState(false);
 
     const [webpages, setWebpages] = useState('');

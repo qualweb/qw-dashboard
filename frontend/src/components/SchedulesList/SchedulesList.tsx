@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './SchedulesList.css'
-import { getSchedules } from '../../services/ScheduleService';
+import { useSchedulerApi } from '../../services/ScheduleService';
 import ScheduleCard from '../ScheduleCard/ScheduleCard';
 
 interface SchedulesListProps {
@@ -10,6 +10,8 @@ interface SchedulesListProps {
 }
 
 function SchedulesList(props: SchedulesListProps) {
+    const { getSchedules } = useSchedulerApi();
+
     const [schedulesIds, setSchedulesIds] = useState([]);
     
     useEffect(() => {

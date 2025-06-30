@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './FailedTestsStatsList.css'
-import { getFailedTestsStats } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import FailedTest from '../FailedTest/FailedTest';
 
 interface FailedTestsStatsListProps {
@@ -10,6 +10,7 @@ interface FailedTestsStatsListProps {
 }
 
 function FailedTestsStatsList(props: FailedTestsStatsListProps) {
+    const { getFailedTestsStats } = useMonitoringApi();
 
     const [fstCycleData, setFstCycleData] = useState([]);
     const [sndCycleData, setSndCycleData] = useState([]);

@@ -1,8 +1,8 @@
 import './Assertion.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CheckIcon, ChevronDown } from 'lucide-react';
 import Result from '../Result/Result.tsx';
-import { getAssertionResults } from '../../services/EvaluationService.tsx';
+import { useMonitoringApi } from '../../services/EvaluationService.tsx';
 import { Checkbox } from '@ark-ui/react/checkbox';
 
 interface AssertionProps {
@@ -18,21 +18,14 @@ interface AssertionProps {
 }
 
 function Assertion(props: AssertionProps) {
+    const { getAssertionResults } = useMonitoringApi();
+
     const [expanded, setExpanded] = useState(false);
     const [results, setResults] = useState([]);
     const [filters, setFilters] = useState<string[]>([]);
 
     const states = ["passed", "warning", "failed"];
 
-    const toggleStatusFilter = (filter: string) => {
-        setFilters(prev => 
-            prev.includes(filter)
-                ? prev.filter(item => item !== filter)
-                : [...prev, filter]
-        );
-    };
-
-    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleInnerButtonClick = (event: any) => {
         event.stopPropagation();
@@ -46,10 +39,12 @@ function Assertion(props: AssertionProps) {
         fetchAssertion();
     }, [props.id]);
 
+    const hiddenInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleChange = (e : any) => {
         e.preventDefault();
-      };
+    };
 
     return (
         <button className="tests-item" key={props.id} onClick={(event) => {          
@@ -66,22 +61,64 @@ function Assertion(props: AssertionProps) {
                             <h3>{props.name}</h3>
                         </div>
                         { expanded && props.assertion_outcome !== "inapplicable" && (
-                            <div className='assertion-state-filter'>
+                            <Checkbox.Group
+                                onValueChange={(details) => {
+                                    const selectedValues = Array.from(details.values());
+                                    
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                    const newFilters : any[] = [];
+                                    
+                                    selectedValues.forEach(value => {
+                                        const item = states.find(item => item === value);
+                                        if (item) {
+                                            newFilters.push(item);
+                                        }
+                                    });
+
+                                    setFilters(newFilters);
+                                }}
+                            >
                                 {states.map((state) => (
-                                    <Checkbox.Root key={state} checked={filters.includes(state)}>
-                                        <Checkbox.Control onClick={(event) => {
-                                            handleInnerButtonClick(event)
-                                            handleChange(event)
-                                        }}>
+                                    <Checkbox.Root 
+                                        value={state} 
+                                        key={state} 
+                                        checked={filters.includes(state)}
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === ' ') {
+                                                e.preventDefault();
+                                                
+                                                hiddenInputRefs.current[state]?.click();
+                                            }
+                                        }}
+                                        aria-label={state}
+                                        role='checkbox'
+                                        aria-checked={filters.some(item => item === state)}
+                                    >
+                                        <Checkbox.Control
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                handleChange(event);
+                                                hiddenInputRefs.current[state]?.click(); 
+                                            }}
+                                        >
                                             <Checkbox.Indicator>
                                                 <CheckIcon />
                                             </Checkbox.Indicator>
                                         </Checkbox.Control>
                                         <Checkbox.Label>{state.charAt(0).toUpperCase() + state.slice(1)}</Checkbox.Label>
-                                        <Checkbox.HiddenInput onClick={() => {toggleStatusFilter(state)}}  />
+                                        <Checkbox.HiddenInput
+                                            ref={(el) => {
+                                                hiddenInputRefs.current[state] = el;
+                                            }}
+                                            tabIndex={-1}
+                                            onClick={() => {
+                                                console.log('Checkbox clicked:', state);
+                                            }}
+                                        />
                                     </Checkbox.Root>
                                 ))}
-                            </div>
+                            </Checkbox.Group>
                         )}
                     </div>
                     <div className="tests-right">
@@ -109,6 +146,7 @@ function Assertion(props: AssertionProps) {
                                     webpage_url={props.webpage_url}
                                     webpage_screenshot={props.webpage_screenshot}
                                     verdict={result["verdict"]}
+                                    elements={result["elements"] || []}
                                 />
                             ) :
                             filters.includes(result["verdict"]) ? (
@@ -120,6 +158,7 @@ function Assertion(props: AssertionProps) {
                                     webpage_url={props.webpage_url}
                                     webpage_screenshot={props.webpage_screenshot}
                                     verdict={result["verdict"]}
+                                    elements={result["elements"] || []}
                                 />
                             ) : null
                         ))}

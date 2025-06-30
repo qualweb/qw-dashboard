@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons.tsx';
 import { GetLatestACTAssertion, GetLatestACTAssertionsResponse } from "../Types/Types.ts";
-import { getLatestAssertions, getWebpageScreenshot } from '../../services/EvaluationService.tsx';
+import { useMonitoringApi } from '../../services/EvaluationService.tsx';
 import Assertion from '../Assertion/Assertion.tsx';
 
 interface CategoryWebsiteProps {
@@ -21,6 +21,8 @@ const categoryConfig = {
 };
 
 function  CategoryWebsite(props: CategoryWebsiteProps) {
+    const { getLatestAssertions, getWebpageScreenshot } = useMonitoringApi();
+
     const [expanded, setExpanded] = useState(false);
     const [assertions, setAssertions] = useState<GetLatestACTAssertionsResponse>();
     const [webpageScreenshots, setWebpageScreenshots] = useState<string[]>([]);

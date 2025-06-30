@@ -207,7 +207,7 @@ function ContinuousChart(props: ContinuousChartProps) {
                     </svg>
                 </AutoVizuA11y>
             ) : (
-                <div>No data available for chart</div>
+                <div>Loading data...</div>
             )}
         </div>
     );

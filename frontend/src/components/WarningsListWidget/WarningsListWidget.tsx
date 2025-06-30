@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./WarningsListWidget.css"
-import { getLatestEvaluations } from "../../services/EvaluationService";
+import { useMonitoringApi } from "../../services/EvaluationService";
 import CategoryWebsite from "../CatergoryWebsite/CategoryWebsite";
 
 interface CurrentWarningsWidgetProps {
@@ -8,6 +8,8 @@ interface CurrentWarningsWidgetProps {
 }
 
 function CurrentWarningsWidget(props: CurrentWarningsWidgetProps) {
+    const { getLatestEvaluations } = useMonitoringApi();
+
     const [latestEvalIds, setLatestEvalIds] = useState<string[]>([]);
 
     useEffect(() => {

@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import './ScoreWidget.css';
 
 import { Progress } from '@ark-ui/react/progress'
-import { getAccessibilityScore } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 
 interface ScoreWidgetProps {
     monitoring_id: string;
 }
 
 function ScoreWidget(props: ScoreWidgetProps) {
+    const { getAccessibilityScore } = useMonitoringApi();
+
     const [value, setValue] = useState(0);
     const [accessibilityScore, setAccessibilityScore] = useState(0.0);
 

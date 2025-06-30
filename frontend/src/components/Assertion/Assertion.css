@@ -3,7 +3,7 @@
     flex-direction: column;
     justify-content: center;
     width: 100% !important;
-    gap: 2rem;
+    gap: 5rem;
 }
 
 .tests-item {

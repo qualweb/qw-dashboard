@@ -1,14 +1,26 @@
 import './SelectEvaluations.css'
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import DashboardMenu from "../DashboardMenu/DashboardMenu";
 import { createListCollection, Select } from "@ark-ui/react/select";
 import { Portal } from "@ark-ui/react/portal";
 import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from 'react';
-import { getWebsiteMonitoringCycles } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
+import { useAuth0 } from '@auth0/auth0-react';
 
 function SelectEvaluations() {
+    const { isAuthenticated, isLoading } = useAuth0();
+    const navigate = useNavigate();
+        
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+        navigate('/');
+        }
+    }, [isLoading, isAuthenticated]);
+
+    const { getWebsiteMonitoringCycles } = useMonitoringApi();
+
     const { monitoring_id } = useParams();
 
     const [monitoringCycles, setMonitoringCycles] = useState([]);

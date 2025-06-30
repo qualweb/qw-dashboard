@@ -1,21 +1,34 @@
 import './Schedule.css'
 
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DashboardMenu from '../DashboardMenu/DashboardMenu';
 import { Calendar, CheckCheck, CheckIcon, Clock3, KeyRound } from 'lucide-react';
 import { Checkbox } from '@ark-ui/react/checkbox';
 import { createListCollection } from '@ark-ui/react/collection';
-import { useEffect, useState } from 'react';
-import { getMonitoredWebpages } from '../../services/EvaluationService';
+import { useEffect, useRef, useState } from 'react';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import { Webpage } from '../Types/Types';
 import { Portal } from '@ark-ui/react/portal';
 import { DatePicker } from '@ark-ui/react/date-picker';
 import SelectWidget from '../SelectWidget/SelectWidget';
-import { addSchedule } from '../../services/ScheduleService';
+import { useSchedulerApi } from '../../services/ScheduleService';
 import SchedulesList from '../SchedulesList/SchedulesList';
 import WebsiteIdentifier from '../WebsiteIdentifier/WebsiteIdentifier';
+import { useAuth0 } from '@auth0/auth0-react';
 
 function Schedule() {
+    const { isAuthenticated, isLoading } = useAuth0();
+    const navigate = useNavigate();
+        
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+        navigate('/');
+        }
+    }, [isLoading, isAuthenticated]);
+
+    const { getMonitoredWebpages } = useMonitoringApi();
+    const { addSchedule } = useSchedulerApi();
+
     const { monitoring_id } = useParams();
 
     const [webpagesToEval, setWebpagesToEval] = useState<[url: string, needs_authentication: boolean][]>([]);
@@ -156,6 +169,10 @@ function Schedule() {
     const hasWebpagesNeedingAuth = (): boolean => {
         return webpagesToEval.some(([, needs_authentication]) => needs_authentication );
     };
+    
+    const hiddenInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+    const hiddenInputSelectAllRef = useRef<HTMLElement | null>();
+    const [selectAll, setSelectAll] = useState(false);
 
     return (
         <div className='schedule'>
@@ -169,36 +186,123 @@ function Schedule() {
                             <h2>Scheduler</h2>
                         </div>
                         { !scheduleTrigger ? (
-                            <Checkbox.Group className='webpages-container' name="framework" onValueChange={console.log}>
-                                {collection.items.map((item) => (
-                                    <div className='webpage-container' key={item.value}>
-                                        <div className='checkbox-webpage-container'>
-                                            <Checkbox.Root className='checkbox-webpage' value={item.value}>
-                                                <Checkbox.Control className='checkbox-webpage-control' onClick={() => {
-                                                    const exists = webpagesToEval.some(([url]) => url === item.value);
-    
-                                                    if (exists) {
-                                                        removeWebpage(item.value);
-                                                        console.log("Removed:", item.value);
-                                                    } else {
-                                                        addWebpage([item.value, item.needs_authentication]);
-                                                        console.log("Added:", item.value);
-                                                    }
-                                                }}>
-                                                    <Checkbox.Indicator className='checkbox-webpage-indicator'>
-                                                        <CheckIcon />
-                                                    </Checkbox.Indicator>
-                                                </Checkbox.Control>
-                                                <Checkbox.HiddenInput />
-                                                <div className="schduler-webpage-auth">
-                                                    <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
-                                                    {item.needs_authentication ? <KeyRound /> : null}
-                                                </div>
-                                            </Checkbox.Root>
+                            <div>
+                                <Checkbox.Root className='checkbox-all-schedules' value='select-all' key='select-all'
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === ' ') {
+                                            e.preventDefault();
+                                            
+                                            hiddenInputSelectAllRef.current?.click();
+                                        }
+                                    }}
+                                    role='checkbox'
+                                    aria-checked={selectAll}
+                                    checked={webpagesToEval.length === collection.items.length}
+                                    aria-label='Select all webpages'
+                                >
+                                    <Checkbox.HiddenInput className='checkbox-webpage-hidden-input' 
+                                        ref={(el) => {
+                                            hiddenInputSelectAllRef.current = el;
+                                        }}
+                                        onClick={() => {
+                                            console.log('Checkbox clicked for select all');
+                                            const newSelectAll = !selectAll;
+                                            setSelectAll(newSelectAll);
+                                            
+                                            if (newSelectAll) {
+                                                // If checking select all, select all
+                                                const newWebpagesToEval: [string, boolean][] = [];
+                                                collection.items.forEach(item => {
+                                                    newWebpagesToEval.push([item.value, item.needs_authentication]);
+                                                });
+                                                setWebpagesToEval(newWebpagesToEval);
+                                            } else {
+                                                // If unchecking select all, deselect all
+                                                setWebpagesToEval([]);
+                                            }
+                                        }}
+                                        tabIndex={-1}
+                                    />
+                                    <Checkbox.Control className='checkbox-webpage-control'>
+                                        <Checkbox.Indicator className='checkbox-webpage-indicator'>
+                                            <CheckIcon />
+                                        </Checkbox.Indicator>
+                                    </Checkbox.Control>
+                                    <Checkbox.Label className='checkbox-webpage-label'>Select all</Checkbox.Label>
+                                </Checkbox.Root>
+                                <Checkbox.Group 
+                                    className='webpages-container' 
+                                    name="framework" 
+                                    value={webpagesToEval.map(webpage => webpage[0])} 
+                                    onValueChange={(details) => {
+                                        const selectedValues = Array.from(details.values());
+                                        
+                                        const newWebpagesToEval: [string, boolean][] = [];
+                                        
+                                        selectedValues.forEach(value => {
+                                            const item = collection.items.find(item => item.value === value);
+                                            if (item) {
+                                                newWebpagesToEval.push([item.value, item.needs_authentication]);
+                                            }
+                                        });
+                                        
+                                        setWebpagesToEval(newWebpagesToEval);
+                                    }}
+                                >
+                                    {collection.items.map((item) => (
+                                        <div className='webpage-container' key={item.value}>
+                                            <div className='checkbox-webpage-container'>
+                                                <Checkbox.Root 
+                                                    className='checkbox-webpage' 
+                                                    value={item.value}
+                                                    key={item.value} 
+                                                    tabIndex={0}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === ' ') {
+                                                            e.preventDefault();
+                                                            
+                                                            hiddenInputRefs.current[item.value]?.click();
+                                                        }
+                                                    }}
+                                                    role='checkbox'
+                                                    aria-checked={webpagesToEval.some(webpage => webpage[0] === item.value)} 
+                                                >
+                                                    <Checkbox.Control className='checkbox-webpage-control' onClick={() => {
+                                                        const exists = webpagesToEval.some(([url]) => url === item.value);
+        
+                                                        if (exists) {
+                                                            removeWebpage(item.value);
+                                                            console.log("Removed:", item.value);
+                                                        } else {
+                                                            addWebpage([item.value, item.needs_authentication]);
+                                                            console.log("Added:", item.value);
+                                                        }
+                                                    }}>
+                                                        <Checkbox.Indicator className='checkbox-webpage-indicator'>
+                                                            <CheckIcon />
+                                                        </Checkbox.Indicator>
+                                                    </Checkbox.Control>
+                                                    <Checkbox.HiddenInput 
+                                                        ref={(el) => {
+                                                            hiddenInputRefs.current[item.value] = el;
+                                                        }}
+                                                        onClick={() => {
+                                                            console.log('Checkbox clicked:', item.value);
+                                                            setSelectAll(false);
+                                                        }}
+                                                        tabIndex={-1}
+                                                    />
+                                                    <div className="schduler-webpage-auth">
+                                                        <Checkbox.Label className='checkbox-webpage-label'>{item.label}</Checkbox.Label>
+                                                        {item.needs_authentication ? <KeyRound /> : null}
+                                                    </div>
+                                                </Checkbox.Root>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </Checkbox.Group>
+                                    ))}
+                                </Checkbox.Group>
+                            </div>
                         ) : (
                             <div className="schedule-content">
                                 <div className="schedule-options">

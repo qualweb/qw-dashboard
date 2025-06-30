@@ -217,3 +217,7 @@
 .date-picker-trigger {
     background-color: var(--secondary-color);
 }
+
+.checkbox-all-schedules {
+    margin-left: 2rem;
+}

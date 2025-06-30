@@ -1,5 +1,6 @@
+
 .result-content {
-    width: 90%;
+    width: 95%;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -9,6 +10,7 @@
     border-radius: clamp(1rem, 5vw, 4rem);
     gap: 1.5rem;
 }
+
 
 .result-desc {
     display: flex;
@@ -35,6 +37,7 @@
     height: 3rem;
     border-radius: 2rem;
     padding: 0;
+    position: absolute;
 }
 
 .copy:hover {

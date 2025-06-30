@@ -33,3 +33,9 @@
     text-align: left;
     word-break: break-all;
 }
+
+.result-fixed-size-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}

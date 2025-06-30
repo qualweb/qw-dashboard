@@ -1,12 +1,23 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./CurrentWarnings.css"
 import DashboardMenu from "../DashboardMenu/DashboardMenu";
 import WarningsListWidget from "../WarningsListWidget/WarningsListWidget";
 import WebsiteIdentifier from "../WebsiteIdentifier/WebsiteIdentifier";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useEffect } from "react";
 
 
 function CurrentWarnings() {
     const { monitoring_id } = useParams();
+
+    const { isAuthenticated, isLoading } = useAuth0();
+    const navigate = useNavigate();
+        
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+        navigate('/');
+        }
+    }, [isLoading, isAuthenticated]);
 
     return (
         <div className="current-warnings">

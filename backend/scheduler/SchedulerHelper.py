@@ -89,25 +89,17 @@ class Scheduler:
     def evaluate(self, monitoring_id, webpage_ids):
         print(f"Evaluating monitoring_id: {monitoring_id} with webpages_ids: {webpage_ids}", file=sys.stderr, flush=True)
 
-        for webpage_id in webpage_ids:
-            evaluation = requests.post(f'http://{self.evaluations_microservice}:8081/api/monitoring/{monitoring_id}/evaluate/{webpage_id}')
-        
+        request_body = {
+            'webpage_ids': list(webpage_ids)
+        }   
+
+        evaluation = requests.post(
+            url=f'http://{self.evaluations_microservice}:8081/api/monitoring/{monitoring_id}/evaluate',
+            json=request_body,
+            headers={
+                'Content-Type': 'application/json'
+            }
+        )
+
         if evaluation.status_code != 200:
             return {"error": "An error occurred"}, evaluation.status_code
-        
-        monitoring_cycle = requests.post(f'http://{self.evaluations_microservice}:8081/api/monitoring/{monitoring_id}/monitoring-cycle')
-        
-        if monitoring_cycle.status_code != 200:
-            return {"error": "An error occurred"}, monitoring_cycle.status_code
-        
-        monitoring_cycle_id = monitoring_cycle.json().get("monitoring_cycle_id")
-        
-        add_latest_evals = requests.post(f'http://{self.evaluations_microservice}:8081/api/monitoring/monitoring-cycle/{monitoring_cycle_id}/evaluations')
-
-        if add_latest_evals.status_code != 200:
-            return {"error": "An error occurred"}, add_latest_evals.status_code
-        
-        score = requests.post(f'http://{self.evaluations_microservice}:8081/api/monitoring/{monitoring_id}/calculate-score')
-        
-        if score.status_code != 200:
-            return {"error": "An error occurred"}, score.status_code

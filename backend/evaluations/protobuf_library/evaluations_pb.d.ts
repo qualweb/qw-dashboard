@@ -1283,6 +1283,11 @@ export class ResultResponse extends jspb.Message {
   getVerdict(): string;
   setVerdict(value: string): void;
 
+  clearElementsList(): void;
+  getElementsList(): Array<ElementResponse>;
+  setElementsList(value: Array<ElementResponse>): void;
+  addElements(value?: ElementResponse, index?: number): ElementResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ResultResponse.AsObject;
   static toObject(includeInstance: boolean, msg: ResultResponse): ResultResponse.AsObject;
@@ -1298,6 +1303,7 @@ export namespace ResultResponse {
     id: number,
     description: string,
     verdict: string,
+    elementsList: Array<ElementResponse.AsObject>,
   }
 }
 

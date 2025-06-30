@@ -93,15 +93,12 @@ var initializeRedis = function () { return __awaiter(void 0, void 0, void 0, fun
         }
     });
 }); };
-var startEvaluationJob = function (monitoring_id, webpage_ids, username, password) { return __awaiter(void 0, void 0, void 0, function () {
-    var jobId, error_2;
+var startEvaluationJob = function (jobId, monitoring_id, webpage_ids, username, password) { return __awaiter(void 0, void 0, void 0, function () {
+    var error_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                jobId = (0, uuid_1.v4)();
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 4, , 5]);
+                _a.trys.push([0, 4, , 5]);
                 return [4 /*yield*/, redis.hset("job:".concat(jobId), {
                         total: webpage_ids.length,
                         completed: 0,
@@ -111,7 +108,7 @@ var startEvaluationJob = function (monitoring_id, webpage_ids, username, passwor
                         current_webpage: '',
                         error_count: 0
                     })];
-            case 2:
+            case 1:
                 _a.sent();
                 return [4 /*yield*/, redis.lpush('evaluation_queue', JSON.stringify({
                         jobId: jobId,
@@ -120,6 +117,9 @@ var startEvaluationJob = function (monitoring_id, webpage_ids, username, passwor
                         username: username,
                         password: password
                     }))];
+            case 2:
+                _a.sent();
+                return [4 /*yield*/, updateJobProgress(jobId, 0, "Waiting to process website", 'queued')];
             case 3:
                 _a.sent();
                 console.log("\uD83D\uDCCB Job ".concat(jobId, " queued for processing"));
@@ -405,15 +405,18 @@ app.post('/api/monitoring/:monitoring_id/evaluate', function (req, res) { return
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, startEvaluationJob(monitoring_id, webpage_ids, username, password)];
+                jobId = (0, uuid_1.v4)();
+                // Start the job and return immediately
+                res.status(200).json({
+                    message: 'Evaluation job started',
+                    jobId: jobId,
+                    total_webpages: webpage_ids.length,
+                    status: 'queued'
+                });
+                return [4 /*yield*/, startEvaluationJob(jobId, monitoring_id, webpage_ids, username, password)];
             case 2:
-                jobId = _a.sent();
-                return [2 /*return*/, res.status(200).json({
-                        message: 'Evaluation job started',
-                        jobId: jobId,
-                        total_webpages: webpage_ids.length,
-                        status: 'queued'
-                    })];
+                _a.sent();
+                return [2 /*return*/];
             case 3:
                 error_8 = _a.sent();
                 console.error('Error starting evaluation job:', error_8);

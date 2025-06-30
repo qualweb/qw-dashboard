@@ -5,7 +5,7 @@ import { Select, createListCollection } from '@ark-ui/react/select'
 import { useEffect, useState } from 'react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons'
 import IssuesWebsiteItem from '../IssuesWebsiteItem/IssuesWebsiteItem';
-import { getIssuesStats, getLatestEvaluations } from '../../services/EvaluationService.tsx';
+import { useMonitoringApi } from '../../services/EvaluationService.tsx';
 import CircularLoader from '../CircularLoader/CircularLoader.tsx';
 import Filters from '../Filters/Filters.tsx';
 import CategoryWebsite from '../CatergoryWebsite/CategoryWebsite.tsx';
@@ -15,6 +15,8 @@ interface IssuesListWidgetProps {
 }
 
 function IssuesListWidget(props: IssuesListWidgetProps) {
+    const { getLatestEvaluations, getIssuesStats } = useMonitoringApi();
+
     const [selectedFilter, setSelectedFilter] = useState("By webpage");
     const [loading, setLoading] = useState(false);
     const [issuesStats, setIssuesStats] = useState(null);

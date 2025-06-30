@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DownIcon, MinusIcon, UpIcon } from '../../assets/Icons';
 import './CompareWebsiteStats.css'
-import { getChartData, getMonitoredWebpages, getWebpageComparisonData } from '../../services/EvaluationService';
+import { useMonitoringApi } from '../../services/EvaluationService';
 import FailedTestsStatsList from '../FailedTestsStatsList/FailedTestsStatsList';
 import ContinuousChart from '../ContinuousChart/ContinuousChart';
 import SelectWidget from '../SelectWidget/SelectWidget';
@@ -14,6 +14,8 @@ interface CompareWebsiteStatsProps {
 }
 
 function CompareWebsiteStats(props: CompareWebsiteStatsProps) {
+    const { getMonitoredWebpages, getWebpageComparisonData, getChartData } = useMonitoringApi();
+
     const [webpages, setWebpages] = useState([]);
     const [chartData, setChartData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -249,10 +251,12 @@ function CompareWebsiteStats(props: CompareWebsiteStatsProps) {
                         </div>
                         <div className="continuous-website-chart">
                             <div className='continuous-chart-container'>
-                                <ContinuousChart
-                                    chartData={chartData}
-                                    selectedMetric={metric}
-                                />
+                                {chartData && chartData.length !== 0 ? (
+                                    <ContinuousChart
+                                        chartData={chartData}
+                                        selectedMetric={metric}
+                                    />
+                                ) : null}
                             </div>
                         </div>
                     </div>

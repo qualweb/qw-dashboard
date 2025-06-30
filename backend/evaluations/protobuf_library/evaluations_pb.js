@@ -948,7 +948,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.runtimePackage.ResultResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.runtimePackage.ResultResponse.repeatedFields_, null);
 };
 goog.inherits(proto.runtimePackage.ResultResponse, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -10669,6 +10669,13 @@ proto.runtimePackage.GetAssertionResultsResponse.prototype.clearResultsList = fu
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.runtimePackage.ResultResponse.repeatedFields_ = [4];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -10702,7 +10709,9 @@ proto.runtimePackage.ResultResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
 id: jspb.Message.getFieldWithDefault(msg, 1, 0),
 description: jspb.Message.getFieldWithDefault(msg, 2, ""),
-verdict: jspb.Message.getFieldWithDefault(msg, 3, "")
+verdict: jspb.Message.getFieldWithDefault(msg, 3, ""),
+elementsList: jspb.Message.toObjectList(msg.getElementsList(),
+    proto.runtimePackage.ElementResponse.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -10750,6 +10759,11 @@ proto.runtimePackage.ResultResponse.deserializeBinaryFromReader = function(msg, 
     case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setVerdict(value);
+      break;
+    case 4:
+      var value = new proto.runtimePackage.ElementResponse;
+      reader.readMessage(value,proto.runtimePackage.ElementResponse.deserializeBinaryFromReader);
+      msg.addElements(value);
       break;
     default:
       reader.skipField();
@@ -10799,6 +10813,14 @@ proto.runtimePackage.ResultResponse.serializeBinaryToWriter = function(message, 
     writer.writeString(
       3,
       f
+    );
+  }
+  f = message.getElementsList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      4,
+      f,
+      proto.runtimePackage.ElementResponse.serializeBinaryToWriter
     );
   }
 };
@@ -10855,6 +10877,44 @@ proto.runtimePackage.ResultResponse.prototype.getVerdict = function() {
  */
 proto.runtimePackage.ResultResponse.prototype.setVerdict = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * repeated ElementResponse elements = 4;
+ * @return {!Array<!proto.runtimePackage.ElementResponse>}
+ */
+proto.runtimePackage.ResultResponse.prototype.getElementsList = function() {
+  return /** @type{!Array<!proto.runtimePackage.ElementResponse>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.runtimePackage.ElementResponse, 4));
+};
+
+
+/**
+ * @param {!Array<!proto.runtimePackage.ElementResponse>} value
+ * @return {!proto.runtimePackage.ResultResponse} returns this
+*/
+proto.runtimePackage.ResultResponse.prototype.setElementsList = function(value) {
+  return jspb.Message.setRepeatedWrapperField(this, 4, value);
+};
+
+
+/**
+ * @param {!proto.runtimePackage.ElementResponse=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.runtimePackage.ElementResponse}
+ */
+proto.runtimePackage.ResultResponse.prototype.addElements = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 4, opt_value, proto.runtimePackage.ElementResponse, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.runtimePackage.ResultResponse} returns this
+ */
+proto.runtimePackage.ResultResponse.prototype.clearElementsList = function() {
+  return this.setElementsList([]);
 };
 
 

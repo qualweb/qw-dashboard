@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './ScheduleCard.css'
-import { deleteSchedule, getSchedule } from '../../services/ScheduleService';
+import { useSchedulerApi } from '../../services/ScheduleService';
 import { Trash2 } from 'lucide-react';
 
 interface ScheduleCardProps {
@@ -9,6 +9,8 @@ interface ScheduleCardProps {
 }
 
 function ScheduleCard(props: ScheduleCardProps) {
+    const { getSchedule, deleteSchedule } = useSchedulerApi();
+
     const [scheduleDetails, setScheduleDetails] = useState();
 
     useEffect(() => {
