@@ -8,6 +8,7 @@ import { useMonitoringApi } from '../../services/EvaluationService';
 import AddMonitoringRegistryButton from '../AddMonitoringRegistryButton/AddMonitoringRegistryButton';
 import { Progress } from '@ark-ui/react/progress';
 import { useNavigate } from 'react-router-dom';
+import logo from '../../assets/qualweb_monitoring_logo.png';
 
 function WebsitesOverview() {
     const navigate = useNavigate();
@@ -73,12 +74,9 @@ function WebsitesOverview() {
             <div className='websites-overview'>
                 <div className='websites-overview-wrapper'>
                     <div className='websites-overview-header'>
-                        <h1>
-                            <span className="qualweb">Qualweb</span>
-                            <div>
-                                <span className="monitoring">Monitoring</span>
-                            </div>
-                        </h1>
+                        <div className="qwdashboard-logo">
+                            <img src={logo} alt="Qualweb Dashboard logo" />
+                        </div>
                         <LogoutButton />
                     </div>
                     <div className='welcome'><h1>Welcome&nbsp;</h1><h1 className='username'>{user?.name} 👋</h1></div>
