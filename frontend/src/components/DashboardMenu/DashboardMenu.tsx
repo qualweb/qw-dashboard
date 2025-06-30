@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import { MenuIcon } from '../../assets/Icons';
 import { Link } from 'react-router-dom';
 import { Settings } from 'lucide-react';
+import logo from '../../assets/qualweb_monitoring_logo.png';
 
 interface DashboardMenuProps {
     monitoring_id : string;
@@ -204,12 +205,9 @@ function DashboardMenu (props: DashboardMenuProps) {
             )}
             {isOpen && (
                 <div className='sidebar'>
-                    <h1>
-                        <span className="qualweb">Qualweb</span>
-                        <div>
-                            <span className="monitoring">Monitoring</span>
-                        </div>
-                    </h1>
+                    <div className="qwdashboard-logo">
+                        <img src={logo} alt="Qualweb Dashboard logo" />
+                    </div>
                     <nav className='sidebar-menu' role="navigation" aria-label="Main menu">
                         <ul role="menu">
                             {menuItems.map((item, index) => (
