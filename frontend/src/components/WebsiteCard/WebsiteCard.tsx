@@ -60,11 +60,13 @@ function WebsiteCard(props: WebsiteCardProps) {
                             <span className='website-card-last-eval-text'><strong>Latest Evaluation</strong></span>
                             <span className='website-card-last-eval-date'><strong>{props.latest_eval_day}/{props.latest_eval_month}/{props.latest_eval_year}</strong></span>
                         </div>
-                        <span className='website-score' aria-label={'Score: ' + score + '%'} style={{
-                            backgroundColor: score_color
-                        }}>
-                            <strong>score</strong>
-                        </span>
+                        <div className='website-score'>
+                            <span aria-label={'Score: ' + score + '%'} style={{
+                                backgroundColor: score_color
+                            }}>
+                                <strong>{score}</strong>
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div className='website-card-under'>
