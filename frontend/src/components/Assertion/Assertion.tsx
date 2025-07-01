@@ -136,30 +136,20 @@ function Assertion(props: AssertionProps) {
                 </div>
                 {expanded && (
                     <div className='expanded-results'>
-                        {results && results.map((result) => (
-                            filters.length === 0 ? (
+                        {results
+                            .map(result => (
                                 <Result
-                                    key={result["id"]}
-                                    id={String(result["id"])}
-                                    description={result["description"]}
+                                    key={result['id']}
+                                    id={String(result['id'])}
+                                    description={result['description']}
                                     webpage_url={props.webpage_url}
                                     webpage_screenshot={props.webpage_screenshot}
-                                    verdict={result["verdict"]}
-                                    elements={result["elements"] || []}
+                                    verdict={result['verdict']}
+                                    elements={result['elements'] || []}
+                                    visible={ filters.length === 0 || filters.includes(result['verdict']) }
                                 />
-                            ) :
-                            filters.includes(result["verdict"]) ? (
-                                <Result
-                                    key={result["id"]}
-                                    id={String(result["id"])}
-                                    description={result["description"]}
-                                    webpage_url={props.webpage_url}
-                                    webpage_screenshot={props.webpage_screenshot}
-                                    verdict={result["verdict"]}
-                                    elements={result["elements"] || []}
-                                />
-                            ) : null
-                        ))}
+                            ))
+                        }
                     </div>
                 )}
             </div>

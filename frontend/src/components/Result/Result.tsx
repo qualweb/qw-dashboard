@@ -1,8 +1,8 @@
+import React, { useMemo, useCallback } from 'react';
 import './Result.css';
 import Element from '../Element/Element.tsx';
 import { CheckIcon, FailIcon, InapplicableIcon, Warning2Icon } from '../../assets/Icons.tsx';
 import { FixedSizeList } from 'react-window';
-
 
 interface ResultProps {
   id: string;
@@ -12,6 +12,7 @@ interface ResultProps {
   verdict: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   elements: any[];
+  visible: boolean;
 }
 
 const categoryConfig = {
@@ -21,24 +22,49 @@ const categoryConfig = {
   inapplicable: { icon: InapplicableIcon, className: "status-icon-inapplicable" }
 };
 
-function Result(props: ResultProps) {
-  let { icon, className } = categoryConfig.passed;
+const Result = React.memo((props: ResultProps) => {
+  // Memoize the icon and className calculation
+  const { icon, className } = useMemo(() => {
+    if (props.verdict === "warning") {
+      return categoryConfig.warnings;
+    } else if (props.verdict === "failed") {
+      return categoryConfig.failed;
+    } else if (props.verdict === "inapplicable") {
+      return categoryConfig.inapplicable;
+    }
+    return categoryConfig.passed;
+  }, [props.verdict]);
 
-  if (props.verdict === "warning") {
-    icon = categoryConfig.warnings.icon;
-    className = categoryConfig.warnings.className;
-  }
-  else if (props.verdict === "failed") {
-    icon = categoryConfig.failed.icon;
-    className = categoryConfig.failed.className;
-  }
-  else if (props.verdict === "inapplicable") {
-    icon = categoryConfig.inapplicable.icon;
-    className = categoryConfig.inapplicable.className;
-  }
+  // Memoize the row renderer to prevent recreation on every render
+  const ElementRow = useCallback(({ index, style }) => (
+    <Element 
+      key={props.elements[index]?.id} 
+      id={String(props.elements[index]?.id)} 
+      html_code={props.elements[index]?.htmlCode} 
+      pointer={props.elements[index]?.pointer} 
+      webpage_screenshot={props.webpage_screenshot}
+      x={props.elements[index]?.x}
+      y={props.elements[index]?.y}
+      width={props.elements[index]?.width}
+      height={props.elements[index]?.height}
+      style={style}
+    />
+  ), [props.elements, props.webpage_screenshot]);
+
+  // Memoize the item count to prevent unnecessary recalculations
+  const itemCount = useMemo(() => {
+    return props.visible ? props.elements.length : 0;
+  }, [props.visible, props.elements.length]);
+
+  // Memoize the list style
+  const listStyle = useMemo(() => ({
+    overflow: props.visible ? 'auto' : 'hidden'
+  }), [props.visible]);
 
   return (
-    <div className="result-item">
+    <div className="result-item" style={{
+      visibility: props.visible ? 'visible' : 'hidden'
+    }}>
       <div className='result-desc'>
         <div className="result-header">
           <div className={className}>
@@ -48,32 +74,23 @@ function Result(props: ResultProps) {
         </div>
         <span className="result-url">{props.webpage_url ? `(${props.webpage_url})` : ''}</span>
       </div>
-
+      
       <FixedSizeList
-        height={300}
+        height={props.visible ? 300 : 0}
         width="95%"
-        itemCount={props.elements.length}
+        itemCount={itemCount}
         itemSize={80}
         direction='vertical'
-
+        style={listStyle}
+        overscanCount={1} // Reduce overscan for better performance
       >
-        {({ index, style }) => (
-          <Element 
-            key={props.elements[index].id} 
-            id={String(props.elements[index].id)} 
-            html_code={props.elements[index].htmlCode} 
-            pointer= {props.elements[index].pointer} 
-            webpage_screenshot={props.webpage_screenshot}
-            x={props.elements[index].x}
-            y={props.elements[index].y}
-            width={props.elements[index].width}
-            height={props.elements[index].height}
-            style={style}
-          />
-        )}
+        {ElementRow}
       </FixedSizeList>
     </div>
   );
-};
+});
+
+// Add display name for debugging
+Result.displayName = 'Result';
 
 export default Result;
