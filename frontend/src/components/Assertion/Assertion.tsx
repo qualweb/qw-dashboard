@@ -142,7 +142,6 @@ function Assertion(props: AssertionProps) {
                                     key={result["id"]}
                                     id={String(result["id"])}
                                     description={result["description"]}
-                                    evaluation_id={props.evaluation_id}
                                     webpage_url={props.webpage_url}
                                     webpage_screenshot={props.webpage_screenshot}
                                     verdict={result["verdict"]}
@@ -154,7 +153,6 @@ function Assertion(props: AssertionProps) {
                                     key={result["id"]}
                                     id={String(result["id"])}
                                     description={result["description"]}
-                                    evaluation_id={props.evaluation_id}
                                     webpage_url={props.webpage_url}
                                     webpage_screenshot={props.webpage_screenshot}
                                     verdict={result["verdict"]}

@@ -221,6 +221,25 @@ export const useMonitoringApi = () => {
         return data;
     };
 
+    const getLatestAssertionsByTest = async (
+        monitoring_id: string,
+        moduleType: string,
+        wcagGuidelinesFilters: string[],
+        wcagLevelFilters: string[],
+        outcome: string
+    ) => {
+        const response = await authenticatedFetch(
+            `${MONITORING_API_URL}/${monitoring_id}/latest-assertions-by-test?moduleType=${moduleType}&wcagGuidelinesFilters=${wcagGuidelinesFilters.join(',')}&wcagLevelFilters=${wcagLevelFilters.join(',')}&outcome=${outcome}`
+        );
+        const data = await response.json();
+
+        if (response.status != 200) {
+            throw new Error('Failed to fetch latest assertions by test.');
+        }
+
+        return data;
+    }
+
     const getAssertionResults = async (assertion_id: string) => {
         const response = await authenticatedFetch(`${MONITORING_API_URL}/assertions/${assertion_id}/results`);
         const data = await response.json();
@@ -418,6 +437,7 @@ export const useMonitoringApi = () => {
         getWebpageScreenshot,
         getLatestEvaluations,
         getLatestAssertions,
+        getLatestAssertionsByTest,
         getAssertionResults,
         getResultElement,
         getHistoryEvaluations,

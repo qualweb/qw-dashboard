@@ -6,7 +6,6 @@ interface ElementProps {
     id : string;
     html_code : string;
     pointer : string;
-    evaluation_id : string;
     webpage_screenshot : string;
     x : number;
     y : number;

@@ -38,6 +38,7 @@ function CurrentWarningsWidget(props: CurrentWarningsWidgetProps) {
                 <>
                     <CategoryWebsite 
                         key={"warnings"}
+                        monitoring_id={props.monitoring_id}
                         evaluation_ids={latestEvalIds} 
                         outcome={"warning"} 
                         wcagLevelFilters={[]}

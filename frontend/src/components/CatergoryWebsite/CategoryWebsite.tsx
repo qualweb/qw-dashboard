@@ -2,11 +2,11 @@ import './CategoryWebsite.css';
 import { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { CheckIcon, FailIcon, Warning2Icon, InapplicableIcon } from '../../assets/Icons.tsx';
-import { GetLatestACTAssertion, GetLatestACTAssertionsResponse } from "../Types/Types.ts";
 import { useMonitoringApi } from '../../services/EvaluationService.tsx';
-import Assertion from '../Assertion/Assertion.tsx';
+import AggregatedAssertions from '../AggregatedAssertions/AggregatedAssertions.tsx';
 
 interface CategoryWebsiteProps {
+    monitoring_id: string;
     evaluation_ids: string[];
     outcome: string;
     wcagLevelFilters: string[];
@@ -20,35 +20,20 @@ const categoryConfig = {
   inapplicable: { icon: InapplicableIcon, className: "status-icon-inapplicable" }
 };
 
-function  CategoryWebsite(props: CategoryWebsiteProps) {
-    const { getLatestAssertions, getWebpageScreenshot } = useMonitoringApi();
+function CategoryWebsite(props: CategoryWebsiteProps) {
+    const { getLatestAssertionsByTest } = useMonitoringApi();
 
     const [expanded, setExpanded] = useState(false);
-    const [assertions, setAssertions] = useState<GetLatestACTAssertionsResponse>();
-    const [webpageScreenshots, setWebpageScreenshots] = useState<string[]>([]);
+    const [assertions, setAssertions] = useState([]);
 
     useEffect(() => {
         const fetchAssertions = async () => {
-            const data: GetLatestACTAssertionsResponse = { assertions: [] };
-            const screenshots = [];
-
-            for (let i = 0; i < props.evaluation_ids.length; i++) {
-                const response = await getLatestAssertions(props.evaluation_ids[i], 'act-rules', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
-                if (response && response.assertions) {
-                    response.assertions.forEach((element: GetLatestACTAssertion) => {
-                        data.assertions.push(element);
-                    });
-                };
-
-                const screenshot = await getWebpageScreenshot(props.evaluation_ids[i]);
-                screenshots.push(screenshot);
-            }
-
-            setAssertions(data);
-            setWebpageScreenshots(screenshots);
+            const response = await getLatestAssertionsByTest(props.monitoring_id, 'act-rules', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
+            setAssertions(response.assertions);
         }
+
         fetchAssertions();
-    }, [props.evaluation_ids, props.wcagLevelFilters, props.outcome, props.wcagGuidelinesFilters]);
+    }, [props.monitoring_id, props.evaluation_ids, props.wcagLevelFilters, props.outcome, props.wcagGuidelinesFilters]);
 
     let { icon, className } = categoryConfig.passed;
 
@@ -65,8 +50,16 @@ function  CategoryWebsite(props: CategoryWebsiteProps) {
         className = categoryConfig.inapplicable.className;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleInnerButtonClick = (event: any) => {
+        event.stopPropagation();
+    };
+
     return (
-        <div className="category-item">
+        <button className="category-item" onClick={(event) => {          
+            setExpanded(!expanded)          
+            handleInnerButtonClick(event)       
+        }} >
             <div className="category-header">
                 <div className="wrapper-3">
                     <div className="category-left">
@@ -74,54 +67,41 @@ function  CategoryWebsite(props: CategoryWebsiteProps) {
                             {icon}
                         </div>
                         <span className="category-title">
-                            <h3>{props.outcome.charAt(0).toUpperCase() + props.outcome.slice(1)} - {assertions?.assertions.length} tests</h3>
+                            <h3>{props.outcome.charAt(0).toUpperCase() + props.outcome.slice(1)} - {assertions.length} tests</h3>
                         </span>
                     </div>
-                    <button className="category-right" onClick={() => setExpanded(!expanded)}>
+                    <div className="category-right">
                         <strong><span>More info</span></strong>
                         <ChevronDown
-                        size={20}
-                        style={{
-                            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                            transition: 'transform 0.3s ease',
-                            cursor: 'pointer'
-                        }}
+                            size={20}
+                            style={{
+                                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s ease',
+                                cursor: 'pointer'
+                            }}
                         />
-                    </button>
+                    </div>
                 </div>
                 <div className="tests-container">
-                {expanded && (
-                    <div className="expanded-tests-2">
-                    {assertions && range(0, assertions.assertions.length - 1).map((index) => (
-                        <Assertion 
-                            key={assertions.assertions[index].id}
-                            id={String(assertions.assertions[index].id)}
-                            name={assertions.assertions[index].name}
-                            rule= {assertions.assertions[index].rule}
-                            icon={icon}
-                            className={className}
-                            evaluation_id={String(assertions.assertions[index].evaluation_id)}
-                            webpage_url={assertions.assertions[index].webpage_url}
-                            webpage_screenshot={webpageScreenshots[index]}
-                            assertion_outcome={props.outcome}
-                        />
-                    ))}
-                    </div>
-                )}
+                    {expanded && (
+                        <div className="expanded-tests-2">
+                            {assertions && assertions.map((assertion) => {
+                                return <AggregatedAssertions
+                                    key={assertion['assertion_rule']}
+                                    rule={assertion['assertion_rule']}
+                                    name={assertion['assertion_name']}
+                                    icon={icon}
+                                    className={className}
+                                    assertion_ids={assertion['assertion_ids']}
+                                    assertion_outcome={props.outcome}
+                                />
+                            })}
+                        </div>
+                    )}
                 </div>
             </div>
-        </div>
+        </button>
     );
 };
 
 export default CategoryWebsite;
-
-function range (start: number, end: number) {
-    const result = [];
-
-    for (let i = start; i <= end; i++) {
-        result.push(i);
-    }
-
-    return result;
-}

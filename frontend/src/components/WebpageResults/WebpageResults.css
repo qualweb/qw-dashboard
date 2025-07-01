@@ -1,0 +1,18 @@
+.webpage-results-item {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--secondary-color);
+    width: 100%;
+    padding: clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2.5rem);
+    border-radius: clamp(1rem, 5vw, 3rem);
+}
+
+.webpage-results-right {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    border-radius: clamp(1rem, 5vw, 2rem);
+    background-color: var(--primary-color);
+    padding: 0.5rem 1rem;
+}

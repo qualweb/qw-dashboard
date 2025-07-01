@@ -55,7 +55,8 @@ import {
     GetFailedTestsStatsResponse,
     GetFailedTestsStatsRequest,
     GetIntermediateCyclesRequest,
-    GetIntermediateCyclesResponse
+    GetIntermediateCyclesResponse,
+    AssertionResponse
 } from './protobuf_library/evaluations_pb';
 import * as dotenv from 'dotenv';
 import { PuppeteerCrawler, RequestQueue } from 'crawlee';
@@ -947,6 +948,100 @@ app.get('/api/monitoring/evaluations/:evaluation_id/latest-assertions', async (r
         console.error('Error fetching latest assertions:', error);
         res.send(500);
     }
+});
+
+app.get('/api/monitoring/:monitoring_id/latest-assertions-by-test', async (req: Request, res: Response) => {
+    const monitoring_id = req.params.monitoring_id;
+    
+    const moduleType = String(req.query.moduleType);
+    const wcagGuidelinesFilters = req.query.wcagGuidelinesFilters;
+    const wcagLevelFilters = req.query.wcagLevelFilters;
+    const outcome = String(req.query.outcome);
+
+    let wcagLevels: string[] = [];
+    let wcagGuidelines: string[] = [];
+
+    if (typeof wcagGuidelinesFilters === 'string' && wcagGuidelinesFilters.trim() !== '') {
+        wcagGuidelines = wcagGuidelinesFilters.split(',');
+    }
+
+    if (typeof wcagLevelFilters === 'string' && wcagLevelFilters.trim() !== '') {
+        wcagLevels = wcagLevelFilters.split(',');
+    }
+
+    const response = await fetch(`http://localhost:8081/api/monitoring/${monitoring_id}/latest-evaluations`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status !== 200) {
+        throw new Error('It was not possible to get the latest evaluations.');
+    }
+
+    const data = await response.json();
+
+    const evaluations = data.evaluations;
+
+    const seenAssertions: { [key: string]: { id: number, url: string, eval_id: number }[] } = {};
+    const seenAssertionsInfo: { [key: string]: { name: string } } = {};
+
+    for (const evaluation of evaluations) {
+        const evaluation_id = evaluation.id;
+
+        try {
+
+            const getLatestAssertionsRequest = new GetLatestAssertionsRequest();
+            getLatestAssertionsRequest.setEvaluationId(Number(evaluation_id));
+            getLatestAssertionsRequest.setModuleType(moduleType);
+            getLatestAssertionsRequest.setWcagguidelinesfiltersList(wcagGuidelines);
+            getLatestAssertionsRequest.setWcaglevelfiltersList(wcagLevels);
+            getLatestAssertionsRequest.setOutcome(outcome);
+
+            const reponse = await new Promise<GetLatestAssertionsResponse>((resolve, reject) => {
+                client.getLatestAssertions(getLatestAssertionsRequest, (err: Error, callResponse: GetLatestAssertionsResponse) => {
+                    if (err) reject(err);
+                    else resolve(callResponse);
+                });
+            });
+
+            if (reponse.getStatusCode() !== 200) {
+                res.send(reponse.getStatusCode());
+                return;
+            }
+
+            for (const assertion of reponse.getAssertionsList()) {
+                const assertionRule = assertion.getAssertionRule();
+                const assertionId = assertion.getAssertionId();
+                const assertionUrl = assertion.getWebpageUrl();
+                const assertionName = assertion.getAssertionName();
+                const eval_id = assertion.getEvaluationId();
+
+                if (!seenAssertionsInfo[assertionRule]) {
+                    seenAssertionsInfo[assertionRule] = { name: assertionName };
+                }
+                
+                if (seenAssertions[assertionRule]) {
+                    seenAssertions[assertionRule].push({ id: assertionId, url: assertionUrl, eval_id: eval_id });
+                } else {
+                    seenAssertions[assertionRule] = [{ id: assertionId, url: assertionUrl, eval_id: eval_id }];
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error fetching latest assertions:', error);
+            res.send(500);
+        }
+    }
+    
+    return res.status(200).json({
+        assertions: Object.entries(seenAssertions).map(([rule, assertion_ids]) => ({
+            assertion_rule: rule,
+            assertion_name: seenAssertionsInfo[rule]?.name || 'None',
+            assertion_ids: assertion_ids
+        }))
+    });
 });
 
 app.get('/api/monitoring/assertions/:assertion_id/results', async (req: Request, res: Response) => {

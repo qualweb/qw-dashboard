@@ -1,5 +1,4 @@
 import './Result.css';
-import { ResultElement } from '../Types/Types.ts';
 import Element from '../Element/Element.tsx';
 import { CheckIcon, FailIcon, InapplicableIcon, Warning2Icon } from '../../assets/Icons.tsx';
 import { FixedSizeList } from 'react-window';
@@ -8,7 +7,6 @@ import { FixedSizeList } from 'react-window';
 interface ResultProps {
   id: string;
   description: string;
-  evaluation_id: string;
   webpage_url: string;
   webpage_screenshot: string;
   verdict: string;
@@ -65,7 +63,6 @@ function Result(props: ResultProps) {
             id={String(props.elements[index].id)} 
             html_code={props.elements[index].htmlCode} 
             pointer= {props.elements[index].pointer} 
-            evaluation_id={props.evaluation_id}
             webpage_screenshot={props.webpage_screenshot}
             x={props.elements[index].x}
             y={props.elements[index].y}
