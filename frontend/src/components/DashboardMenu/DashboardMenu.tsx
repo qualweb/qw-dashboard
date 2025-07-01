@@ -23,7 +23,6 @@ function DashboardMenu (props: DashboardMenuProps) {
     const menuItemsRef = useRef<(HTMLAnchorElement | HTMLDivElement | null)[]>([]);
     const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-    // Menu items data for easier management
     const menuItems = [
         { name: "Websites overview", path: `/websites-overview`, icon: ListIcon },
         { name: "Dashboard", path: `/dashboard/${props.monitoring_id}`, icon: DashboardIcon },
@@ -37,18 +36,15 @@ function DashboardMenu (props: DashboardMenuProps) {
     const toggleMenu = () => {
         setIsOpen(!isOpen);
         if (!isOpen) {
-            // When opening menu, focus first item after a brief delay
             setTimeout(() => {
                 setFocusedIndex(0);
                 menuItemsRef.current[0]?.focus();
             }, 100);
         } else {
-            // When closing menu, return focus to menu button
             menuButtonRef.current?.focus();
         }
     };
 
-    // Handle keyboard navigation for menu button
     const handleMenuButtonKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
@@ -61,7 +57,6 @@ function DashboardMenu (props: DashboardMenuProps) {
                 if (!isOpen) {
                     toggleMenu();
                 } else {
-                    // If menu is open, go to first menu item
                     setFocusedIndex(0);
                     menuItemsRef.current[0]?.focus();
                 }
@@ -76,7 +71,6 @@ function DashboardMenu (props: DashboardMenuProps) {
         }
     };
 
-    // Handle keyboard navigation within the menu
     const handleMenuItemKeyDown = (e: React.KeyboardEvent, index: number) => {
         let nextIndex;
         let prevIndex;
@@ -84,18 +78,17 @@ function DashboardMenu (props: DashboardMenuProps) {
         
         switch (e.key) {
             case 'Tab':
-                // Close menu and let tab continue to next element
                 setIsOpen(false);
                 break;
             case 'ArrowDown':
                 e.preventDefault();
-                nextIndex = index < menuItems.length ? index + 1 : 0; // Include user menu
+                nextIndex = index < menuItems.length ? index + 1 : 0;
                 setFocusedIndex(index < menuItems.length ? index + 1 : 0);
                 menuItemsRef.current[nextIndex]?.focus();
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                prevIndex = index > 0 ? index - 1 : menuItems.length; // Include user menu
+                prevIndex = index > 0 ? index - 1 : menuItems.length;
                 setFocusedIndex(prevIndex);
                 menuItemsRef.current[prevIndex]?.focus();
                 break;
@@ -111,14 +104,13 @@ function DashboardMenu (props: DashboardMenuProps) {
                 break;
             case 'End':
                 e.preventDefault();
-                lastIndex = menuItems.length; // User menu is last
+                lastIndex = menuItems.length;
                 setFocusedIndex(lastIndex);
                 menuItemsRef.current[lastIndex]?.focus();
                 break;
         }
     };
 
-    // Handle keyboard navigation for user menu trigger
     const handleUserMenuTriggerKeyDown = (e: React.KeyboardEvent, index: number) => {
         let nextIndex;
         let prevIndex;
@@ -126,18 +118,17 @@ function DashboardMenu (props: DashboardMenuProps) {
         
         switch (e.key) {
             case 'Tab':
-                // Close menu and let tab continue to next element
                 setIsOpen(false);
                 break;
             case 'ArrowDown':
                 e.preventDefault();
-                nextIndex = index < menuItems.length ? index + 1 : 0; // Include user menu
+                nextIndex = index < menuItems.length ? index + 1 : 0;
                 setFocusedIndex(index < menuItems.length ? index + 1 : 0);
                 menuItemsRef.current[nextIndex]?.focus();
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                prevIndex = index > 0 ? index - 1 : menuItems.length; // Include user menu
+                prevIndex = index > 0 ? index - 1 : menuItems.length;
                 setFocusedIndex(prevIndex);
                 menuItemsRef.current[prevIndex]?.focus();
                 break;
@@ -153,14 +144,13 @@ function DashboardMenu (props: DashboardMenuProps) {
                 break;
             case 'End':
                 e.preventDefault();
-                lastIndex = menuItems.length; // User menu is last
+                lastIndex = menuItems.length;
                 setFocusedIndex(lastIndex);
                 menuItemsRef.current[lastIndex]?.focus();
                 break;
         }
     };
 
-    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Element;
@@ -235,7 +225,6 @@ function DashboardMenu (props: DashboardMenuProps) {
                                             ref={el => menuItemsRef.current[menuItems.length] = el}
                                             tabIndex={0}
                                             onKeyDown={(e) => {
-                                                // Handle Escape to prevent it from closing outer menu
                                                 if (e.key === 'Escape') {
                                                     e.stopPropagation();
                                                     return;
