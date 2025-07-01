@@ -24,8 +24,8 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
     
     const [websiteName, setWebsiteName] = useState('');
     const [websiteUrl, setWebsiteUrl] = useState('');
-    const [width, setWidth] = useState('');
-    const [height, setHeight] = useState('');
+    const [width, setWidth] = useState('1280');
+    const [height, setHeight] = useState('800');
     
     const [nameError, setNameError] = useState('');
     const [urlError, setUrlError] = useState('');
@@ -129,6 +129,11 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
         
         if (Number(width) <= 0 || Number(height) <= 0) {
             setDimensionsError('Dimensions must be positive numbers');
+            return false;
+        }
+
+        if (Number(width) > 1920 || Number(height) > 1080) {
+            setDimensionsError('Maximum resolution is 1920x1080');   
             return false;
         }
         
@@ -279,8 +284,8 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
         if (!isOpen) {
             setWebsiteName('');
             setWebsiteUrl('');
-            setWidth('');
-            setHeight('');
+            setWidth('1280');
+            setHeight('800');
             
             setNameError('');
             setUrlError('');
