@@ -4,7 +4,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import './WebsitesOverview.css'
 import { useEffect, useState } from 'react';
 import { useUserApi } from '../../services/UserService';
-import { useMonitoringApi } from '../../services/EvaluationService';
+import { getWebsiteFavicon, useMonitoringApi } from '../../services/EvaluationService';
 import AddMonitoringRegistryButton from '../AddMonitoringRegistryButton/AddMonitoringRegistryButton';
 import { Progress } from '@ark-ui/react/progress';
 import { useNavigate } from 'react-router-dom';
@@ -95,11 +95,11 @@ function WebsitesOverview() {
                             {websites && websites.length > 0 ? (
                                 <>
                                     {loadingWebsites.size > 0 && 
-                                        Array.from(loadingWebsites.entries()).map(([id, progress]) => (
+                                        Array.from(loadingWebsites.entries()).map(([id, [progress, webpage_url]]) => (
                                             <li className="website-loading-card" key={`loading-${id}`}>
                                                 <Progress.Root value={progress} className='progress-loading'>
                                                     <div className="label">
-                                                        <span><strong>Evaluating website: </strong></span>
+                                                        <span><strong>Evaluating {webpage_url}: </strong></span>
                                                         <Progress.ValueText />
                                                     </div>
                                                     <Progress.Track className='track-loading'>

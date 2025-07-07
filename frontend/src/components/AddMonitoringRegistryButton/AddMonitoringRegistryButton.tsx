@@ -158,15 +158,9 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 props.user_id
             );
             setIsCrawling(false);
-
-            props.onAdd((prev) => {
-                const newMap = new Map(prev);
-                newMap.set(monitoring_registry_id, 0);
-                return newMap;
-            });
-
+            
             setIsOpen(false);
-
+            
             const webpages = await getMonitoredWebpages(monitoring_registry_id);
             console.log(webpages);
             
@@ -177,13 +171,13 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 const webpage_ids = webpages.map((webpage : any) => webpage['id']);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const needs_authentication = webpages.map((webpage : any) => webpage['needs_authentication']);
-
+                
                 const data = await runEvaluation(
                     String(monitoring_registry_id), 
                     webpage_ids, 
                     needs_authentication
                 );
-
+                
                 const newJob = {
                     jobId: data.jobId,
                     monitoringId: monitoring_registry_id,
@@ -196,11 +190,17 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                     created: new Date().toISOString(),
                     last_updated: new Date().toISOString()
                 };
-
+                
                 setJobs(prev => new Map(prev.set(data.jobId, newJob)));
-
+                
                 console.log('Job ID:', data.jobId);
                 console.log(jobs);
+                
+                props.onAdd((prev) => {
+                    const newMap = new Map(prev);
+                    newMap.set(data.job_id, [0, websiteUrl]);
+                    return newMap;
+                });
                 
                 startProgressTracking(data.jobId);
             }
@@ -246,7 +246,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
 
                 props.onAdd((prev) => {
                     const newMap = new Map(prev);
-                    newMap.set(jobId, percentage);
+                    newMap.set(jobId, [percentage, data.current_webpage]);
                     return newMap;
                 });
 
