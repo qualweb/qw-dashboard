@@ -347,7 +347,7 @@ app.post('/api/monitoring/:monitoring_id/evaluate', async (req: Request, res: Re
             status: 'queued'
         });
 
-        await startEvaluationJob(jobId,monitoring_id, webpage_ids, username, password);
+        await startEvaluationJob(jobId, monitoring_id, webpage_ids, username, password);
         
         return;
     } catch (error) {

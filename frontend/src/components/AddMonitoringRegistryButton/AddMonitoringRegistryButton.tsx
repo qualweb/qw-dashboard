@@ -198,7 +198,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 
                 props.onAdd((prev) => {
                     const newMap = new Map(prev);
-                    newMap.set(data.job_id, [0, websiteUrl]);
+                    newMap.set(data.jobId, [0, websiteUrl]);
                     return newMap;
                 });
                 
@@ -246,7 +246,8 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
 
                 props.onAdd((prev) => {
                     const newMap = new Map(prev);
-                    newMap.set(jobId, [percentage, data.current_webpage]);
+                    const before = newMap.get(jobId);
+                    newMap.set(jobId, [percentage, before[1][1]]);
                     return newMap;
                 });
 
