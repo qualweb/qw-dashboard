@@ -984,64 +984,68 @@ app.get('/api/monitoring/:monitoring_id/latest-assertions-by-test', async (req: 
 
     const evaluations = data.evaluations;
 
-    const seenAssertions: { [key: string]: { id: number, url: string, eval_id: number }[] } = {};
-    const seenAssertionsInfo: { [key: string]: { name: string } } = {};
+    const seenAssertions = new Map<string, Array<{id: number, url: string, eval_id: number}>>();
+    const seenAssertionsInfo = new Map<string, {name: string}>();
 
-    for (const evaluation of evaluations) {
+    const assertionPromises = evaluations.map(async (evaluation: any) => {
         const evaluation_id = evaluation.id;
-
-        try {
-
-            const getLatestAssertionsRequest = new GetLatestAssertionsRequest();
-            getLatestAssertionsRequest.setEvaluationId(Number(evaluation_id));
-            getLatestAssertionsRequest.setModuleType(moduleType);
-            getLatestAssertionsRequest.setWcagguidelinesfiltersList(wcagGuidelines);
-            getLatestAssertionsRequest.setWcaglevelfiltersList(wcagLevels);
-            getLatestAssertionsRequest.setOutcome(outcome);
-
-            const reponse = await new Promise<GetLatestAssertionsResponse>((resolve, reject) => {
-                client.getLatestAssertions(getLatestAssertionsRequest, (err: Error, callResponse: GetLatestAssertionsResponse) => {
-                    if (err) reject(err);
-                    else resolve(callResponse);
-                });
+        const getLatestAssertionsRequest = new GetLatestAssertionsRequest();
+        getLatestAssertionsRequest.setEvaluationId(Number(evaluation_id));
+        getLatestAssertionsRequest.setModuleType(moduleType);
+        getLatestAssertionsRequest.setWcagguidelinesfiltersList(wcagGuidelines);
+        getLatestAssertionsRequest.setWcaglevelfiltersList(wcagLevels);
+        getLatestAssertionsRequest.setOutcome(outcome);
+        
+        return new Promise<GetLatestAssertionsResponse>((resolve, reject) => {
+            client.getLatestAssertions(getLatestAssertionsRequest, (err: Error, callResponse: GetLatestAssertionsResponse) => {
+                if (err) reject(err);
+                else resolve(callResponse);
             });
+        });
+    });
 
-            if (reponse.getStatusCode() !== 200) {
-                res.send(reponse.getStatusCode());
-                return;
-            }
+    const responses = await Promise.all(assertionPromises);
+    
+    for (const response of responses) {
+        if (response.getStatusCode() !== 200) {
+            console.warn(`gRPC call returned status: ${response.getStatusCode()}`);
+            continue; // Continue processing other responses instead of failing completely
+        }
 
-            for (const assertion of reponse.getAssertionsList()) {
-                const assertionRule = assertion.getAssertionRule();
-                const assertionId = assertion.getAssertionId();
-                const assertionUrl = assertion.getWebpageUrl();
-                const assertionName = assertion.getAssertionName();
-                const eval_id = assertion.getEvaluationId();
+        // Process assertions from this response
+        for (const assertion of response.getAssertionsList()) {
+            const assertionRule = assertion.getAssertionRule();
+            const assertionId = assertion.getAssertionId();
+            const assertionUrl = assertion.getWebpageUrl();
+            const assertionName = assertion.getAssertionName();
+            const eval_id = assertion.getEvaluationId();
 
-                if (!seenAssertionsInfo[assertionRule]) {
-                    seenAssertionsInfo[assertionRule] = { name: assertionName };
-                }
-                
-                if (seenAssertions[assertionRule]) {
-                    seenAssertions[assertionRule].push({ id: assertionId, url: assertionUrl, eval_id: eval_id });
-                } else {
-                    seenAssertions[assertionRule] = [{ id: assertionId, url: assertionUrl, eval_id: eval_id }];
-                }
+            // Store assertion info if not seen before
+            if (!seenAssertionsInfo.has(assertionRule)) {
+                seenAssertionsInfo.set(assertionRule, { name: assertionName });
             }
             
-        } catch (error) {
-            console.error('Error fetching latest assertions:', error);
-            res.send(500);
+            // Add assertion to the list
+            if (!seenAssertions.has(assertionRule)) {
+                seenAssertions.set(assertionRule, []);
+            }
+            
+            seenAssertions.get(assertionRule)!.push({ 
+                id: assertionId, 
+                url: assertionUrl, 
+                eval_id: eval_id 
+            });
         }
     }
     
-    return res.status(200).json({
-        assertions: Object.entries(seenAssertions).map(([rule, assertion_ids]) => ({
-            assertion_rule: rule,
-            assertion_name: seenAssertionsInfo[rule]?.name || 'None',
-            assertion_ids: assertion_ids
-        }))
-    });
+    // Convert Map to response format
+    const assertions = Array.from(seenAssertions.entries()).map(([rule, assertion_ids]) => ({
+        assertion_rule: rule,
+        assertion_name: seenAssertionsInfo.get(rule)?.name || 'None',
+        assertion_ids: assertion_ids
+    }));
+
+    return res.status(200).json({ assertions });
 });
 
 app.get('/api/monitoring/assertions/:assertion_id/results', async (req: Request, res: Response) => {

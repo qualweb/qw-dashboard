@@ -1158,9 +1158,9 @@ app.get('/api/monitoring/evaluations/:evaluation_id/latest-assertions', function
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/latest-assertions-by-test', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, moduleType, wcagGuidelinesFilters, wcagLevelFilters, outcome, wcagLevels, wcagGuidelines, response, data, evaluations, seenAssertions, seenAssertionsInfo, _loop_1, _i, evaluations_1, evaluation, state_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var monitoring_id, moduleType, wcagGuidelinesFilters, wcagLevelFilters, outcome, wcagLevels, wcagGuidelines, response, data, evaluations, seenAssertions, seenAssertionsInfo, assertionPromises, responses, _i, responses_1, response_2, _a, _b, assertion, assertionRule, assertionId, assertionUrl, assertionName, eval_id, assertions;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 monitoring_id = req.params.monitoring_id;
                 moduleType = String(req.query.moduleType);
@@ -1182,102 +1182,83 @@ app.get('/api/monitoring/:monitoring_id/latest-assertions-by-test', function (re
                         }
                     })];
             case 1:
-                response = _a.sent();
+                response = _c.sent();
                 if (response.status !== 200) {
                     throw new Error('It was not possible to get the latest evaluations.');
                 }
                 return [4 /*yield*/, response.json()];
             case 2:
-                data = _a.sent();
+                data = _c.sent();
                 evaluations = data.evaluations;
-                seenAssertions = {};
-                seenAssertionsInfo = {};
-                _loop_1 = function (evaluation) {
-                    var evaluation_id, getLatestAssertionsRequest_2, reponse, _b, _c, assertion, assertionRule, assertionId, assertionUrl, assertionName, eval_id, error_24;
-                    return __generator(this, function (_d) {
-                        switch (_d.label) {
-                            case 0:
-                                evaluation_id = evaluation.id;
-                                _d.label = 1;
-                            case 1:
-                                _d.trys.push([1, 3, , 4]);
-                                getLatestAssertionsRequest_2 = new evaluations_pb_1.GetLatestAssertionsRequest();
-                                getLatestAssertionsRequest_2.setEvaluationId(Number(evaluation_id));
-                                getLatestAssertionsRequest_2.setModuleType(moduleType);
-                                getLatestAssertionsRequest_2.setWcagguidelinesfiltersList(wcagGuidelines);
-                                getLatestAssertionsRequest_2.setWcaglevelfiltersList(wcagLevels);
-                                getLatestAssertionsRequest_2.setOutcome(outcome);
-                                return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                        client.getLatestAssertions(getLatestAssertionsRequest_2, function (err, callResponse) {
-                                            if (err)
-                                                reject(err);
-                                            else
-                                                resolve(callResponse);
-                                        });
-                                    })];
-                            case 2:
-                                reponse = _d.sent();
-                                if (reponse.getStatusCode() !== 200) {
-                                    res.send(reponse.getStatusCode());
-                                    return [2 /*return*/, { value: void 0 }];
-                                }
-                                for (_b = 0, _c = reponse.getAssertionsList(); _b < _c.length; _b++) {
-                                    assertion = _c[_b];
-                                    assertionRule = assertion.getAssertionRule();
-                                    assertionId = assertion.getAssertionId();
-                                    assertionUrl = assertion.getWebpageUrl();
-                                    assertionName = assertion.getAssertionName();
-                                    eval_id = assertion.getEvaluationId();
-                                    if (!seenAssertionsInfo[assertionRule]) {
-                                        seenAssertionsInfo[assertionRule] = { name: assertionName };
-                                    }
-                                    if (seenAssertions[assertionRule]) {
-                                        seenAssertions[assertionRule].push({ id: assertionId, url: assertionUrl, eval_id: eval_id });
-                                    }
-                                    else {
-                                        seenAssertions[assertionRule] = [{ id: assertionId, url: assertionUrl, eval_id: eval_id }];
-                                    }
-                                }
-                                return [3 /*break*/, 4];
-                            case 3:
-                                error_24 = _d.sent();
-                                console.error('Error fetching latest assertions:', error_24);
-                                res.send(500);
-                                return [3 /*break*/, 4];
-                            case 4: return [2 /*return*/];
-                        }
+                seenAssertions = new Map();
+                seenAssertionsInfo = new Map();
+                assertionPromises = evaluations.map(function (evaluation) { return __awaiter(void 0, void 0, void 0, function () {
+                    var evaluation_id, getLatestAssertionsRequest;
+                    return __generator(this, function (_a) {
+                        evaluation_id = evaluation.id;
+                        getLatestAssertionsRequest = new evaluations_pb_1.GetLatestAssertionsRequest();
+                        getLatestAssertionsRequest.setEvaluationId(Number(evaluation_id));
+                        getLatestAssertionsRequest.setModuleType(moduleType);
+                        getLatestAssertionsRequest.setWcagguidelinesfiltersList(wcagGuidelines);
+                        getLatestAssertionsRequest.setWcaglevelfiltersList(wcagLevels);
+                        getLatestAssertionsRequest.setOutcome(outcome);
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                client.getLatestAssertions(getLatestAssertionsRequest, function (err, callResponse) {
+                                    if (err)
+                                        reject(err);
+                                    else
+                                        resolve(callResponse);
+                                });
+                            })];
                     });
-                };
-                _i = 0, evaluations_1 = evaluations;
-                _a.label = 3;
+                }); });
+                return [4 /*yield*/, Promise.all(assertionPromises)];
             case 3:
-                if (!(_i < evaluations_1.length)) return [3 /*break*/, 6];
-                evaluation = evaluations_1[_i];
-                return [5 /*yield**/, _loop_1(evaluation)];
-            case 4:
-                state_1 = _a.sent();
-                if (typeof state_1 === "object")
-                    return [2 /*return*/, state_1.value];
-                _a.label = 5;
-            case 5:
-                _i++;
-                return [3 /*break*/, 3];
-            case 6: return [2 /*return*/, res.status(200).json({
-                    assertions: Object.entries(seenAssertions).map(function (_a) {
-                        var _b;
-                        var rule = _a[0], assertion_ids = _a[1];
-                        return ({
-                            assertion_rule: rule,
-                            assertion_name: ((_b = seenAssertionsInfo[rule]) === null || _b === void 0 ? void 0 : _b.name) || 'None',
-                            assertion_ids: assertion_ids
+                responses = _c.sent();
+                for (_i = 0, responses_1 = responses; _i < responses_1.length; _i++) {
+                    response_2 = responses_1[_i];
+                    if (response_2.getStatusCode() !== 200) {
+                        console.warn("gRPC call returned status: ".concat(response_2.getStatusCode()));
+                        continue; // Continue processing other responses instead of failing completely
+                    }
+                    // Process assertions from this response
+                    for (_a = 0, _b = response_2.getAssertionsList(); _a < _b.length; _a++) {
+                        assertion = _b[_a];
+                        assertionRule = assertion.getAssertionRule();
+                        assertionId = assertion.getAssertionId();
+                        assertionUrl = assertion.getWebpageUrl();
+                        assertionName = assertion.getAssertionName();
+                        eval_id = assertion.getEvaluationId();
+                        // Store assertion info if not seen before
+                        if (!seenAssertionsInfo.has(assertionRule)) {
+                            seenAssertionsInfo.set(assertionRule, { name: assertionName });
+                        }
+                        // Add assertion to the list
+                        if (!seenAssertions.has(assertionRule)) {
+                            seenAssertions.set(assertionRule, []);
+                        }
+                        seenAssertions.get(assertionRule).push({
+                            id: assertionId,
+                            url: assertionUrl,
+                            eval_id: eval_id
                         });
-                    })
-                })];
+                    }
+                }
+                assertions = Array.from(seenAssertions.entries()).map(function (_a) {
+                    var _b;
+                    var rule = _a[0], assertion_ids = _a[1];
+                    return ({
+                        assertion_rule: rule,
+                        assertion_name: ((_b = seenAssertionsInfo.get(rule)) === null || _b === void 0 ? void 0 : _b.name) || 'None',
+                        assertion_ids: assertion_ids
+                    });
+                });
+                return [2 /*return*/, res.status(200).json({ assertions: assertions })];
         }
     });
 }); });
 app.get('/api/monitoring/assertions/:assertion_id/results', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var assertion_id, getAssertionResultsRequest_1, response, error_25;
+    var assertion_id, getAssertionResultsRequest_1, response, error_24;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1306,8 +1287,8 @@ app.get('/api/monitoring/assertions/:assertion_id/results', function (req, res) 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_25 = _a.sent();
-                console.error('Error fetching results:', error_25);
+                error_24 = _a.sent();
+                console.error('Error fetching results:', error_24);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1315,7 +1296,7 @@ app.get('/api/monitoring/assertions/:assertion_id/results', function (req, res) 
     });
 }); });
 app.get('/api/monitoring/issues/:issue_id/elements', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var issue_id, getResultElementsRequest_1, response, error_26;
+    var issue_id, getResultElementsRequest_1, response, error_25;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1344,8 +1325,8 @@ app.get('/api/monitoring/issues/:issue_id/elements', function (req, res) { retur
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_26 = _a.sent();
-                console.error('Error fetching elements:', error_26);
+                error_25 = _a.sent();
+                console.error('Error fetching elements:', error_25);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1353,7 +1334,7 @@ app.get('/api/monitoring/issues/:issue_id/elements', function (req, res) { retur
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/history', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getEvaluationHistoryRequest_1, response, error_27;
+    var monitoring_id, getEvaluationHistoryRequest_1, response, error_26;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1382,8 +1363,8 @@ app.get('/api/monitoring/:monitoring_id/history', function (req, res) { return _
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_27 = _a.sent();
-                console.error('Error fetching history:', error_27);
+                error_26 = _a.sent();
+                console.error('Error fetching history:', error_26);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1391,7 +1372,7 @@ app.get('/api/monitoring/:monitoring_id/history', function (req, res) { return _
     });
 }); });
 app.get('/api/monitoring/:user_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user_id, getUserMonitoringRegistries_1, response, error_28;
+    var user_id, getUserMonitoringRegistries_1, response, error_27;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1420,8 +1401,8 @@ app.get('/api/monitoring/:user_id', function (req, res) { return __awaiter(void 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_28 = _a.sent();
-                console.error('Error fetching history:', error_28);
+                error_27 = _a.sent();
+                console.error('Error fetching history:', error_27);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1429,7 +1410,7 @@ app.get('/api/monitoring/:user_id', function (req, res) { return __awaiter(void 
     });
 }); });
 app.post('/api/monitoring/:monitoring_id/monitoring-cycle', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, setNewMonitoringCycle_1, response, error_29;
+    var monitoring_id, setNewMonitoringCycle_1, response, error_28;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1458,8 +1439,8 @@ app.post('/api/monitoring/:monitoring_id/monitoring-cycle', function (req, res) 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_29 = _a.sent();
-                console.error('Error setting evaluation cycle:', error_29);
+                error_28 = _a.sent();
+                console.error('Error setting evaluation cycle:', error_28);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1467,7 +1448,7 @@ app.post('/api/monitoring/:monitoring_id/monitoring-cycle', function (req, res) 
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/monitoring-cycles', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getWebsiteMonitoringCycles_1, response, error_30;
+    var monitoring_id, getWebsiteMonitoringCycles_1, response, error_29;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1496,8 +1477,8 @@ app.get('/api/monitoring/:monitoring_id/monitoring-cycles', function (req, res) 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_30 = _a.sent();
-                console.error('Error fetching history:', error_30);
+                error_29 = _a.sent();
+                console.error('Error fetching history:', error_29);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1505,7 +1486,7 @@ app.get('/api/monitoring/:monitoring_id/monitoring-cycles', function (req, res) 
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/monitored-webpages', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getWebpagesRequest_1, response, error_31;
+    var monitoring_id, getWebpagesRequest_1, response, error_30;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1534,8 +1515,8 @@ app.get('/api/monitoring/:monitoring_id/monitored-webpages', function (req, res)
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_31 = _a.sent();
-                console.error('Error fetching history:', error_31);
+                error_30 = _a.sent();
+                console.error('Error fetching history:', error_30);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1543,7 +1524,7 @@ app.get('/api/monitoring/:monitoring_id/monitored-webpages', function (req, res)
     });
 }); });
 app.delete('/api/monitoring/webpage/:webpage_id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var webpage_id, deleteWebpageRequest_1, response, error_32;
+    var webpage_id, deleteWebpageRequest_1, response, error_31;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1572,8 +1553,8 @@ app.delete('/api/monitoring/webpage/:webpage_id', function (req, res) { return _
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_32 = _a.sent();
-                console.error('Error deleting webpage:', error_32);
+                error_31 = _a.sent();
+                console.error('Error deleting webpage:', error_31);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1581,7 +1562,7 @@ app.delete('/api/monitoring/webpage/:webpage_id', function (req, res) { return _
     });
 }); });
 app.post('/api/monitoring/monitoring-cycle/:monitoring_cycle_id/evaluations', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_cycle_id, addLatestEvaluationsToMonitoringCycle_1, response, error_33;
+    var monitoring_cycle_id, addLatestEvaluationsToMonitoringCycle_1, response, error_32;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1610,8 +1591,8 @@ app.post('/api/monitoring/monitoring-cycle/:monitoring_cycle_id/evaluations', fu
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_33 = _a.sent();
-                console.error('Error setting latest evaluations:', error_33);
+                error_32 = _a.sent();
+                console.error('Error setting latest evaluations:', error_32);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1619,7 +1600,7 @@ app.post('/api/monitoring/monitoring-cycle/:monitoring_cycle_id/evaluations', fu
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/monitoring-registry/', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, getMonitoringRegistryRequest_1, response, error_34;
+    var monitoring_id, getMonitoringRegistryRequest_1, response, error_33;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1648,8 +1629,8 @@ app.get('/api/monitoring/:monitoring_id/monitoring-registry/', function (req, re
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_34 = _a.sent();
-                console.error('Error fetching history:', error_34);
+                error_33 = _a.sent();
+                console.error('Error fetching history:', error_33);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1657,7 +1638,7 @@ app.get('/api/monitoring/:monitoring_id/monitoring-registry/', function (req, re
     });
 }); });
 app.get('/api/monitoring/monitoring-cycle/:cycle', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var cycle, getMonitoringCycleRequest_1, response, error_35;
+    var cycle, getMonitoringCycleRequest_1, response, error_34;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1686,8 +1667,8 @@ app.get('/api/monitoring/monitoring-cycle/:cycle', function (req, res) { return 
                 });
                 return [3 /*break*/, 4];
             case 3:
-                error_35 = _a.sent();
-                console.error('Error fetching history:', error_35);
+                error_34 = _a.sent();
+                console.error('Error fetching history:', error_34);
                 res.send(500);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1695,7 +1676,7 @@ app.get('/api/monitoring/monitoring-cycle/:cycle', function (req, res) { return 
     });
 }); });
 app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cycle', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var webpage_id, first_cycle_id, second_cycle_id, getWebpageComparisonDataFirstCycleRequest_1, response1, getWebpageComparisonDataSecondCycleRequest_1, response2, error_36;
+    var webpage_id, first_cycle_id, second_cycle_id, getWebpageComparisonDataFirstCycleRequest_1, response1, getWebpageComparisonDataSecondCycleRequest_1, response2, error_35;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1745,8 +1726,8 @@ app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cyc
                 });
                 return [3 /*break*/, 5];
             case 4:
-                error_36 = _a.sent();
-                console.error('Error fetching comparison data:', error_36);
+                error_35 = _a.sent();
+                console.error('Error fetching comparison data:', error_35);
                 res.send(500);
                 return [3 /*break*/, 5];
             case 5: return [2 /*return*/];
@@ -1754,7 +1735,7 @@ app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cyc
     });
 }); });
 app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cycle/chart-data', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var webpage_id, first_cycle_id, second_cycle_id, getIntermediateCyclesRequest, intermediateCyclesResponse, intermediate_cycles, cycles, error_37;
+    var webpage_id, first_cycle_id, second_cycle_id, getIntermediateCyclesRequest, intermediateCyclesResponse, intermediate_cycles, cycles, error_36;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1820,8 +1801,8 @@ app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cyc
                         graph_data: cycles
                     })];
             case 4:
-                error_37 = _a.sent();
-                console.error('Error:', error_37);
+                error_36 = _a.sent();
+                console.error('Error:', error_36);
                 res.send(500);
                 return [2 /*return*/];
             case 5: return [2 /*return*/];
@@ -1829,7 +1810,7 @@ app.get('/api/monitoring/webpage/:webpage_id/comparison/:first_cycle/:second_cyc
     });
 }); });
 app.get('/api/monitoring/:monitoring_id/comparison/:first_cycle/:second_cycle/failed-tests-stats', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var monitoring_id, first_cycle_id, second_cycle_id, getFailedTestsStatsRequest1_1, response1, getFailedTestsStatsRequest2_1, response2, error_38;
+    var monitoring_id, first_cycle_id, second_cycle_id, getFailedTestsStatsRequest1_1, response1, getFailedTestsStatsRequest2_1, response2, error_37;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1877,8 +1858,8 @@ app.get('/api/monitoring/:monitoring_id/comparison/:first_cycle/:second_cycle/fa
                 });
                 return [3 /*break*/, 5];
             case 4:
-                error_38 = _a.sent();
-                console.error('Error fetching failed tests stats:', error_38);
+                error_37 = _a.sent();
+                console.error('Error fetching failed tests stats:', error_37);
                 res.send(500);
                 return [3 /*break*/, 5];
             case 5: return [2 /*return*/];

@@ -417,6 +417,8 @@ function Evaluate() {
                                     if (selectAll) {
                                         setSelectAll(false);
                                     }
+
+                                    setLoadingWebsite([monitoring_id, 0]);
                                 }}>Evaluate</button>
                             ) : (
                                 <Progress.Root value={loadingWebsite[1]} className='progress-loading'>
