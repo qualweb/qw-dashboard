@@ -99,7 +99,7 @@ function WebsitesOverview() {
                                             <li className="website-loading-card" key={`loading-${id}`}>
                                                 <Progress.Root value={progress} className='progress-loading'>
                                                     <div className="label">
-                                                        <span><strong>Evaluating {webpage_url}: </strong></span>
+                                                        <span><strong>Evaluating website {webpage_url}: </strong></span>
                                                         <Progress.ValueText />
                                                     </div>
                                                     <Progress.Track className='track-loading'>
