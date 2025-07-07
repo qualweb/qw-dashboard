@@ -159,6 +159,12 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
             );
             setIsCrawling(false);
 
+            props.onAdd((prev) => {
+                const newMap = new Map(prev);
+                newMap.set(monitoring_registry_id, 0);
+                return newMap;
+            });
+
             setIsOpen(false);
 
             const webpages = await getMonitoredWebpages(monitoring_registry_id);
@@ -197,12 +203,6 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 console.log(jobs);
                 
                 startProgressTracking(data.jobId);
-
-                props.onAdd((prev) => {
-                    const newMap = new Map(prev);
-                    newMap.set(data.jobId, 0);
-                    return newMap;
-                });
             }
         }
     };
