@@ -197,6 +197,12 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 console.log(jobs);
                 
                 startProgressTracking(data.jobId);
+
+                props.onAdd((prev) => {
+                    const newMap = new Map(prev);
+                    newMap.set(data.jobId, 0);
+                    return newMap;
+                });
             }
         }
     };
