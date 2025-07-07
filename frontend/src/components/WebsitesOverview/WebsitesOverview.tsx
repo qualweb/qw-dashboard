@@ -62,7 +62,7 @@ function WebsitesOverview() {
     }, [user, user_id, refresh]);
 
     useEffect(() => {
-        loadingWebsites.forEach((progress, id) => {
+        loadingWebsites.forEach((id, [progress, ]) => {
             if (progress === 100) {
                 loadingWebsites.delete(id);
             }
