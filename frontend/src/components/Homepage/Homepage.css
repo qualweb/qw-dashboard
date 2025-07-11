@@ -98,9 +98,13 @@ html, body {
     min-width: 20rem;
 }
 
-.qwdashboard h2 {
-    font-size:xx-large;
+.qwdashboard .title-1 {
     color: #FF7B00;
+}
+
+.qwdashboard .title-2 {
+    color: white;
+    font-size: xx-large;
 }
 
 .qwdashboard h2, h3 {

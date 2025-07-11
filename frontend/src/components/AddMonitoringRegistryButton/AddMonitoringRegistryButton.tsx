@@ -244,14 +244,31 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 const percentage = Math.round((data.completed / data.total) * 100);
                 console.error(`Job ${jobId}: ${progress} completed (${percentage}%)`);
 
-                props.onAdd((prev) => {
-                    const newMap = new Map(prev);
-                    const before = newMap.get(jobId);
-                    newMap.set(jobId, [percentage, before ? before[1] : '']);
-                    return newMap;
-                });
+                if (percentage < 100) {
+                    props.onAdd((prev) => {
+                        const newMap = new Map(prev);
+                        const before = newMap.get(jobId);
+                        newMap.set(jobId, [percentage, before ? before[1] : '']);
+                        return newMap;
+                    });
+                }
 
                 if (data.status === 'completed') {
+                    props.onAdd((prev) => {
+                        const newMap = new Map(prev);
+                        const before = newMap.get(jobId);
+                        newMap.set(jobId, [100, before ? before[1] : '']);
+                        return newMap;
+                    });
+
+                    setTimeout(() => {
+                        props.onAdd((prev) => {
+                            const newMap = new Map(prev);
+                            newMap.delete(jobId);
+                            return newMap;
+                        });
+                    }, 1000);
+
                     console.error(`🎉 Job ${jobId} completed successfully!`, 'success');
                     stopProgressTracking(jobId);
 
@@ -265,6 +282,9 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                     setTimeout(() => {
                         props.refreshTrigger();
                     }, 1000);
+                }
+                else {
+
                 }
             } catch (error) {
                 console.error(`Error processing job ${jobId}: ${error}`, error);
@@ -303,10 +323,22 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
     const screen_orientations = createListCollection({ items: ['Horizontal', 'Vertical'] })
     const devices = createListCollection({ items: ['Desktop', 'Mobile'] })
 
+    const [statusMessage, setStatusMessage] = useState('');
+
+    useEffect(() => {
+        if (isCrawling) {
+        setTimeout(() => {
+            setStatusMessage('Crawling in progress, please wait');
+        }, 100);
+        } else {
+        setStatusMessage('');
+        }
+    }, [isCrawling]);
+
     return (
         <>
-            <button type="button" className='add-website-button' onClick={() => setIsOpen(true)}>
-                <strong>+ New Website</strong>
+            <button type="button" className='add-website-button' onClick={() => setIsOpen(true)} tabIndex={4}>
+                <strong>New Website +</strong>
             </button>
             <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>
                 <Portal>
@@ -314,13 +346,13 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                 <Dialog.Positioner className="dialog-positioner">
                     <Dialog.Content className='add-website-dialog-content'>
                         <div className='add-website-dialog-header'>
-                            <Dialog.Title>Add New Website</Dialog.Title>
+                            <h1 className='modal-title'>Add New Website</h1>
                             <Dialog.CloseTrigger className='add-website-dialog-close' aria-label='Close dialog' ><X /></Dialog.CloseTrigger>
                         </div>
                         <Dialog.Description className='add-website-dialog-desc'>
                             <div className='add-website-dialog-desc-content'>
                                 <div className='enter-website-name'>
-                                    <h3>Enter website name:</h3>
+                                    <label><strong>Enter website name:</strong></label>
                                     <input 
                                         type="text" 
                                         placeholder="Enter website name" 
@@ -328,6 +360,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                         onChange={(e) => setWebsiteName(e.target.value)}
                                         onBlur={validateName}
                                         className={nameError ? 'input-error' : ''}
+                                        required
                                     />
                                     {nameError && (
                                         <div className="error-message">
@@ -337,7 +370,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                     )}
                                 </div>
                                 <div className='enter-website-url'>
-                                    <h3>Enter website URL:</h3>
+                                    <label><strong>Enter website URL:</strong></label>
                                     <input 
                                         type="text" 
                                         placeholder="Enter website URL" 
@@ -345,6 +378,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                         onChange={(e) => setWebsiteUrl(e.target.value)}
                                         onBlur={validateUrl}
                                         className={urlError ? 'input-error' : ''}
+                                        required
                                     />
                                     {urlError && (
                                         <div className="error-message">
@@ -354,7 +388,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                     )}
                                 </div>
                                 <div className='enter-website-dimensions'>
-                                    <h3>Enter website dimensions:</h3>
+                                    <label><strong>Enter website dimensions:</strong></label> 
                                     <div className='website-dimensions'>
                                         <div className='dimension'>
                                             <input 
@@ -363,6 +397,8 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                                 value={width}
                                                 onChange={(e) => setWidth(e.target.value)}
                                                 className={dimensionsError ? 'input-error' : ''}
+                                                required
+                                                aria-label='Enter website width in pixels'
                                             />
                                             <span>px</span>
                                         </div>
@@ -375,6 +411,8 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                                 onChange={(e) => setHeight(e.target.value)}
                                                 onBlur={validateDimensions}
                                                 className={dimensionsError ? 'input-error' : ''}
+                                                required
+                                                aria-label='Enter website height in pixels'
                                             />
                                             <span>px</span>
                                         </div>
@@ -388,7 +426,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                 </div>
                                 <div className='device-screen-orientation'>
                                     <Select.Root collection={devices}>
-                                        <Select.Label className='device-screen-orientation-label'><h3>Device Type</h3></Select.Label>
+                                        <Select.Label className='device-screen-orientation-label'><label><strong>Device Type:</strong></label></Select.Label>
                                         <Select.Control>
                                             <Select.Trigger>
                                             <Select.ValueText placeholder={device} />
@@ -413,7 +451,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                         <Select.HiddenSelect />
                                     </Select.Root>
                                     <Select.Root collection={screen_orientations}>
-                                        <Select.Label className='device-screen-orientation-label'><h3>Device Orientation</h3></Select.Label>
+                                        <Select.Label className='device-screen-orientation-label'><label><strong>Device Orientation:</strong></label></Select.Label>
                                         <Select.Control>
                                             <Select.Trigger>
                                             <Select.ValueText placeholder={screenOrientation} />
@@ -440,9 +478,9 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                                 </div>
                             </div>
                             { isCrawling ? (
-                                <div className='start-monitoring-button'>
+                                <div className='start-monitoring-button' aria-live="polite" aria-atomic="true">
                                     <LoadingWheel isLoading={isCrawling} />
-                                    <span>Crawling in progress...</span>
+                                    <span>{statusMessage}</span>
                                 </div>
                             ) : (
                                 <button 

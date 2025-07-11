@@ -141,6 +141,10 @@
     background-color: var(--secondary-color);
 }
 
+.modal-title {
+    font-size: xx-large;
+}
+
 @media (max-width: 60rem) {
 
     .dialog-positioner {

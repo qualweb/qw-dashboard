@@ -18,8 +18,7 @@ function Homepage() {
                 <div className="homepage-wrapper">
                     <div className='introduction'>
                         <div className="qwdashboard">
-                            <h2>Qualweb</h2>
-                            <h3>Web Accessibility Monitoring Dashboard</h3>
+                            <h1><span className="title-1">Qualweb</span> <br /><span className='title-2'>Web Accessibility Monitoring Dashboard</span></h1>
                         </div>
                         <p className='qwdashboard-desc'>Monitor your websites for accessibility compliance with automated WCAG Techniques and ACT Rules testing.</p>
                     </div>
