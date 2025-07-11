@@ -27,7 +27,7 @@ function HistoryItem(props: HistoryItemProps) {
     };
 
     return (
-        <li className='history-item' tabIndex={0}>
+        <li className='history-item' tabIndex={0} aria-label={"Webpage title: " + props.evaluation_title + ", Score: " + props.evaluation_score + "%, Evaluation date: " + padZero(props.evaluation_day) + "/" + padZero(props.evaluation_month) + "/" + props.evaluation_year + " at " + padZero(props.evaluation_hour) + ":" + padZero(props.evaluation_minute) + ":" + padZero(props.evaluation_second)}>
             <div className='webpage-title-url'>
                 <h3>{props.evaluation_title}</h3>
                 <h4>{props.evaluation_url}</h4>

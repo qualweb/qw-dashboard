@@ -122,20 +122,20 @@ function IssuesListWidget(props: IssuesListWidgetProps) {
                         
                         {issuesStats &&
                             <div className="stats-pill">
-                                <div className="stat-success">
-                                    <span><strong>{issuesStats["passed"]}</strong></span>
+                                <div className="stat-success" aria-label={'Number of passed tests: ' + issuesStats["passed"]}>
+                                    <span aria-hidden="true"><strong>{issuesStats["passed"]}</strong></span>
                                     {CheckIcon}
                                 </div>
-                                <div className="stat-warning">
-                                    <span><strong>{issuesStats["warnings"]}</strong></span>
+                                <div className="stat-warning" aria-label={"Number of warning tests: " + issuesStats["warnings"]}>
+                                    <span aria-hidden="true"><strong>{issuesStats["warnings"]}</strong></span>
                                     {Warning2Icon}
                                 </div>
-                                <div className="stat-fail">
-                                    <span><strong>{issuesStats["failed"]}</strong></span>
+                                <div className="stat-fail" aria-label={"Number of failed tests: " + issuesStats["failed"]}>
+                                    <span aria-hidden="true"><strong>{issuesStats["failed"]}</strong></span>
                                     {FailIcon}
                                 </div>
-                                <div className="stat-inapplicable">
-                                    <span><strong>{issuesStats["inapplicable"]}</strong></span>
+                                <div className="stat-inapplicable" aria-label={"Number of inapplicable tests: " + issuesStats["inapplicable"]}>
+                                    <span aria-hidden="true"><strong>{issuesStats["inapplicable"]}</strong></span>
                                     <div className='circle'>
                                         {InapplicableIcon}
                                     </div>

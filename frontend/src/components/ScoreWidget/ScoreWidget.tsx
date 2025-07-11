@@ -55,13 +55,15 @@ function ScoreWidget(props: ScoreWidgetProps) {
                 min={0} 
                 max={100} 
                 className="score-progress"
+                aria-label={"Overall Accessibility Score: " + Math.round(value) + "%"}
+                tabIndex={0}
             >
-                <div className="score-value-container">
-                    <strong><Progress.ValueText className="score-value" tabIndex={0} aria-label={"Score: " + Math.round(value) + "%"} /></strong>
+                <div className="score-value-container" aria-hidden="true">
+                    <strong><Progress.ValueText className="score-value"/></strong>
                 </div>
-                <Progress.Circle className="score-circle">
-                    <Progress.CircleTrack className="score-track" />
-                    <Progress.CircleRange className="score-range" />
+                <Progress.Circle className="score-circle" aria-hidden="true">
+                    <Progress.CircleTrack className="score-track" aria-hidden="true" />
+                    <Progress.CircleRange className="score-range" aria-hidden="true"/>
                 </Progress.Circle>
             </Progress.Root>
         </div>

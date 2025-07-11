@@ -57,9 +57,10 @@ function CategoryWebsite(props: CategoryWebsiteProps) {
 
     return (
         <button className="category-item" onClick={(event) => {          
-            setExpanded(!expanded)          
-            handleInnerButtonClick(event)       
-        }} >
+                setExpanded(!expanded)          
+                handleInnerButtonClick(event)       
+            }} 
+        >
             <div className="category-header">
                 <div className="wrapper-3">
                     <div className="category-left">

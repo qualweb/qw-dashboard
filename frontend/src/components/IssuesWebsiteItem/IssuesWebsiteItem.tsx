@@ -1,6 +1,6 @@
 import "./IssuesWebsiteItem.css";
 import { Globe, ChevronDown } from 'lucide-react';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CategoryPerWebpage from "../CategoryPerWebpage/CategoryPerWebpage.tsx";
 import { useMonitoringApi } from "../../services/EvaluationService.tsx";
 
@@ -34,13 +34,18 @@ function IssuesWebsiteItem(props: IssueItemProps) {
       }
       fetchWebpageScreenshot();
   }, [props.evaluation_id]);
-
+  
   return (
     <div className="issue-item-container" key={props.webpage_url}>
-      <button className="issue-item" onClick={(event) => {          
-        setExpanded(!expanded)          
-        handleInnerButtonClick(event)       
-      }} >
+      <button className="issue-item" 
+        onClick={(event) => {          
+          setExpanded(!expanded)          
+          handleInnerButtonClick(event) 
+        }} 
+        aria-label={ (expanded ? 'Collapse' : 'Expand') + ' issues from ' + props.webpage_url}
+        tabIndex={0}
+        aria-expanded={expanded}
+      >
         <div className='issue-main-info-wrapper'>
           <div className="issue-left">
             <div className="globe-icon">

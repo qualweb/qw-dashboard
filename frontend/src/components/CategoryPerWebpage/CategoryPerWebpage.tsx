@@ -56,10 +56,13 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
   }
   
   return (
-    <button className="category-item" onClick={(event) => {          
-      setExpanded(!expanded)          
-      handleInnerButtonClick(event)       
-    }} >
+    <button className="category-item" 
+      onClick={(event) => {          
+        setExpanded(!expanded)          
+        handleInnerButtonClick(event)       
+      }} 
+      aria-label={`Expand ${assertions?.assertions.length} ${props.outcome} tests`}
+    >
       <div className="category-header">
         <div className="wrapper-3">
           <div className="category-left">

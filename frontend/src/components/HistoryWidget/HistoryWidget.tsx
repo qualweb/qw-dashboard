@@ -26,7 +26,7 @@ function HistoryWidget(props: HistoryWidgetProps) {
         <div className='history'>
             <h2 className='history-title'><strong>Evaluation History</strong></h2>
             <div className='history-list-wrapper'>
-                <ul className='history-list' tabIndex={0}>
+                <ul className='history-list' tabIndex={0} aria-label='List of past webpage evaluations'>
                     {evaluations && evaluations.map((evaluation) =>
                         <HistoryItem 
                             key={evaluation['id']}
