@@ -53,10 +53,14 @@ function WebpageResults(props: WebpageResultsProps) {
 
     return (
         <div className="webpage-results">
-            <button className="webpage-results-item" onClick={(event) => {          
-                setExpanded(!expanded)          
-                handleInnerButtonClick(event)       
-            }} >
+            <button className="webpage-results-item" 
+                onClick={(event) => {          
+                    setExpanded(!expanded)          
+                    handleInnerButtonClick(event)       
+                }} 
+                aria-expanded={expanded}
+                aria-label={'Results for ' + props.webpage_url}
+            >
                 <div className='issue-main-info-wrapper'>
                     <div className="issue-left">
                         <div className="globe-icon">
