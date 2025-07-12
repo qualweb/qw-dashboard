@@ -16,7 +16,7 @@ function IssueLocation(props: IssueLocationProps) {
 
     return (
         <>
-            <Clipboard.RootProvider value={clipboard} onClick={handleInnerButtonClick} >
+            <Clipboard.RootProvider value={clipboard} onClick={handleInnerButtonClick} aria-label='Copy selector do clipboard' >
                 <Clipboard.Control>
                     <Clipboard.Trigger className='location-wrapper'>
                         <Clipboard.Indicator className='location' copied={<CheckIcon />}>
