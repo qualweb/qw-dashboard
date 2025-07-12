@@ -63,7 +63,7 @@ function CategoryWebsite(props: CategoryWebsiteProps) {
                     handleInnerButtonClick(event)       
                 }} 
                 aria-expanded={expanded}
-                aria-label={props.outcome + ' ' + assertions.length + ' tests'}
+                aria-label={assertions.length + ' ' + props.outcome + ' tests'}
             >
                 <div className="category-header">
                     <div className="wrapper-3">
