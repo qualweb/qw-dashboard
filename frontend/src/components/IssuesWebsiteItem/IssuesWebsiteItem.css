@@ -8,11 +8,13 @@
 
 .issue-item-container {
     width: 100%;
+    background-color: var(--terciary-color);
+    border-radius: clamp(1rem, 5vw, 3rem);
 }
 
 .issue-item {
-    background-color: var(--terciary-color);
     border-radius: clamp(1rem, 5vw, 3rem);
+    background-color: var(--terciary-color);
     padding: clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2.5rem);
     display: flex;
     justify-content: space-between;
@@ -54,7 +56,7 @@
     justify-content: center;
     align-items: center;
     gap: 2rem;
-    width: 100%;
+    padding: clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2.5rem);
 }
 
 .issue-url {

@@ -56,57 +56,58 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
   }
   
   return (
-    <button className="category-item" 
-      onClick={(event) => {          
-        setExpanded(!expanded)          
-        handleInnerButtonClick(event)       
-      }} 
-      aria-label={`Expand ${assertions?.assertions.length} ${props.outcome} tests`}
-    >
-      <div className="category-header">
-        <div className="wrapper-3">
-          <div className="category-left">
-            <div className={className}>
-              {icon}
+    <div className="category-item-container">
+      <button className="category-item" 
+        onClick={(event) => {          
+          setExpanded(!expanded)          
+          handleInnerButtonClick(event)       
+        }} 
+        aria-label={`${assertions?.assertions.length} ${props.outcome} tests`}
+        aria-expanded={expanded}
+      >
+        <div className="category-header">
+          <div className="wrapper-3">
+            <div className="category-left">
+              <div className={className}>
+                {icon}
+              </div>
+              <span className="category-title">
+                <h3>{props.outcome.charAt(0).toUpperCase() + props.outcome.slice(1)} - {assertions?.assertions.length} tests</h3>
+              </span>
             </div>
-            <span className="category-title">
-              <h3>{props.outcome.charAt(0).toUpperCase() + props.outcome.slice(1)} - {assertions?.assertions.length} tests</h3>
-            </span>
+            <div className="category-right">
+              <strong><span>More info</span></strong>
+              <ChevronDown
+                size={20}
+                style={{
+                  transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease',
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
           </div>
-          <div className="category-right">
-            <strong><span>More info</span></strong>
-            <ChevronDown
-              size={20}
-              style={{
-                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s ease',
-                cursor: 'pointer'
-              }}
+        </div>
+      </button>
+      {expanded && (
+        <div className="expanded-content">
+          {assertions && assertions.assertions.map((assertion) => (
+            <Assertion 
+              key={assertion.id}
+              id={String(assertion.id)}
+              name={assertion.name}
+              rule= {assertion.rule}
+              icon={icon}
+              className={className}
+              evaluation_id={String(assertion.evaluation_id)}
+              webpage_url={assertion.webpage_url}
+              webpage_screenshot={props.webpage_screenshot}
+              assertion_outcome= {props.outcome}
             />
-          </div>
+          ))}
         </div>
-        <div className="tests-container">
-          {expanded && (
-            <div className="expanded-tests-2">
-              {assertions && assertions.assertions.map((assertion) => (
-                <Assertion 
-                  key={assertion.id}
-                  id={String(assertion.id)}
-                  name={assertion.name}
-                  rule= {assertion.rule}
-                  icon={icon}
-                  className={className}
-                  evaluation_id={String(assertion.evaluation_id)}
-                  webpage_url={assertion.webpage_url}
-                  webpage_screenshot={props.webpage_screenshot}
-                  assertion_outcome= {props.outcome}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </button>
+      )}
+    </div>
   );
 };
 

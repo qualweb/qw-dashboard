@@ -56,52 +56,57 @@ function CategoryWebsite(props: CategoryWebsiteProps) {
     };
 
     return (
-        <button className="category-item" onClick={(event) => {          
-                setExpanded(!expanded)          
-                handleInnerButtonClick(event)       
-            }} 
-        >
-            <div className="category-header">
-                <div className="wrapper-3">
-                    <div className="category-left">
-                        <div className={className}>
-                            {icon}
+        <div className="category-item-container">
+            <button className="category-item" 
+                onClick={(event) => {          
+                    setExpanded(!expanded)          
+                    handleInnerButtonClick(event)       
+                }} 
+                aria-expanded={expanded}
+                aria-label={props.outcome + ' ' + assertions.length + ' tests'}
+            >
+                <div className="category-header">
+                    <div className="wrapper-3">
+                        <div className="category-left">
+                            <div className={className}>
+                                {icon}
+                            </div>
+                            <span className="category-title">
+                                <h3>{props.outcome.charAt(0).toUpperCase() + props.outcome.slice(1)} - {assertions.length} tests</h3>
+                            </span>
                         </div>
-                        <span className="category-title">
-                            <h3>{props.outcome.charAt(0).toUpperCase() + props.outcome.slice(1)} - {assertions.length} tests</h3>
-                        </span>
-                    </div>
-                    <div className="category-right">
-                        <strong><span>More info</span></strong>
-                        <ChevronDown
-                            size={20}
-                            style={{
-                                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.3s ease',
-                                cursor: 'pointer'
-                            }}
-                        />
+                        <div className="category-right">
+                            <strong><span>More info</span></strong>
+                            <ChevronDown
+                                size={20}
+                                style={{
+                                    transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease',
+                                    cursor: 'pointer'
+                                }}
+                                />
+                        </div>
                     </div>
                 </div>
-                <div className="tests-container">
-                    {expanded && (
-                        <div className="expanded-tests-2">
-                            {assertions && assertions.map((assertion) => {
-                                return <AggregatedAssertions
-                                    key={assertion['assertion_rule']}
-                                    rule={assertion['assertion_rule']}
-                                    name={assertion['assertion_name']}
-                                    icon={icon}
-                                    className={className}
-                                    assertion_ids={assertion['assertion_ids']}
-                                    assertion_outcome={props.outcome}
+            </button>
+            <div className="tests-container">
+                {expanded && (
+                    <div className="expanded-tests-2">
+                        {assertions && assertions.map((assertion) => {
+                            return <AggregatedAssertions
+                                key={assertion['assertion_rule']}
+                                rule={assertion['assertion_rule']}
+                                name={assertion['assertion_name']}
+                                icon={icon}
+                                className={className}
+                                assertion_ids={assertion['assertion_ids']}
+                                assertion_outcome={props.outcome}
                                 />
                             })}
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
-        </button>
+        </div>
     );
 };
 

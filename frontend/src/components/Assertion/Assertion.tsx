@@ -47,113 +47,119 @@ function Assertion(props: AssertionProps) {
     };
 
     return (
-        <button className="tests-item" key={props.id} onClick={(event) => {          
-            setExpanded(!expanded)          
-            handleInnerButtonClick(event)       
-        }}>
-            <div className="tests-header">
-                <div className='wrapper-4'>
-                    <div className="tests-left">
-                        <div className={props.className}>
-                            {props.icon}
-                        </div>
-                        <div className="tests-title">
-                            <h3>{props.name}</h3>
-                        </div>
-                        { expanded && props.assertion_outcome !== "inapplicable" && (
-                            <Checkbox.Group
-                                onValueChange={(details) => {
-                                    const selectedValues = Array.from(details.values());
-                                    
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                    const newFilters : any[] = [];
-                                    
-                                    selectedValues.forEach(value => {
-                                        const item = states.find(item => item === value);
-                                        if (item) {
-                                            newFilters.push(item);
-                                        }
-                                    });
-
-                                    setFilters(newFilters);
-                                }}
-                            >
-                                {states.map((state) => (
-                                    <Checkbox.Root 
-                                        value={state} 
-                                        key={state} 
-                                        checked={filters.includes(state)}
-                                        tabIndex={0}
-                                        onKeyDown={(e) => {
-                                            if (e.key === ' ') {
-                                                e.preventDefault();
-                                                
-                                                hiddenInputRefs.current[state]?.click();
+        <div className="tests-item-container">
+            <button className="tests-item" key={props.id} 
+                onClick={(event) => {          
+                    setExpanded(!expanded)          
+                    handleInnerButtonClick(event)       
+                }}
+                aria-label={`Test for ${props.name}`}
+                aria-expanded={expanded}
+            >
+                <div className="tests-header">
+                    <div className='wrapper-4'>
+                        <div className="tests-left">
+                            <div className={props.className}>
+                                {props.icon}
+                            </div>
+                            <div className="tests-title">
+                                <h3>{props.name}</h3>
+                            </div>
+                            { expanded && props.assertion_outcome !== "inapplicable" && (
+                                <Checkbox.Group
+                                    onValueChange={(details) => {
+                                        const selectedValues = Array.from(details.values());
+                                        
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                        const newFilters : any[] = [];
+                                        
+                                        selectedValues.forEach(value => {
+                                            const item = states.find(item => item === value);
+                                            if (item) {
+                                                newFilters.push(item);
                                             }
-                                        }}
-                                        aria-label={state}
-                                        role='checkbox'
-                                        aria-checked={filters.some(item => item === state)}
-                                    >
-                                        <Checkbox.Control
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                handleChange(event);
-                                                hiddenInputRefs.current[state]?.click(); 
+                                        });
+
+                                        setFilters(newFilters);
+                                    }}
+                                >
+                                    {states.map((state) => (
+                                        <Checkbox.Root 
+                                            value={state} 
+                                            key={state} 
+                                            checked={filters.includes(state)}
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === ' ') {
+                                                    e.preventDefault();
+                                                    
+                                                    hiddenInputRefs.current[state]?.click();
+                                                }
                                             }}
+                                            aria-label={state}
+                                            role='checkbox'
+                                            aria-checked={filters.some(item => item === state)}
                                         >
-                                            <Checkbox.Indicator>
-                                                <CheckIcon />
-                                            </Checkbox.Indicator>
-                                        </Checkbox.Control>
-                                        <Checkbox.Label>{state.charAt(0).toUpperCase() + state.slice(1)}</Checkbox.Label>
-                                        <Checkbox.HiddenInput
-                                            ref={(el) => {
-                                                hiddenInputRefs.current[state] = el;
-                                            }}
-                                            tabIndex={-1}
-                                            onClick={() => {
-                                                console.log('Checkbox clicked:', state);
-                                            }}
-                                        />
-                                    </Checkbox.Root>
-                                ))}
-                            </Checkbox.Group>
-                        )}
-                    </div>
-                    <div className="tests-right">
-                        <strong><span>{props.rule}</span></strong>
-                        { props.assertion_outcome !== "inapplicable" && (
-                            <ChevronDown 
-                                size={20} 
-                                style={{
-                                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.3s ease'
-                                }} 
-                            />
-                        )}
+                                            <Checkbox.Control
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    handleChange(event);
+                                                    hiddenInputRefs.current[state]?.click(); 
+                                                }}
+                                            >
+                                                <Checkbox.Indicator>
+                                                    <CheckIcon />
+                                                </Checkbox.Indicator>
+                                            </Checkbox.Control>
+                                            <Checkbox.Label>{state.charAt(0).toUpperCase() + state.slice(1)}</Checkbox.Label>
+                                            <Checkbox.HiddenInput
+                                                ref={(el) => {
+                                                    hiddenInputRefs.current[state] = el;
+                                                }}
+                                                tabIndex={-1}
+                                                onClick={() => {
+                                                    console.log('Checkbox clicked:', state);
+                                                }}
+                                            />
+                                        </Checkbox.Root>
+                                    ))}
+                                </Checkbox.Group>
+                            )}
+                        </div>
+                        <div className="tests-right">
+                            <strong><span>{props.rule}</span></strong>
+                            { props.assertion_outcome !== "inapplicable" && (
+                                <ChevronDown 
+                                    size={20} 
+                                    style={{
+                                    transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                    }} 
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
-                {expanded && (
-                    <div className='expanded-results'>
-                        {results
-                            .map(result => (
-                                <Result
-                                    key={result['id']}
-                                    id={String(result['id'])}
-                                    description={result['description']}
-                                    webpage_url={props.webpage_url}
-                                    webpage_screenshot={props.webpage_screenshot}
-                                    verdict={result['verdict']}
-                                    elements={result['elements'] || []}
-                                    visible={ filters.length === 0 || filters.includes(result['verdict']) }
-                                />
-                            ))
-                        }
-                    </div>
-                )}
-            </div>
-        </button>
+            </button>
+            {expanded && (
+                <div className='expanded-results'>
+                    {results
+                        .map(result => (
+                            <Result
+                                key={result['id']}
+                                id={String(result['id'])}
+                                description={result['description']}
+                                webpage_url={props.webpage_url}
+                                webpage_screenshot={props.webpage_screenshot}
+                                verdict={result['verdict']}
+                                elements={result['elements'] || []}
+                                visible={ filters.length === 0 || filters.includes(result['verdict']) }
+                            />
+                        ))
+                    }
+                </div>
+            )}
+        </div>
     );
 };
 

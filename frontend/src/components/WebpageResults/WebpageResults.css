@@ -16,3 +16,12 @@
     background-color: var(--primary-color);
     padding: 0.5rem 1rem;
 }
+
+.webpage-results {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 5vw, 2rem);
+    border-radius: clamp(1rem, 5vw, 3rem);
+    background-color: var(--secondary-color);
+}

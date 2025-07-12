@@ -137,25 +137,25 @@ function WebpageResults(props: WebpageResultsProps) {
                         )}
                     </div>
                 </div>
-                {expanded && (
-                    <div className='expanded-results'>
-                        {results
-                            .map(result => (
-                                <Result
-                                    key={result['id']}
-                                    id={String(result['id'])}
-                                    description={result['description']}
-                                    webpage_url={props.webpage_url}
-                                    webpage_screenshot={webpageScreenshot}
-                                    verdict={result['verdict']}
-                                    elements={result['elements'] || []}
-                                    visible={ filters.length === 0 || filters.includes(result['verdict']) }
-                                />
-                            ))
-                        }
-                    </div>
-                )}
             </button>
+            {expanded && (
+                <div className='expanded-results'>
+                    {results
+                        .map(result => (
+                            <Result
+                                key={result['id']}
+                                id={String(result['id'])}
+                                description={result['description']}
+                                webpage_url={props.webpage_url}
+                                webpage_screenshot={webpageScreenshot}
+                                verdict={result['verdict']}
+                                elements={result['elements'] || []}
+                                visible={ filters.length === 0 || filters.includes(result['verdict']) }
+                            />
+                        ))
+                    }
+                </div>
+            )}
         </div>
     );
 }

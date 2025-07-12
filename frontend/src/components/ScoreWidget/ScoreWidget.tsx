@@ -49,14 +49,13 @@ function ScoreWidget(props: ScoreWidgetProps) {
 
     return (
         <div className="score-container">
-            <h2 className="score-title"><strong>Overall Accessibility Score</strong></h2>
+            <h2 className="score-title" aria-label={"Overall Accessibility Score: " + Math.round(value) + "%"}><strong>Overall Accessibility Score</strong></h2>
             <Progress.Root 
                 value={value}
                 min={0} 
                 max={100} 
                 className="score-progress"
-                aria-label={"Overall Accessibility Score: " + Math.round(value) + "%"}
-                tabIndex={0}
+                aria-hidden="true"
             >
                 <div className="score-value-container" aria-hidden="true">
                     <strong><Progress.ValueText className="score-value"/></strong>

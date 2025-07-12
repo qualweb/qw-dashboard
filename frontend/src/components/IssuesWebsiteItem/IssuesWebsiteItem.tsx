@@ -1,6 +1,6 @@
 import "./IssuesWebsiteItem.css";
 import { Globe, ChevronDown } from 'lucide-react';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import CategoryPerWebpage from "../CategoryPerWebpage/CategoryPerWebpage.tsx";
 import { useMonitoringApi } from "../../services/EvaluationService.tsx";
 
@@ -42,8 +42,7 @@ function IssuesWebsiteItem(props: IssueItemProps) {
           setExpanded(!expanded)          
           handleInnerButtonClick(event) 
         }} 
-        aria-label={ (expanded ? 'Collapse' : 'Expand') + ' issues from ' + props.webpage_url}
-        tabIndex={0}
+        aria-label={'Issues from ' + props.webpage_url}
         aria-expanded={expanded}
       >
         <div className='issue-main-info-wrapper'>
@@ -66,33 +65,33 @@ function IssuesWebsiteItem(props: IssueItemProps) {
             />
           </div>
         </div>
-        {expanded &&
-          <div className="expanded-content">
-            {props.statusFilters.length !== 0 &&
-              props.statusFilters.map((category) => {
-                return <CategoryPerWebpage 
-                  key={category}
-                  evaluation_id={props.evaluation_id}
-                  outcome={category} 
-                  wcagLevelFilters={props.wcagLevelFilters}
-                  wcagGuidelinesFilters={props.wcagGuidelinesFilters}
-                  webpage_screenshot={webpageScreehshot}
-                />;
-            })}
-            {props.statusFilters.length === 0 &&
-              categories.map((category) => {
-                return <CategoryPerWebpage 
-                  key={category}
-                  evaluation_id={props.evaluation_id} 
-                  outcome={category} 
-                  wcagLevelFilters={props.wcagLevelFilters} 
-                  wcagGuidelinesFilters={props.wcagGuidelinesFilters}
-                  webpage_screenshot={webpageScreehshot}
-                />;
-            })}
-          </div>
-        }
       </button>
+      {expanded &&
+        <div className="expanded-content">
+          {props.statusFilters.length !== 0 &&
+            props.statusFilters.map((category) => {
+              return <CategoryPerWebpage 
+                key={category}
+                evaluation_id={props.evaluation_id}
+                outcome={category} 
+                wcagLevelFilters={props.wcagLevelFilters}
+                wcagGuidelinesFilters={props.wcagGuidelinesFilters}
+                webpage_screenshot={webpageScreehshot}
+              />;
+          })}
+          {props.statusFilters.length === 0 &&
+            categories.map((category) => {
+              return <CategoryPerWebpage 
+                key={category}
+                evaluation_id={props.evaluation_id} 
+                outcome={category} 
+                wcagLevelFilters={props.wcagLevelFilters} 
+                wcagGuidelinesFilters={props.wcagGuidelinesFilters}
+                webpage_screenshot={webpageScreehshot}
+              />;
+          })}
+        </div>
+      }
     </div>
   );
 };

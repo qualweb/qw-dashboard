@@ -283,9 +283,6 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
                         props.refreshTrigger();
                     }, 1000);
                 }
-                else {
-
-                }
             } catch (error) {
                 console.error(`Error processing job ${jobId}: ${error}`, error);
             }
@@ -337,7 +334,7 @@ export function AddMonitoringRegistryButton(props: AddMonitoringRegistryButtonPr
 
     return (
         <>
-            <button type="button" className='add-website-button' onClick={() => setIsOpen(true)} tabIndex={4}>
+            <button type="button" className='add-website-button' onClick={() => setIsOpen(true)} tabIndex={3}>
                 <strong>New Website +</strong>
             </button>
             <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>

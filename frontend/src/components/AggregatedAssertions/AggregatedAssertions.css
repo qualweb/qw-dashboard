@@ -2,3 +2,21 @@
   width: 1.5em;
   height: 1.5em;
 }
+
+.aggregated-assertion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  border-radius: clamp(1rem, 5vw, 3rem);
+  background-color: var(--terciary-color);
+}
+
+.expanded-assertions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 5vw, 2rem);
+  box-sizing: border-box;
+  padding: clamp(1rem, 5vw, 2rem);
+}

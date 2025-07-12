@@ -23,10 +23,14 @@ function AggregatedAssertions(props: AggregatedAssertionsProps) {
 
     return (
         <div className="aggregated-assertion">
-            <button className="issue-item" onClick={(event) => {          
-                setExpanded(!expanded)          
-                handleInnerButtonClick(event)       
-            }} >
+            <button className="issue-item" 
+                onClick={(event) => {          
+                    setExpanded(!expanded)          
+                    handleInnerButtonClick(event)       
+                }} 
+                aria-expanded={expanded}
+                aria-label={'Test ' + props.name}
+            >
                 <div className='issue-main-info-wrapper'>
                     <div className="issue-left">
                         <div className={props.className}>
@@ -49,24 +53,20 @@ function AggregatedAssertions(props: AggregatedAssertionsProps) {
                         />
                     </div>
                 </div>
-                {expanded &&
-                <div className="expanded-content">
-                    {expanded && (
-                        <div className="expanded-tests-2">
-                            {props.assertion_ids && props.assertion_ids.map((assertion) => (
-                                <WebpageResults
-                                    key={assertion['id']}
-                                    assertion_id={assertion['id']}
-                                    webpage_url={assertion['url']} 
-                                    assertion_outcome={props.assertion_outcome}
-                                    eval_id={assertion['eval_id']}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
-                }
             </button>
+            {expanded &&
+                <div className="expanded-assertions">
+                    {expanded && props.assertion_ids && props.assertion_ids.map((assertion) => (
+                        <WebpageResults
+                            key={assertion['id']}
+                            assertion_id={assertion['id']}
+                            webpage_url={assertion['url']} 
+                            assertion_outcome={props.assertion_outcome}
+                            eval_id={assertion['eval_id']}
+                        />
+                    ))}
+                </div>
+            }
         </div>
     );
 }

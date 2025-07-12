@@ -81,11 +81,11 @@ function WebsitesOverview() {
                     </div>
                     <main>
                         <div className='welcome'>
-                            <h1 tabIndex={3}>Welcome&nbsp;<span className='username'>{user?.name} 👋</span></h1>
+                            <h1>Welcome&nbsp;<span className='username'>{user?.name} 👋</span></h1>
                         </div>
                         <div className='your-websites'>
                             <div className='your-websites-header'>
-                                <h2 tabIndex={5}>Your Websites</h2>
+                                <h2>Your Websites</h2>
                                 { user_id > -1 && (
                                     <AddMonitoringRegistryButton 
                                         user_id={user_id}
