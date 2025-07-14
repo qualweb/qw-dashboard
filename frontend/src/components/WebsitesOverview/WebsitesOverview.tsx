@@ -95,7 +95,7 @@ function WebsitesOverview() {
                                 )}
                             </div>
                             <nav aria-label="Your websites">
-                                <ul className='your-websites-list'>
+                                <ul className='your-websites-list' aria-label="List of dashboards for the websites that you are currently monitoring">
                                     {websites && websites.length > 0 ? (
                                         <>
                                             {loadingWebsites.size > 0 && 

@@ -46,7 +46,7 @@ function WebsiteCard(props: WebsiteCardProps) {
 
     return (
         <li className='website-card-wrapper'>
-            <Link className='website-card' to={`/dashboard/${props.id}`} aria-label={"Enter monitoring dashboard for " + props.url + ", Latest evaluation: " + props.latest_eval_day +"/"+props.latest_eval_month+"/"+props.latest_eval_year + ", Score: " + score + "%, Statistics: " + props.passed + " passed tests, " + props.warnings + " warning tests, " + props.failed + " failed tests and " + props.inapplicable + " innaplicable tests, Number of crawled webpages: " + props.webpages.length}>
+            <Link className='website-card' to={`/dashboard/${props.id}`} aria-label={"Enter monitoring dashboard page for " + props.url + ", Latest evaluation: " + props.latest_eval_day +"/"+props.latest_eval_month+"/"+props.latest_eval_year + ", Score: " + score + "%, Statistics: " + props.passed + " passed tests, " + props.warnings + " warning tests, " + props.failed + " failed tests and " + props.inapplicable + " innaplicable tests, Number of crawled webpages: " + props.webpages.length}>
                 <div className='website-card-above' >
                     <div className='website-info'>
                         <img src={favicon} alt="" />
