@@ -28,8 +28,11 @@ function CategoryWebsite(props: CategoryWebsiteProps) {
 
     useEffect(() => {
         const fetchAssertions = async () => {
-            const response = await getLatestAssertionsByTest(props.monitoring_id, 'act-rules', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
-            setAssertions(response.assertions);
+            const data_act = await getLatestAssertionsByTest(props.monitoring_id, 'act-rules', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
+            const data_wcag_techniques = await getLatestAssertionsByTest(props.monitoring_id, 'wcag-techniques', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
+            const data = data_act.assertions.concat(data_wcag_techniques.assertions);
+
+            setAssertions(data);
         }
 
         fetchAssertions();

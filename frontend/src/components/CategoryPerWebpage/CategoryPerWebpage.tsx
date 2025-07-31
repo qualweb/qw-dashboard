@@ -34,8 +34,10 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
 
   useEffect(() => {
     const fetchAssertions = async () => {
-    const data = await getLatestAssertions(props.evaluation_id, 'act-rules', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
-      setAssertions(data);
+      const data_act = await getLatestAssertions(props.evaluation_id, 'act-rules', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
+      const data_qw_techniques = await getLatestAssertions(props.evaluation_id, 'wcag-techniques', props.wcagGuidelinesFilters, props.wcagLevelFilters, props.outcome);
+      data_act.assertions = data_act.assertions.concat(data_qw_techniques.assertions);
+      setAssertions(data_act);
     }
     fetchAssertions();
   }, [props.evaluation_id, props.wcagLevelFilters, props.outcome, props.wcagGuidelinesFilters]);
