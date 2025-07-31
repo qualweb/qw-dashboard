@@ -82,14 +82,6 @@ function Schedule() {
         items: items,
     });
 
-    const addWebpage = (url_auth : [url: string, needs_authentication: boolean]): void => {
-        setWebpagesToEval(prev => [...prev, url_auth]);
-    };
-
-    const removeWebpage = async (webpage: string) => {
-        setWebpagesToEval(prev => prev.filter(([url, ]) => url !== webpage));
-    };
-    
     const schedule_types = createListCollection(
         { items: [{label: 'One-time', value: 'one-time'}, {label: 'Daily', value: 'daily'}, {label: 'Weekly', value: 'weekly'}, {label: 'Monthly', value: 'monthly'}, {label: 'Yearly', value: 'yearly'}] }
     )
@@ -268,17 +260,7 @@ function Schedule() {
                                                     role='checkbox'
                                                     aria-checked={webpagesToEval.some(webpage => webpage[0] === item.value)} 
                                                 >
-                                                    <Checkbox.Control className='checkbox-webpage-control' onClick={() => {
-                                                        const exists = webpagesToEval.some(([url]) => url === item.value);
-        
-                                                        if (exists) {
-                                                            removeWebpage(item.value);
-                                                            console.log("Removed:", item.value);
-                                                        } else {
-                                                            addWebpage([item.value, item.needs_authentication]);
-                                                            console.log("Added:", item.value);
-                                                        }
-                                                    }}>
+                                                    <Checkbox.Control className='checkbox-webpage-control'>
                                                         <Checkbox.Indicator className='checkbox-webpage-indicator'>
                                                             <CheckIcon />
                                                         </Checkbox.Indicator>
