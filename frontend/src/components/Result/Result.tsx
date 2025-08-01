@@ -8,11 +8,11 @@ interface ResultProps {
   id: string;
   description: string;
   webpage_url: string;
-  webpage_screenshot: string;
   verdict: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   elements: any[];
   visible: boolean;
+  eval_id: string;
 }
 
 const categoryConfig = {
@@ -42,14 +42,14 @@ const Result = React.memo((props: ResultProps) => {
       id={String(props.elements[index]?.id)} 
       html_code={props.elements[index]?.htmlCode} 
       pointer={props.elements[index]?.pointer} 
-      webpage_screenshot={props.webpage_screenshot}
       x={props.elements[index]?.x}
       y={props.elements[index]?.y}
       width={props.elements[index]?.width}
       height={props.elements[index]?.height}
       style={style}
+      eval_id={props.eval_id}
     />
-  ), [props.elements, props.webpage_screenshot]);
+  ), [props.elements, props.eval_id]);
 
   // Memoize the item count to prevent unnecessary recalculations
   const itemCount = useMemo(() => {

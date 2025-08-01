@@ -6,12 +6,12 @@ interface ElementProps {
     id : string;
     html_code : string;
     pointer : string;
-    webpage_screenshot : string;
     x : number;
     y : number;
     width : number;
     height : number;
     style : React.CSSProperties;
+    eval_id : string;
 }
 
 function Element(props: ElementProps) {
@@ -24,11 +24,11 @@ function Element(props: ElementProps) {
             <div className='location-visualize-wrapper'>
               <IssueLocation pointer={props.pointer} />
               <Visualize 
-                webpage_screenshot={props.webpage_screenshot} 
                 issueX={props.x} 
                 issueY={props.y} 
                 issueWidth={props.width} 
                 issueHeight={props.height}
+                eval_id={props.eval_id}
               />
             </div>
           </div> 

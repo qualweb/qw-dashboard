@@ -13,24 +13,14 @@ interface WebpageResultsProps {
 }
 
 function WebpageResults(props: WebpageResultsProps) {
-    const { getAssertionResults, getWebpageScreenshot } = useMonitoringApi();
+    const { getAssertionResults } = useMonitoringApi();
 
     const [expanded, setExpanded] = useState(false);
     const [results, setResults] = useState([]);
     const [filters, setFilters] = useState<string[]>([]);
 
-    const [webpageScreenshot, setWebpageScreenshot] = useState('');
-
     const states = ["passed", "warning", "failed"];
 
-    useEffect(() => {
-        const fetchWebpageScreenshot = async () => {
-            const data = await getWebpageScreenshot(props.eval_id);
-            setWebpageScreenshot(data);
-        }
-        fetchWebpageScreenshot();
-    }, [props.eval_id]);
-    
     useEffect(() => {
         const fetchAssertion = async () => {
             const data = await getAssertionResults(props.assertion_id);
@@ -151,10 +141,10 @@ function WebpageResults(props: WebpageResultsProps) {
                                 id={String(result['id'])}
                                 description={result['description']}
                                 webpage_url={props.webpage_url}
-                                webpage_screenshot={webpageScreenshot}
                                 verdict={result['verdict']}
                                 elements={result['elements'] || []}
                                 visible={ filters.length === 0 || filters.includes(result['verdict']) }
+                                eval_id={props.eval_id}
                             />
                         ))
                     }

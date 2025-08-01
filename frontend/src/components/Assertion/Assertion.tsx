@@ -150,10 +150,10 @@ function Assertion(props: AssertionProps) {
                                 id={String(result['id'])}
                                 description={result['description']}
                                 webpage_url={props.webpage_url}
-                                webpage_screenshot={props.webpage_screenshot}
                                 verdict={result['verdict']}
                                 elements={result['elements'] || []}
                                 visible={ filters.length === 0 || filters.includes(result['verdict']) }
+                                eval_id={props.evaluation_id}
                             />
                         ))
                     }

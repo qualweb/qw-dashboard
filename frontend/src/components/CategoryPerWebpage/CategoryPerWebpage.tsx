@@ -11,7 +11,6 @@ interface CategoryPerWebpageProps {
   outcome: string;
   wcagLevelFilters: string[];
   wcagGuidelinesFilters: string[];
-  webpage_screenshot: string;
 }
 
 const categoryConfig = {
@@ -103,7 +102,6 @@ function  CategoryPerWebpage(props: CategoryPerWebpageProps) {
               className={className}
               evaluation_id={String(assertion.evaluation_id)}
               webpage_url={assertion.webpage_url}
-              webpage_screenshot={props.webpage_screenshot}
               assertion_outcome= {props.outcome}
             />
           ))}

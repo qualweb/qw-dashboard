@@ -1,8 +1,7 @@
 import "./IssuesWebsiteItem.css";
 import { Globe, ChevronDown } from 'lucide-react';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CategoryPerWebpage from "../CategoryPerWebpage/CategoryPerWebpage.tsx";
-import { useMonitoringApi } from "../../services/EvaluationService.tsx";
 
 interface IssueItemProps {
   evaluation_id: string;
@@ -13,8 +12,6 @@ interface IssueItemProps {
 }
 
 function IssuesWebsiteItem(props: IssueItemProps) {
-  const { getWebpageScreenshot } = useMonitoringApi();
-
   const [expanded, setExpanded] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,17 +21,6 @@ function IssuesWebsiteItem(props: IssueItemProps) {
 
   const categories = ["passed", "warning", "failed", "inapplicable"];
 
-  const [webpageScreehshot, setWebpageScreehshot] = useState('');
-
-    useEffect(() => {
-      const fetchWebpageScreenshot = async () => {
-          const data = await getWebpageScreenshot(props.evaluation_id);
-
-          setWebpageScreehshot(data);
-      }
-      fetchWebpageScreenshot();
-  }, [props.evaluation_id]);
-  
   return (
     <div className="issue-item-container" key={props.webpage_url}>
       <button className="issue-item" 
@@ -76,7 +62,6 @@ function IssuesWebsiteItem(props: IssueItemProps) {
                 outcome={category} 
                 wcagLevelFilters={props.wcagLevelFilters}
                 wcagGuidelinesFilters={props.wcagGuidelinesFilters}
-                webpage_screenshot={webpageScreehshot}
               />;
           })}
           {props.statusFilters.length === 0 &&
@@ -87,7 +72,6 @@ function IssuesWebsiteItem(props: IssueItemProps) {
                 outcome={category} 
                 wcagLevelFilters={props.wcagLevelFilters} 
                 wcagGuidelinesFilters={props.wcagGuidelinesFilters}
-                webpage_screenshot={webpageScreehshot}
               />;
           })}
         </div>

@@ -3,16 +3,18 @@ import './Visualize.css'
 import { Dialog } from '@ark-ui/react/dialog';
 import { Portal } from '@ark-ui/react/portal';
 import { Eye, X } from 'lucide-react';
+import { useMonitoringApi } from '../../services/EvaluationService';
 
 interface VisualizeProps {
-    webpage_screenshot: string;
     issueX: number;
     issueY: number;
     issueWidth: number;
     issueHeight: number;
+    eval_id: string;
 }
 
 function Visualize(props: VisualizeProps) {
+    const { getWebpageScreenshot } = useMonitoringApi();
     const [isOpen, setIsOpen] = useState(false);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -25,41 +27,61 @@ function Visualize(props: VisualizeProps) {
     };
 
     useEffect(() => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        
-        img.onload = () => {
-        setDimensions({
-            width: img.width,
-            height: img.height
-        });
-        setIsLoading(false);
-        
-        setTimeout(() => {
-            const canvas = canvasRef.current;
-            if (!canvas) 
-                return;
-            
-            const ctx = canvas.getContext('2d');
+        if (!isOpen) return;
 
-            if (!ctx) 
-                return;
+        const fetchAndDrawScreenshot = async () => {
+            setIsLoading(true);
             
-            ctx.drawImage(img, 0, 0);
-            
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(props.issueX, props.issueY, props.issueWidth, props.issueHeight);
-        }, 0);
+            try {
+                const data = await getWebpageScreenshot(props.eval_id);
+                
+                if (!data) {
+                    console.error('No screenshot data received');
+                    setIsLoading(false);
+                    return;
+                }
+
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    setDimensions({
+                        width: img.width,
+                        height: img.height
+                    });
+                    setIsLoading(false);
+                    
+                    setTimeout(() => {
+                        const canvas = canvasRef.current;
+                        if (!canvas) return;
+                        
+                        const ctx = canvas.getContext('2d');
+                        if (!ctx) return;
+                        
+                        ctx.drawImage(img, 0, 0);
+                        
+                        ctx.strokeStyle = 'red';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(props.issueX, props.issueY, props.issueWidth, props.issueHeight);
+                    }, 0);
+                };
+                
+                img.onerror = (err) => {
+                    console.error('Error loading image:', err);
+                    console.error('Image data:', data.substring(0, 100) + '...');
+                    setIsLoading(false);
+                };
+                
+                img.src = data;
+                
+            } catch (error) {
+                console.error('Error fetching screenshot:', error);
+                setIsLoading(false);
+            }
         };
-        
-        img.onerror = (err) => {
-        console.error('Error loading image:', err);
-        setIsLoading(false);
-        };
-        
-        img.src = props.webpage_screenshot;
-    }, [props.webpage_screenshot, props.issueX, props.issueY, props.issueWidth, props.issueHeight]);
+
+        fetchAndDrawScreenshot();
+    }, [isOpen]);
 
     return (
         <>
