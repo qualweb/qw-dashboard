@@ -11,15 +11,18 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/qualweb_monitoring_logo.png';
 
 function WebsitesOverview() {
+    const { user, isAuthenticated, isLoading } = useAuth0();
     const navigate = useNavigate();
     const { getUserWebsites } = useMonitoringApi();
     const { registerUser, getUser } = useUserApi();
+
+    // State
     const [websites, setWebsites] = useState([]);
     const [user_id, setUser_id] = useState(-1);
     const [refresh, setRefresh] = useState(0);
     const [loadingWebsites, setLoadingWebsites] = useState(new Map());
-    const { user, isAuthenticated, isLoading } = useAuth0();
     
+    // Redirect if not authenticated
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
           navigate('/');
@@ -30,22 +33,30 @@ function WebsitesOverview() {
         setRefresh(prev => prev + 1);
     }
     
+    // Handle user registration - could be simplified to just one register call that would return the id either way if it already exists or create a new one
     useEffect(() => {
-        const checkRegister = async () => {
-            const data = await getUser(user?.sub)
+        const initializeUser = async (): Promise<void> => {
+            if (!user?.sub) return;
 
-            if (data !== undefined && !data.exists) {
-                const data = await registerUser(
-                    user?.sub,
-                    user?.nickname,
-                    user?.picture,
-                    user?.email
-                );
-                
-                setUser_id(data['user_id']);
+            try {
+                const data = await getUser(user?.sub)
+
+                if (data && !data.exists) {
+                    const data = await registerUser(
+                        user?.sub,
+                        user?.nickname,
+                        user?.picture,
+                        user?.email
+                    );
+                    
+                    setUser_id(data['user_id']);
+                }
+                else if (data && data.exists) {
+                    setUser_id(data['user_id']);
+                }
             }
-            else if (data !== undefined && data.exists) {
-                setUser_id(data['user_id']);
+            catch (error) {
+                console.error('Error initializing user:', error);
             }
 
             if (user_id > -1) {
@@ -58,7 +69,7 @@ function WebsitesOverview() {
             }
         }
 
-        checkRegister();
+        initializeUser();
     }, [user, user_id, refresh]);
 
     useEffect(() => {
