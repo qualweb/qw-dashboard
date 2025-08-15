@@ -14,7 +14,7 @@ function Homepage() {
                 </h1>
                 <LoginButton />
             </div>
-            <main>
+            <main className='homepage-main'>
                 <div className="main-message">
                     <div className="icon-wrapper-1">
                         <div className="icon-square growth-icon">
