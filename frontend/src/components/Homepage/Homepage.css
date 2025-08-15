@@ -94,6 +94,16 @@
     padding-bottom: 3rem;
 }
 
+@media (max-width: 768px) {
+    .icon-wrapper-1 {
+        visibility: hidden;
+    }
+
+    .icon-wrapper-2 {
+        visibility: hidden;
+    }
+}
+
 .key-features {
     display: flex;
     flex-direction: column;
