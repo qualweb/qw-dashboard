@@ -130,6 +130,7 @@
     display: flex;
     align-items: center;
     flex-direction: column;
+    max-width: 70%;
 }
 
 .why-stay-compliant > h2 {
@@ -143,7 +144,6 @@
 
 .why-card-list {
     padding: 0;
-    max-width: 70%;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: clamp(1rem, 2.5vw, 3rem);
@@ -163,5 +163,6 @@
 main {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 3rem;
 }
