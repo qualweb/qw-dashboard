@@ -1,129 +1,157 @@
-html, body {
-    width: 100%;
-    height: 100%;
-}
-
 #root {
     width: 100%;
     height: 100%;
 }
 
 .homepage-container {
-    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
-    background-color: #171717;
+    gap: 4rem;
+    background-color: #0C0C0C;
     overflow-y: auto;
+    padding: clamp(1rem, 2.5vw, 5rem);
 }
 
 .homepage-header {
-    width: 100%;
-}
-
-.homepage-content {
-    width: 100%;
-}
-
-.homepage-header h1 div {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-}
-
-.homepage-header h1 .qualweb {
-    color: #FF7B00;
-    font-size: 2vw;
-    font-weight: bolder;
-    display: block;
-}
-
-.homepage-header h1 .monitoring {
-    color: white;
-    font-size: 1vw;
-    display: block;
-    font-weight: bolder;
-}
-
-.homepage-header {
-    width: 80%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
+    background-color: #121212;
+    padding: 1rem 2rem;
+    border-radius: 10rem;
+    box-shadow: 0.3rem 0.3rem 0.4rem 0 black;
 }
 
-.header-wrapper {
-    flex: 1;
+.homepage-header > h1 {
+    margin: 0;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-top: 10vh;
+    flex-direction: column;
+    text-align: right;
+    line-height: 34%;
+    font-family: "Nunito Sans";
 }
 
-.qwdashboard {
-    flex: 1;
-}
-
-.evaluation-illustration {
-    flex: 2;
-}
-
-.homepage-content {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    flex: 10;
-    margin-top: 2%;
-}
-
-.homepage-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: 80%;
-    text-align: left;
-    gap: 1.5rem;
-}
-
-.evaluation-illustration {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.evaluation-illustration img {
-    width: 80%;
-    min-width: 20rem;
-}
-
-.qwdashboard .title-1 {
+.title-qualweb {
+    font-size: 1.5rem;
     color: #FF7B00;
 }
 
-.qwdashboard .title-2 {
-    color: white;
-    font-size: xx-large;
+.title-monitoring {
+    font-size: 0.8rem;
 }
 
-.qwdashboard h2, h3 {
-    margin: 0;
+.homepage-header > button {
+    background-color: #FF7B00;
+    color: black;
+    border-radius: 3rem;
+    padding: 0.5rem 1rem;
 }
 
-.introduction {
+.main-message {
+    display: flex;
+    justify-content: center;
+}
+
+.main-message-text {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 1.5rem;
+    height: 40rem;
 }
 
-.qwdashboard-logo {
+.main-message-text > h1 {
+    display: flex;
+    flex-direction: column;
+}
+
+.title-highlight {
+    color: #FF7B00;
+}
+
+.icon-square {
+    background-color: #121212;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    height: fit-content;
+    box-shadow: 0.3rem 0.3rem 0.4rem 0 black;
+}
+
+.icon-square > svg {
+    color: #FF7B00;
+}
+
+.icon-wrapper-1 {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 3rem;
+}
+
+.icon-wrapper-2 {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 3rem;
+}
+
+.key-features {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.key-features-list {
+    max-width: 60%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1rem, 2.5vw, 3rem);
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+  .key-features-list  {
+    grid-template-columns: 1fr;
+    max-width: 80%;
+  }
+}
+
+.why-stay-compliant {
     display: flex;
     align-items: center;
-    justify-content: center;
+    flex-direction: column;
 }
 
-.qwdashboard-logo img {
-    min-width: 1rem;
+.why-stay-compliant > h2 {
+    width: 100%;
+    text-align: left;
+}
+
+.why-stay-compliant > h2 > span {
+    color: #FF7B00;
+}
+
+.why-card-list {
+    padding: 0;
+    max-width: 70%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1rem, 2.5vw, 3rem);
+}
+
+@media (max-width: 768px) {
+  .why-card-list  {
+    grid-template-columns: 1fr;
+    max-width: 80%;
+  }
+}
+
+.powered-by {
+    padding-bottom: 5rem;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
 }

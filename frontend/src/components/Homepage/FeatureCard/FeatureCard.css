@@ -1,0 +1,31 @@
+.feature-card {
+    background-color: #121212;
+    border-radius: 1.5rem;
+    box-shadow: 0.3rem 0.3rem 0.4rem 0 black;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1rem 2rem;
+    text-align: left;
+}
+
+.feature-icon-wrapper {
+    background-color: #FF7B00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 2rem;
+}
+
+.feature-icon-wrapper {
+    color: black;
+}
+
+.feature-title-desc > h3 {
+    margin: 0;
+}
+
+.feature-title-desc > span {
+    color: rgb(202, 202, 202);
+}
