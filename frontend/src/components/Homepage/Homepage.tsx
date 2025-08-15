@@ -9,8 +9,8 @@ function Homepage() {
         <div className='homepage-container'>
             <div className="homepage-header">
                 <h1 aria-label='Qualweb Monitoring'>
-                    <span className='title-qualweb'><strong>Qualweb</strong></span>
-                    <span className='title-monitoring'><strong>Monitoring</strong></span>
+                    <span className='title-qualweb' aria-hidden><strong>Qualweb</strong></span>
+                    <span className='title-monitoring' aria-hidden><strong>Monitoring</strong></span>
                 </h1>
                 <LoginButton />
             </div>
@@ -24,7 +24,7 @@ function Homepage() {
                     <div className="main-message-text">
                         <h1 aria-label='Make your website accessible with QualWeb Monitoring'>
                             Make your website
-                            <span className='title-highlight'> accessible with QualWeb Monitoring</span>
+                            <span aria-hidden className='title-highlight'> accessible with QualWeb Monitoring</span>
                         </h1>
                         <p>Monitor website accessibility compliance with automated ACT Rules, WCAG Techniques, and WAI-ARIA testing.</p>
                     </div>
@@ -46,7 +46,7 @@ function Homepage() {
                     </ul>
                 </div>
                 <div className="why-stay-compliant">
-                    <h2 aria-label='Why should you stay compliant'>Why should you stay <span>compliant</span></h2>
+                    <h2 aria-label='Why should you stay compliant'>Why should you stay <span aria-hidden>compliant</span></h2>
                     <ul className='why-card-list'>
                         <WhyCard icon={<Gavel size={"6rem"} />} description={"Digital accessibility compliance is legally mandatory globally under regulations like the European Accessibility Act, US ADA and Section 508, Brazil's Lei Nº 13.146, and Canada's AODA. With penalties from fines to prosecution and standards converging on WCAG 2.1-2.2 Level AA, compliance is both a legal and business necessity for organizations worldwide."} />
                         <WhyCard icon={<HandCoins size={"6rem"} />} description={"Beyond legal compliance, organizations are losing billions in revenue by excluding over 1.3 billion disabled customers globally. The WebAIM Million 2025 report shows 94.8% of top websites fail basic accessibility standards, with disabled users encountering errors on 1 in every 24 elements, effectively locking out this massive market from digital commerce and services."} />
