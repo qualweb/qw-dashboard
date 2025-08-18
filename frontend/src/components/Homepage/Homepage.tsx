@@ -49,7 +49,7 @@ function Homepage() {
                     <h2 aria-label='Why should you stay compliant'>Why should you stay <span aria-hidden>compliant</span></h2>
                     <ul className='why-card-list'>
                         <WhyCard icon={<Gavel size={"6rem"} />} description={"Digital accessibility compliance is legally mandatory globally under regulations like the European Accessibility Act, US ADA and Section 508, Brazil's Lei Nº 13.146, and Canada's AODA. With penalties from fines to prosecution and standards converging on WCAG 2.1-2.2 Level AA, compliance is both a legal and business necessity for organizations worldwide."} />
-                        <WhyCard icon={<HandCoins size={"6rem"} />} description={"Beyond legal compliance, organizations are losing billions in revenue by excluding over 1.3 billion disabled customers globally. The WebAIM Million 2025 report shows 94.8% of top websites fail basic accessibility standards, with disabled users encountering errors on 1 in every 24 elements, effectively locking out this massive market from digital commerce and services."} />
+                        <WhyCard icon={<HandCoins size={"6rem"} />} description={"Beyond legal compliance, organizations are losing money by excluding over 1.3 billion disabled customers globally. The WebAIM Million 2025 report shows 94.8% of top websites fail basic accessibility standards, with disabled users encountering errors on 1 in every 24 elements, effectively locking out this massive market from digital commerce and services."} />
                     </ul>
                 </div>
             </main>
