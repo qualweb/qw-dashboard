@@ -56,7 +56,7 @@ function Homepage() {
             <footer>
                 <div className="powered-by">
                     <h4>Powered by</h4>
-                    <img src="/src/assets/qualweb_logo.png" alt="QualWeb logo" />
+                    <img src="/src/assets/qualweb_logo.png" />
                 </div>
             </footer>
         </div>
